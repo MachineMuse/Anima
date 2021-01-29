@@ -48,9 +48,11 @@ object RegistryHelpers {
   }
 
   def regTE[T <: TileEntity, B <: Block](name: String, ctor: Supplier[T], validBlocks: RegistryObject[B]*): RegTE[T] = {
-    TILE_ENTITIES.register(name, () => {
-      TileEntityType.Builder.create[T](ctor, validBlocks.map(_.get): _*)
-    }.build(null))
+    TILE_ENTITIES.register(name,
+      () => {
+        TileEntityType.Builder.create[T](ctor, validBlocks.map(_.get): _*)
+      }.build(null)
+    )
   }
 
 

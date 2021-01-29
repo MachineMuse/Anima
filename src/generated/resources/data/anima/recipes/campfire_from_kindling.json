@@ -1,19 +1,19 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " S ",
-    "SCS",
+    " / ",
+    "/K/",
     "LLL"
   ],
   "key": {
-    "L": {
-      "tag": "minecraft:logs"
-    },
-    "S": {
+    "/": {
       "item": "minecraft:stick"
     },
-    "C": {
+    "K": {
       "item": "anima:kindling"
+    },
+    "L": {
+      "tag": "minecraft:logs_that_burn"
     }
   },
   "result": {

@@ -5,7 +5,7 @@ import net.machinemuse.anima.item.InventoriedItem
 import net.machinemuse.anima.registration.AnimaRegistry.AnimaCreativeGroup
 import net.machinemuse.anima.util.OptionCast
 import net.machinemuse.anima.util.OptionCast.Optionally
-import net.machinemuse.anima.util.VanillaClassEnrichers.{RichPlayerEntity, mkContainerProvider}
+import net.machinemuse.anima.util.VanillaClassEnrichers._
 import net.minecraft.entity.player.{PlayerEntity, ServerPlayerEntity}
 import net.minecraft.item._
 import net.minecraft.nbt.CompoundNBT

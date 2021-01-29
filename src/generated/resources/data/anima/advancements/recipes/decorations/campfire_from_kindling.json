@@ -1,0 +1,54 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "anima:campfire_from_kindling"
+    ]
+  },
+  "criteria": {
+    "has_/": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:stick"
+          }
+        ]
+      }
+    },
+    "has_K": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "anima:kindling"
+          }
+        ]
+      }
+    },
+    "has_L": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "minecraft:logs_that_burn"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "anima:campfire_from_kindling"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_/",
+      "has_K",
+      "has_L",
+      "has_the_recipe"
+    ]
+  ]
+}

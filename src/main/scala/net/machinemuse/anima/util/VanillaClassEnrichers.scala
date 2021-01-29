@@ -1,13 +1,20 @@
 package net.machinemuse.anima.util
 
 import net.machinemuse.anima.Anima
+import net.minecraft.advancements.criterion.{EntityPredicate, InventoryChangeTrigger, ItemPredicate, MinMaxBounds}
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType
+import net.minecraft.data.{IFinishedRecipe, RecipeProvider, ShapedRecipeBuilder, ShapelessRecipeBuilder}
 import net.minecraft.entity.player.{PlayerEntity, PlayerInventory}
 import net.minecraft.inventory.container.{Container, INamedContainerProvider}
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Hand
+import net.minecraft.item.{Item, ItemStack}
+import net.minecraft.tags.ITag
 import net.minecraft.util.text.{ITextComponent, TranslationTextComponent}
+import net.minecraft.util.{Hand, IItemProvider, ResourceLocation}
+import net.minecraftforge.common.crafting.conditions.IConditionBuilder
+import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
 import org.apache.logging.log4j.LogManager
+
+import java.util.function.Consumer
 
 /**
  * Created by MachineMuse on 1/27/2021.
@@ -33,4 +40,56 @@ object VanillaClassEnrichers {
       override def createMenu(windowId: Int, playerInventory: PlayerInventory, playerEntity: PlayerEntity): T = menuctor(windowId, playerInventory, playerEntity)
     }
   }
+
+  def mkRecipeProvider(event: GatherDataEvent)(reg: Consumer[IFinishedRecipe] => ()): Unit = {
+    if(event.includeServer()) {
+      val prov = new RecipeProvider (event.getGenerator) with IConditionBuilder {
+        override def registerRecipes (consumer: Consumer[IFinishedRecipe] ): Unit = {
+          // do NOT call super() as that will generate all the vanilla recipes!
+          reg (consumer)
+        }
+      }
+      event.getGenerator.addProvider (prov)
+    }
+  }
+
+  implicit class FancyShapedRecipeBuilder(builder: ShapedRecipeBuilder) {
+    def addKeyAsCriterion(c: Char, i: Item): ShapedRecipeBuilder = {
+      builder.key(c, i)
+      builder.addCriterion("has_" + c, hasItem(i))
+    }
+    def addKeyAsCriterion(c: Char, i: ITag[Item]): ShapedRecipeBuilder = {
+      builder.key(c, i)
+      builder.addCriterion("has_" + c, hasItem(i))
+    }
+    def buildProperly(consumer: Consumer[IFinishedRecipe], filename: String) = {
+      builder.build((a: IFinishedRecipe) => {
+        LOGGER.info("Built recipe: " + a.getID)
+        consumer.accept(a)
+      }, new ResourceLocation(Anima.MODID, filename))
+    }
+  }
+
+  implicit class FancyShapelessRecipeBuilder(builder: ShapelessRecipeBuilder) {
+    def addIngredientAsCriterion(name: String, ingredient: Item) = {
+      builder.addIngredient(ingredient)
+      builder.addCriterion("has_" + name, hasItem(ingredient))
+    }
+    def addIngredientAsCriterion(name: String, ingredient: ITag[Item]) = {
+      builder.addIngredient(ingredient)
+      builder.addCriterion("has_" + name, hasItem(ingredient))
+    }
+    def buildProperly(consumer: Consumer[IFinishedRecipe], filename: String) = {
+      builder.build((a: IFinishedRecipe) => {
+        LOGGER.info("Built recipe: " + a.getID)
+        consumer.accept(a)
+      }, new ResourceLocation(Anima.MODID, filename))
+    }
+  }
+
+  protected def hasItem(item: IItemProvider): InventoryChangeTrigger.Instance = hasItem(ItemPredicate.Builder.create.item(item).build)
+
+  protected def hasItem(tag: ITag[Item]): InventoryChangeTrigger.Instance = hasItem(ItemPredicate.Builder.create.tag(tag).build)
+
+  protected def hasItem(predicate: ItemPredicate*) = new InventoryChangeTrigger.Instance(EntityPredicate.AndPredicate.ANY_AND, MinMaxBounds.IntBound.UNBOUNDED, MinMaxBounds.IntBound.UNBOUNDED, MinMaxBounds.IntBound.UNBOUNDED, predicate.toArray)
 }

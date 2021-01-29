@@ -1,7 +1,6 @@
 package net.machinemuse.anima.item.basket
 
 import net.machinemuse.anima.util.OptionCast._
-import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent
 import net.minecraftforge.eventbus.api.Event.Result
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -29,7 +28,4 @@ class BasketEvents {
     }
   }
 
-  @SubscribeEvent
-  def onEntityUseItem(event: LivingEntityUseItemEvent.Start): Unit = {
-  }
 }

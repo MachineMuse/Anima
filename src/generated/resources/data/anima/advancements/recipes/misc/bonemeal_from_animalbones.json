@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "anima:bonemeal_from_animalbones"
+    ]
+  },
+  "criteria": {
+    "has_animalbones": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "anima:animalbones"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "anima:bonemeal_from_animalbones"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_animalbones",
+      "has_the_recipe"
+    ]
+  ]
+}

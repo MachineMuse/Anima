@@ -26,7 +26,7 @@ object AnimaRegistry {
 
   val ANIMALBONES_ITEM: RegO[Item] = regSimpleItem("animalbones")
 
-  val SPIRITFIRE_ITEM: RegO[Item] = regSimpleItem("spiritfire", creativeGroup = None)
+  val SPIRITFIRE_ITEM: RegO[Item] = regSimpleItem("spiritfire", creativeGroup = Some(null))
 
   val BASKET_ITEM: RegO[Basket] = regExtendedItem("basket", () => new Basket)
 
