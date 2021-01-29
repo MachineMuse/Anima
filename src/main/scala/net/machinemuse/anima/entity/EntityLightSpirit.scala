@@ -1,6 +1,7 @@
-package net.machinemuse.anima.entity
+package net.machinemuse.anima
+package entity
 
-import net.machinemuse.anima.entity.EntityLightSpirit.{LOGGER, params}
+import net.machinemuse.anima.entity.EntityLightSpirit.params
 import net.machinemuse.anima.registration.AnimaRegistry
 import net.machinemuse.anima.util.BlockStateFlags
 import net.machinemuse.anima.util.RichDataParameter._
@@ -8,14 +9,13 @@ import net.minecraft.block.Blocks
 import net.minecraft.entity.{Entity, EntityType}
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
-import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.scala.Logging
 import shapeless.syntax.std.tuple.productTupleOps
 
 /**
  * Created by MachineMuse on 1/25/2021.
  */
-object EntityLightSpirit extends ParameterRegistrar(classOf[EntityLightSpirit]){
-  private val LOGGER = LogManager.getLogger
+object EntityLightSpirit extends ParameterRegistrar(classOf[EntityLightSpirit]) with Logging {
 
   val params = (
     mkDataParameter("homeblock", new BlockPos(0, 62, 0)), // which block it will attempt to light up
@@ -24,7 +24,7 @@ object EntityLightSpirit extends ParameterRegistrar(classOf[EntityLightSpirit]){
   )
 
 }
-class EntityLightSpirit (entityType: EntityType[EntityLightSpirit], world: World) extends Entity(entityType, world) with DataHandlingEntity {
+class EntityLightSpirit (entityType: EntityType[EntityLightSpirit], world: World) extends Entity(entityType, world) with DataHandlingEntity with Logging {
   override def dataParameters: List[ParameterInstance[_]] = params.toList
   val (homeblock: Access[BlockPos], attention: Access[Int], lasttryticks: Access[Int]) = params.zipConst(dataManager).map(Par2Access)
 
@@ -44,7 +44,7 @@ class EntityLightSpirit (entityType: EntityType[EntityLightSpirit], world: World
           if(!block.getBlock.isInstanceOf[AirLightBlock]) {
             lasttryticks.set(lasttryticks.get - 1)
             if(lasttryticks.get < 0) {
-              LOGGER.info("spirit tick: Block at " + homeBlock + " : " + block.getBlock)
+              logger.trace("spirit tick: Block at " + homeBlock + " : " + block.getBlock)
 
               world.setBlockState(homeBlock, AnimaRegistry.AIRLIGHT_BLOCK.get.getDefaultState, BlockStateFlags.STANDARD_CLIENT_UPDATE)
               lasttryticks.set(20)

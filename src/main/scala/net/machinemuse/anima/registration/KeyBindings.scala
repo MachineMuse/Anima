@@ -1,13 +1,11 @@
-package net.machinemuse.anima.registration
-
+package net.machinemuse.anima
+package registration
 import net.minecraft.client.util.InputMappings
-import org.apache.logging.log4j.LogManager
 
 /**
  * Created by MachineMuse on 1/27/2021.
  */
 object KeyBindings {
-  private val LOGGER = LogManager.getLogger
 
   val KEYBOARD_UNKNOWN = -1
   val MOUSE_LEFT = 0

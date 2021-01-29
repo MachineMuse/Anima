@@ -1,4 +1,5 @@
-package net.machinemuse.anima.gui
+package net.machinemuse.anima
+package gui
 
 import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem

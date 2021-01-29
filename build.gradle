@@ -32,7 +32,7 @@ sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = co
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
 tasks.withType(ScalaCompile) {
-    scalaCompileOptions.additionalParameters = ["-deprecation", "-Xno-forwarders"]
+    scalaCompileOptions.additionalParameters = ["-deprecation"]
 }
 
 repositories {
@@ -151,6 +151,7 @@ dependencies {
     runtimeOnly deps.shapeless
 
     compile deps.shapeless
+    compile deps.log4j_scala
 
     runtimeOnly fg.deobf(deps.curios)
     compileOnly fg.deobf(deps.curiosapi)

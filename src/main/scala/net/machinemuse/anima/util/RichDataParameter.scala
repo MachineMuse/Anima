@@ -1,4 +1,5 @@
-package net.machinemuse.anima.util
+package net.machinemuse.anima
+package util
 
 import net.minecraft.block.BlockState
 import net.minecraft.entity.merchant.villager.VillagerData

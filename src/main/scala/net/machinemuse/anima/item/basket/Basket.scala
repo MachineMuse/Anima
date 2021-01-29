@@ -1,11 +1,12 @@
-package net.machinemuse.anima.item.basket
+package net.machinemuse.anima
+package item
+package basket
 
 import net.machinemuse.anima.gui.BasketContainer
-import net.machinemuse.anima.item.InventoriedItem
+import net.machinemuse.anima.registration.AnimaRegistry
 import net.machinemuse.anima.registration.AnimaRegistry.AnimaCreativeGroup
-import net.machinemuse.anima.util.OptionCast
-import net.machinemuse.anima.util.OptionCast.Optionally
 import net.machinemuse.anima.util.VanillaClassEnrichers._
+import net.minecraft.data.ShapedRecipeBuilder
 import net.minecraft.entity.player.{PlayerEntity, ServerPlayerEntity}
 import net.minecraft.item._
 import net.minecraft.nbt.CompoundNBT
@@ -14,23 +15,82 @@ import net.minecraft.util.math.BlockRayTraceResult
 import net.minecraft.util.{ActionResult, ActionResultType, Hand}
 import net.minecraft.world.World
 import net.minecraftforge.common.IPlantable
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent
+import net.minecraftforge.eventbus.api.Event.Result
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataEvent}
 import net.minecraftforge.fml.network.NetworkHooks
-import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.scala.Logging
+
+import scala.jdk.CollectionConverters._
 
 /**
  * Created by MachineMuse on 1/21/2021.
  */
-class Basket extends Item(new Item.Properties().maxStackSize(1).group(AnimaCreativeGroup).setISTER(() => () => BasketISTER)) with InventoriedItem {
-  def isVeggie(stack: ItemStack): Boolean = stack.getItem.isFood && !stack.getItem.getFood.isMeat
-  def isPlantable(stack: ItemStack): Boolean = OptionCast[BlockItem](stack.getItem).fold(false)(_.getBlock.isInstanceOf[IPlantable])
 
+@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+object Basket extends Logging {
+
+  @SubscribeEvent
+  def init(event: FMLConstructModEvent) = addForgeListeners(onEntityItemPickup)
+
+  def onEntityItemPickup(event: EntityItemPickupEvent): Unit = {
+    for { slotStack <- event.getPlayer.inventory.mainInventory.asScala ++ event.getPlayer.inventory.offHandInventory.asScala
+          basket <- slotStack.getItem.optionallyAs[Basket].toList
+          } {
+      val remainder = basket.insertItem(slotStack, event.getItem.getItem)
+      event.getItem.setItem(remainder)
+    }
+    val remainder = event.getItem.getItem
+    if(remainder.isEmpty) { // Whole stack was consumed in adding to basket
+      event.setResult(Result.ALLOW) // process achievements etc. but skip adding the item to main inventory
+    }
+  }
+
+  logger.trace("Basket object initialized")
+
+  @SubscribeEvent
+  def gatherData(event: GatherDataEvent): Unit = {
+    logger.trace("BasketDatagen.gatherData called")
+    mkRecipeProvider(event) {
+      consumer =>
+        ShapedRecipeBuilder
+          .shapedRecipe(AnimaRegistry.BASKET_ITEM.get())
+          .patternLine(" / ")
+          .patternLine("# #")
+          .patternLine("###")
+          .addKeyAsCriterion('/', Items.STICK)
+          .addKeyAsCriterion('#', Items.SUGAR_CANE)
+          .setGroup("basket")
+          .buildProperly(consumer, "basket_from_sugar_cane")
+
+        ShapedRecipeBuilder
+          .shapedRecipe(AnimaRegistry.BASKET_ITEM.get())
+          .patternLine(" / ")
+          .patternLine("# #")
+          .patternLine("###")
+          .addKeyAsCriterion('/', Items.STICK)
+          .addKeyAsCriterion('#', Items.BAMBOO)
+          .setGroup("basket")
+          .buildProperly(consumer, "basket_from_bamboo")
+
+    }
+  }
+
+}
+
+class Basket extends Item(new Item.Properties().maxStackSize(1).group(AnimaCreativeGroup).setISTER(() => () => BasketISTER)) with InventoriedItem with Logging {
+  def isVeggie(stack: ItemStack): Boolean = stack.getItem.isFood && !stack.getItem.getFood.isMeat
+  def isPlantable(stack: ItemStack): Boolean = OptionCast[BlockItem](stack.getItem).exists(_.getBlock.isInstanceOf[IPlantable])
 
   override def canStoreItem(container: ItemStack, toStore: ItemStack): Boolean = isVeggie(toStore) || isPlantable(toStore)
 
   override def getTagCompound(stack: ItemStack): CompoundNBT = super.getTagCompound(stack)
 
   // Directly reference a log4j logger.
-  private val LOGGER = LogManager.getLogger
+  logger.trace("Basket class initialized")
+
 
   // Called when the item is used on a block
   override def onItemUse(context: ItemUseContext): ActionResultType = {
@@ -58,7 +118,7 @@ class Basket extends Item(new Item.Properties().maxStackSize(1).group(AnimaCreat
   override def onItemRightClick(world: World, player: PlayerEntity, hand: Hand): ActionResult[ItemStack] = {
     if(player.isSneaking) {
       if (!world.isRemote) {
-        LOGGER.info("item used facing elsewhere while sneaking by a player on the server side")
+        logger.trace("item used facing elsewhere while sneaking by a player on the server side")
         // Check if the player object is a ServerPlayerEntity, should be but just to be sure
         player.optionallyDoAs [ServerPlayerEntity] (tryOpenGuiServerSide)
       }

@@ -1,16 +1,16 @@
-package net.machinemuse.anima.item.campfire
+package net.machinemuse.anima
+package item
+package campfire
 
-import net.machinemuse.anima.entity.EntityLightSpirit
 import net.machinemuse.anima.registration.AnimaRegistry
 import net.machinemuse.anima.registration.AnimaRegistry.ENTITY_LIGHT_SPIRIT
-import net.machinemuse.anima.util.OptionCast
 import net.minecraft.block.{BlockState, Blocks}
 import net.minecraft.entity.SpawnReason
 import net.minecraft.item.DyeColor
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.{CampfireTileEntity, TileEntityType}
-import net.minecraft.world.server.ServerWorld
-import org.apache.logging.log4j.LogManager
+import net.minecraft.util.text.TranslationTextComponent
+import org.apache.logging.log4j.scala.Logging
 
 import scala.annotation.nowarn
 import scala.util.Random
@@ -18,7 +18,7 @@ import scala.util.Random
 /**
  * Created by MachineMuse on 1/24/2021.
  */
-class CampfirePlusTileEntity extends CampfireTileEntity {
+class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
   def init(blockstate: BlockState, campfireTileEntity: CampfireTileEntity): Unit = {
     val oldNBT: CompoundNBT = campfireTileEntity.write(new CompoundNBT)
     this.read(blockstate, oldNBT)
@@ -27,24 +27,22 @@ class CampfirePlusTileEntity extends CampfireTileEntity {
   var colour1: Int = DyeColor.GREEN.getTextColor
   var colour2: Int = DyeColor.LIME.getTextColor
 
-  private val LOGGER = LogManager.getLogger
   override def tick(): Unit = {
     if(Random.nextInt(500) == 0) {
-      LOGGER.info("random tick from Campfire Plus")
-      OptionCast[ServerWorld](world).foreach{sw =>
+      logger.trace("random tick from Campfire Plus")
+      world.onServer{ serverWorld =>
         val randX = Random.between(-50, 50)
         val randY = Random.between(-10, 10)
         val randZ = Random.between(-50, 50)
         val blockPlace = pos.add(randX, randY, randZ)
         val spawnLocationState = world.getBlockState(blockPlace)
         if(spawnLocationState.isAir(world, blockPlace) && spawnLocationState.getBlock != Blocks.VOID_AIR : @nowarn ) {
-          val newEnt = ENTITY_LIGHT_SPIRIT.get().spawn(sw, null, null, blockPlace, SpawnReason.SPAWNER, true, true).asInstanceOf[EntityLightSpirit]
+          val newEnt = ENTITY_LIGHT_SPIRIT.get().spawn(serverWorld, null, new TranslationTextComponent("lightspirit"), null, blockPlace, SpawnReason.SPAWNER, true, true)
           if(newEnt != null) {
             newEnt.homeblock.set(blockPlace)
-            newEnt.attention.set(Random.between(10000, 30000))
-//            newEnt.asInstanceOf[EntityLightSpirit].setHomeBlock(blockPlace)
+            newEnt.attention.set(Random.between(10.minutesInTicks, 30.minutesInTicks))
           }
-          LOGGER.info("new entity " + newEnt + " created")
+          logger.trace("new entity " + newEnt + " created")
         }
       }
     }

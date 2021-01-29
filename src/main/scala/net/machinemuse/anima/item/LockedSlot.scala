@@ -1,4 +1,5 @@
-package net.machinemuse.anima.item
+package net.machinemuse.anima
+package item
 
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.IInventory

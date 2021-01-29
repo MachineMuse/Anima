@@ -1,12 +1,10 @@
-package net.machinemuse.anima.util
-
-import org.apache.logging.log4j.LogManager
+package net.machinemuse.anima
+package util
 
 /**
  * Created by MachineMuse on 1/27/2021.
  */
 object Colour {
-  private val LOGGER = LogManager.getLogger
 
   @inline final def redFromInt(value: Int): Float = (value >> 16 & 255).toFloat / 255.0F
   @inline final def greenFromInt(value: Int): Float = (value >> 8 & 255).toFloat / 255.0F

@@ -1,24 +1,27 @@
-package net.machinemuse.anima.registration
+package net.machinemuse.anima
+package registration
 
-import net.machinemuse.anima.Anima
 import net.machinemuse.anima.entity.{AirLightBlock, EntityLightSpirit}
 import net.machinemuse.anima.gui.BasketContainer
 import net.machinemuse.anima.item.basket.Basket
 import net.machinemuse.anima.item.campfire.{CampfirePlus, CampfirePlusTileEntity, DustForCampfire}
 import net.minecraft.entity.EntityClassification
 import net.minecraft.item._
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 
 /**
  * Created by MachineMuse on 1/21/2021.
  */
+@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 object AnimaRegistry {
   import net.machinemuse.anima.registration.RegistryHelpers._
 
-  object AnimaCreativeGroup extends ItemGroup(Anima.MODID + ".creativetab") {
-    override def createIcon(): ItemStack = {
-      AnimaRegistry.SPIRITFIRE_ITEM.get.getDefaultInstance
-    }
-  }
+  @SubscribeEvent
+  def init(e: FMLConstructModEvent) = this
+
+  val AnimaCreativeGroup = regCreativeTab(() => SPIRITFIRE_ITEM)
 
   val KINDLING_ITEM: RegO[Item] = regSimpleItem("kindling")
 
@@ -26,7 +29,7 @@ object AnimaRegistry {
 
   val ANIMALBONES_ITEM: RegO[Item] = regSimpleItem("animalbones")
 
-  val SPIRITFIRE_ITEM: RegO[Item] = regSimpleItem("spiritfire", creativeGroup = Some(null))
+  val SPIRITFIRE_ITEM: RegO[Item] = regSimpleItem("spiritfire", ItemProperties(creativeGroup = Some(null)).some)
 
   val BASKET_ITEM: RegO[Basket] = regExtendedItem("basket", () => new Basket)
 
@@ -44,4 +47,17 @@ object AnimaRegistry {
 
   val ENTITY_LIGHT_SPIRIT: RegE[EntityLightSpirit] = regEntity("lightspirit", () => EntityLightSpirit, new EntityLightSpirit(_,_), EntityClassification.MISC)
 
+
+
+//  // You can do it this way instead
+//  @Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+//  object RegistryEvents {
+//    @SubscribeEvent def onBlocksRegistry(blockRegistryEvent: RegistryEvent.Register[Block]): Unit = { // register a new block here
+//      LOGGER.info("HELLO from Register Block")
+//    }
+//
+//    @SubscribeEvent def onItemsRegistry(itemRegistryEvent: RegistryEvent.Register[Item]): Unit = {
+//      LOGGER.info("HELLO from Register Item")
+//    }
+//  }
 }

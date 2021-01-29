@@ -1,4 +1,5 @@
-package net.machinemuse.anima.entity
+package net.machinemuse.anima
+package entity
 
 import net.minecraft.block.material.Material
 import net.minecraft.block.{AbstractBlock, Block, BlockRenderType, BlockState}

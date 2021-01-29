@@ -1,12 +1,12 @@
-package net.machinemuse.anima.client
+package net.machinemuse.anima
+package client
 
 import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.vertex.IVertexBuilder
-import net.machinemuse.anima.Anima
 import net.machinemuse.anima.client.CampfirePlusTileEntityRenderer.MODEL_LOCATION
 import net.machinemuse.anima.item.campfire.CampfirePlusTileEntity
 import net.machinemuse.anima.util.Colour
-import net.machinemuse.anima.util.ScalaShorthand.withPushedMatrix
+import net.machinemuse.anima.util.RenderingShorthand.withPushedMatrix
 import net.minecraft.block.CampfireBlock
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.IRenderTypeBuffer
@@ -16,7 +16,7 @@ import net.minecraft.item.{DyeColor, ItemStack}
 import net.minecraft.util.math.vector.Vector3f
 import net.minecraft.util.{Direction, NonNullList, ResourceLocation}
 import net.minecraftforge.client.model.data.EmptyModelData
-import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.scala.Logging
 
 import java.util.Random
 import scala.jdk.CollectionConverters._
@@ -24,11 +24,10 @@ import scala.jdk.CollectionConverters._
 /**
  * Created by MachineMuse on 1/24/2021.
  */
-object CampfirePlusTileEntityRenderer {
+object CampfirePlusTileEntityRenderer extends Logging {
   val MODEL_LOCATION = new ResourceLocation(Anima.MODID, "block/campfireplus_flames")
 }
 class CampfirePlusTileEntityRenderer(dispatcher: TileEntityRendererDispatcher) extends TileEntityRenderer[CampfirePlusTileEntity](dispatcher) {
-  private val LOGGER = LogManager.getLogger
 
   override def render (tileEntity: CampfirePlusTileEntity, partialTicks: Float, matrixStack: MatrixStack, buffer: IRenderTypeBuffer, combinedLight: Int, combinedOverlay: Int): Unit = {
     val blockstate = tileEntity.getBlockState
@@ -58,11 +57,8 @@ class CampfirePlusTileEntityRenderer(dispatcher: TileEntityRendererDispatcher) e
       val flamesModel = minecraft.getModelManager.getModel(MODEL_LOCATION)
       val vertexBuffer: IVertexBuilder = buffer.getBuffer(ClientSetup.getBetterTranslucentState) // ClientSetup.getBetterTranslucentState
 
-      val c1 = (Colour.mixColours(tileEntity.colour1, DyeColor.BLACK.getTextColor, 4.0F/1.0F))
-      val c2 = tileEntity.colour2
-
-      val rgb1 = Colour.toFloatArray(c1)
-      val rgb2 = Colour.toFloatArray(c2)
+      val rgb1 = Colour.toFloatArray(Colour.mixColours(tileEntity.colour1, DyeColor.BLACK.getTextColor, 4.0F/1.0F))
+      val rgb2 = Colour.toFloatArray(tileEntity.colour2)
 
       val listQuads = flamesModel.getQuads(blockstate, null, new Random(), EmptyModelData.INSTANCE)
       for (bakedquad: BakedQuad <- listQuads.asScala) {

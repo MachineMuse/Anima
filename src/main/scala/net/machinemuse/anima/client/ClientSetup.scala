@@ -1,6 +1,6 @@
-package net.machinemuse.anima.client
+package net.machinemuse.anima
+package client
 
-import net.machinemuse.anima.Anima
 import net.machinemuse.anima.gui.BasketGui
 import net.machinemuse.anima.item.basket.BasketISTER
 import net.machinemuse.anima.registration.{AnimaRegistry, KeyBindings}
@@ -14,7 +14,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.client.registry.{ClientRegistry, RenderingRegistry}
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
-import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.scala.Logging
 import org.lwjgl.opengl.GL11
 
 /**
@@ -22,8 +22,7 @@ import org.lwjgl.opengl.GL11
  */
 @Mod.EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Mod.EventBusSubscriber.Bus.MOD)
 //@Mod.EventBusSubscriber(modid = "anima", value = Array(Dist.CLIENT), bus = Mod.EventBusSubscriber.Bus.FORGE)
-object ClientSetup {
-  private val LOGGER = LogManager.getLogger
+object ClientSetup extends Logging {
 
   val getBetterTranslucentState = {
     import RenderState._
@@ -48,7 +47,7 @@ object ClientSetup {
   @SubscribeEvent
   def init(event: FMLClientSetupEvent) : Unit = {
     val minecraft = event.getMinecraftSupplier.get()
-    LOGGER.info("setting up client, event triggered")
+    logger.trace("setting up client, event triggered")
     ScreenManager.registerFactory(AnimaRegistry.BASKET_CONTAINER.get(), new BasketGui(_,_,_))
     RenderTypeLookup.setRenderLayer(AnimaRegistry.CAMPFIREPLUS_BLOCK.get, RenderType.getCutout)
     ClientRegistry.bindTileEntityRenderer(AnimaRegistry.CAMPFIREPLUS_TE.get, new CampfirePlusTileEntityRenderer(_))
@@ -61,7 +60,7 @@ object ClientSetup {
 
   @SubscribeEvent
   def setupModels(event: ModelRegistryEvent): Unit = {
-    LOGGER.info("setting up models, event triggered")
+    logger.trace("setting up models, event triggered")
     ModelLoader.addSpecialModel(CampfirePlusTileEntityRenderer.MODEL_LOCATION)
     ModelLoader.addSpecialModel(BasketISTER.MODEL_LOCATION)
   }

@@ -1,6 +1,6 @@
-package net.machinemuse.anima.util
+package net.machinemuse.anima
+package util
 
-import net.machinemuse.anima.Anima
 import net.minecraft.advancements.criterion.{EntityPredicate, InventoryChangeTrigger, ItemPredicate, MinMaxBounds}
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType
 import net.minecraft.data.{IFinishedRecipe, RecipeProvider, ShapedRecipeBuilder, ShapelessRecipeBuilder}
@@ -12,16 +12,14 @@ import net.minecraft.util.text.{ITextComponent, TranslationTextComponent}
 import net.minecraft.util.{Hand, IItemProvider, ResourceLocation}
 import net.minecraftforge.common.crafting.conditions.IConditionBuilder
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
-import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.scala.Logging
 
 import java.util.function.Consumer
 
 /**
  * Created by MachineMuse on 1/27/2021.
  */
-object VanillaClassEnrichers {
-  private val LOGGER = LogManager.getLogger
-
+object VanillaClassEnrichers extends Logging {
   implicit class RichTransformType(transformType: TransformType) {
     def isLeftHand = transformType == TransformType.FIRST_PERSON_LEFT_HAND || transformType == TransformType.FIRST_PERSON_LEFT_HAND
   }
@@ -64,7 +62,7 @@ object VanillaClassEnrichers {
     }
     def buildProperly(consumer: Consumer[IFinishedRecipe], filename: String) = {
       builder.build((a: IFinishedRecipe) => {
-        LOGGER.info("Built recipe: " + a.getID)
+        logger.info("Built recipe: " + a.getID)
         consumer.accept(a)
       }, new ResourceLocation(Anima.MODID, filename))
     }
@@ -81,7 +79,7 @@ object VanillaClassEnrichers {
     }
     def buildProperly(consumer: Consumer[IFinishedRecipe], filename: String) = {
       builder.build((a: IFinishedRecipe) => {
-        LOGGER.info("Built recipe: " + a.getID)
+        logger.info("Built recipe: " + a.getID)
         consumer.accept(a)
       }, new ResourceLocation(Anima.MODID, filename))
     }

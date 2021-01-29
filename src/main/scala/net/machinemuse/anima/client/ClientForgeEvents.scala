@@ -1,19 +1,19 @@
-package net.machinemuse.anima.client
+package net.machinemuse.anima
+package client
 
-import net.machinemuse.anima.item.basket.BasketISTER
-import net.minecraft.client.Minecraft
-import org.apache.logging.log4j.LogManager
+import net.minecraftforge.fml.common.Mod
+import org.apache.logging.log4j.scala.Logging
 
 /**
  * Created by MachineMuse on 1/27/2021.
  */
-object ClientForgeEvents {
-  private val LOGGER = LogManager.getLogger
+@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+object ClientForgeEvents extends Logging {
 
-  def logTranslations() ={
-    Minecraft.getInstance().player.sendChatMessage("Translate = " + (BasketISTER.translateX, BasketISTER.translateY, BasketISTER.translateZ).toString)
-    Minecraft.getInstance().player.sendChatMessage("Scale = " + (BasketISTER.scaleX, BasketISTER.scaleY, BasketISTER.scaleZ).toString)
-  }
+//  def logTranslations() ={
+//    Minecraft.getInstance().player.sendChatMessage("Translate = " + (BasketISTER.translateX, BasketISTER.translateY, BasketISTER.translateZ).toString)
+//    Minecraft.getInstance().player.sendChatMessage("Scale = " + (BasketISTER.scaleX, BasketISTER.scaleY, BasketISTER.scaleZ).toString)
+//  }
 
 
 //  @SubscribeEvent

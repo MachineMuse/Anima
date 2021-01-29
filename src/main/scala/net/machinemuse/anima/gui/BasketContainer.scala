@@ -1,4 +1,5 @@
-package net.machinemuse.anima.gui
+package net.machinemuse.anima
+package gui
 
 import net.machinemuse.anima.item.LockedSlot
 import net.machinemuse.anima.item.basket.Basket
@@ -7,7 +8,7 @@ import net.minecraft.entity.player.{PlayerEntity, PlayerInventory}
 import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.container.{ClickType, Container, Slot}
 import net.minecraft.item.ItemStack
-import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.scala.Logging
 
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
@@ -15,11 +16,8 @@ import scala.jdk.CollectionConverters._
 /**
  * Created by MachineMuse on 1/22/2021.
  */
-class BasketContainer(windowID: Int, playerInventory: PlayerInventory) extends Container(AnimaRegistry.BASKET_CONTAINER.get(), windowID) {
+class BasketContainer(windowID: Int, playerInventory: PlayerInventory) extends Container(AnimaRegistry.BASKET_CONTAINER.get(), windowID) with Logging {
   override def canInteractWith(playerIn: PlayerEntity): Boolean = true
-
-  // Directly reference a log4j logger.
-  private val LOGGER = LogManager.getLogger
 
   val basketSlotNumber: Int = {
     val currentItem = playerInventory.getCurrentItem
@@ -31,7 +29,7 @@ class BasketContainer(windowID: Int, playerInventory: PlayerInventory) extends C
     } else if(offhandItem != null && offhandItem.getItem.isInstanceOf[Basket]) {
       40
     } else {
-      LOGGER.warn("Couldn't find slot number of basket")
+      logger.warn("Couldn't find slot number of basket")
       -1
     }
   }
@@ -146,7 +144,7 @@ class BasketContainer(windowID: Int, playerInventory: PlayerInventory) extends C
       val hotbarSlot = dragType match {
         case mainbarSlot if mainbarSlot < 9 && mainbarSlot >= 0 => dragType+9+27
         case offhandSlot if offhandSlot == 40 => 36 + 9
-        case _ => LOGGER.warn("Unknown swap target: " + dragType); 0
+        case _ => logger.warn("Unknown swap target: " + dragType); 0
       }
       val remainder = betterMergeItemStack(basketSlotItem, hotbarSlot, hotbarSlot+1)
       basketSlot.putStack(remainder)

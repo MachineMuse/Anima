@@ -1,6 +1,5 @@
-package net.machinemuse.anima.datagen
+package net.machinemuse.anima
 
-import net.machinemuse.anima.Anima
 import net.machinemuse.anima.registration.AnimaRegistry
 import net.machinemuse.anima.util.VanillaClassEnrichers._
 import net.minecraft.block.Blocks
@@ -10,16 +9,12 @@ import net.minecraft.tags.ItemTags
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
-import org.apache.logging.log4j.LogManager
 
 /**
  * Created by MachineMuse on 1/28/2021.
  */
 @Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 object AnimaDatagen {
-  private val LOGGER = LogManager.getLogger
-
-
   //mod bus event
   @SubscribeEvent
   def gatherData(event: GatherDataEvent): Unit = {

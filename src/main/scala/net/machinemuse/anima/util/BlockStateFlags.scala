@@ -1,4 +1,5 @@
-package net.machinemuse.anima.util
+package net.machinemuse.anima
+package util
 
 /**
  * Created by MachineMuse on 1/26/2021.
