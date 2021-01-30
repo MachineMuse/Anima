@@ -1,12 +1,12 @@
 package net.machinemuse.anima
 package client
 
-import net.machinemuse.anima.gui.BasketGui
+import net.machinemuse.anima.gui.{BasketContainer, BasketGui}
 import net.machinemuse.anima.item.basket.BasketISTER
 import net.machinemuse.anima.registration.{AnimaRegistry, KeyBindings}
 import net.minecraft.client.gui.ScreenManager
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.client.renderer.{RenderState, RenderType, RenderTypeLookup}
+import net.minecraft.client.renderer._
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.client.event.ModelRegistryEvent
 import net.minecraftforge.client.model.ModelLoader
@@ -47,8 +47,8 @@ object ClientSetup extends Logging {
   @SubscribeEvent
   def init(event: FMLClientSetupEvent) : Unit = {
     val minecraft = event.getMinecraftSupplier.get()
-    logger.trace("setting up client, event triggered")
-    ScreenManager.registerFactory(AnimaRegistry.BASKET_CONTAINER.get(), new BasketGui(_,_,_))
+    logger.debug("setting up client, event triggered")
+    ScreenManager.registerFactory[BasketContainer, BasketGui](AnimaRegistry.BASKET_CONTAINER.get(), new BasketGui(_, _, _)) // type annotations added for IntelliJ's sake
     RenderTypeLookup.setRenderLayer(AnimaRegistry.CAMPFIREPLUS_BLOCK.get, RenderType.getCutout)
     ClientRegistry.bindTileEntityRenderer(AnimaRegistry.CAMPFIREPLUS_TE.get, new CampfirePlusTileEntityRenderer(_))
     RenderingRegistry.registerEntityRenderingHandler(AnimaRegistry.ENTITY_LIGHT_SPIRIT.get(), new LightSpiritRenderer(_))
@@ -60,7 +60,7 @@ object ClientSetup extends Logging {
 
   @SubscribeEvent
   def setupModels(event: ModelRegistryEvent): Unit = {
-    logger.trace("setting up models, event triggered")
+    logger.debug("setting up models, event triggered")
     ModelLoader.addSpecialModel(CampfirePlusTileEntityRenderer.MODEL_LOCATION)
     ModelLoader.addSpecialModel(BasketISTER.MODEL_LOCATION)
   }

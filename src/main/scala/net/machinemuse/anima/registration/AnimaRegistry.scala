@@ -4,7 +4,7 @@ package registration
 import net.machinemuse.anima.entity.{AirLightBlock, EntityLightSpirit}
 import net.machinemuse.anima.gui.BasketContainer
 import net.machinemuse.anima.item.basket.Basket
-import net.machinemuse.anima.item.campfire.{CampfirePlus, CampfirePlusTileEntity, DustForCampfire}
+import net.machinemuse.anima.item.campfire._
 import net.minecraft.entity.EntityClassification
 import net.minecraft.item._
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -33,7 +33,7 @@ object AnimaRegistry {
 
   val BASKET_ITEM: RegO[Basket] = regExtendedItem("basket", () => new Basket)
 
-  val BASKET_CONTAINER: RegCT[BasketContainer] = regContainer("basket", (id, inv, buf) => new BasketContainer(id, inv))
+  val BASKET_CONTAINER: RegCT[BasketContainer] = regContainer("basket", (id, inv, buf) => new BasketContainer(id, inv, buf))
 
   val DUSTFORCAMPFIRE_ITEM: RegO[DustForCampfire] = regExtendedItem("campfiredust", () => new DustForCampfire)
 

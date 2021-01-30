@@ -29,7 +29,7 @@ class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
 
   override def tick(): Unit = {
     if(Random.nextInt(500) == 0) {
-      logger.trace("random tick from Campfire Plus")
+      logger.debug("random tick from Campfire Plus")
       world.onServer{ serverWorld =>
         val randX = Random.between(-50, 50)
         val randY = Random.between(-10, 10)
@@ -42,7 +42,7 @@ class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
             newEnt.homeblock.set(blockPlace)
             newEnt.attention.set(Random.between(10.minutesInTicks, 30.minutesInTicks))
           }
-          logger.trace("new entity " + newEnt + " created")
+          logger.debug("new entity " + newEnt + " created")
         }
       }
     }

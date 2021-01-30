@@ -16,9 +16,12 @@ package object anima {
     def none = None
   }
 
-  implicit class IntsAsTicks(a: Int) {
+  implicit class RichInt(a: Int) {
     def secondsInTicks = a * 20
     def minutesInTicks = a * 20 * 60
+    def isFromUntil(b: Int, c: Int) = (a >= b && a < c) ||
+                                    (a < b && a >= c)
+
   }
 
   implicit class FoldableID[A](optA: Option[A]) {

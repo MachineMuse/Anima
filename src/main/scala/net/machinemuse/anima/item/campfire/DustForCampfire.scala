@@ -3,7 +3,7 @@ package item
 package campfire
 
 import net.machinemuse.anima.entity.EntityLightSpirit
-import net.machinemuse.anima.registration.AnimaRegistry.{AnimaCreativeGroup, CAMPFIREPLUS_BLOCK, CAMPFIREPLUS_TE, ENTITY_LIGHT_SPIRIT}
+import net.machinemuse.anima.registration.AnimaRegistry._
 import net.machinemuse.anima.util.BlockStateFlags
 import net.minecraft.block.CampfireBlock
 import net.minecraft.entity.SpawnReason
@@ -49,7 +49,7 @@ class DustForCampfire extends Item(new Item.Properties().group(AnimaCreativeGrou
           newEnt.homeblock.set(blockAbove)
           itemstack.shrink(1)
         }
-        logger.trace("new entity " + newEnt + " created")
+        logger.debug("new entity " + newEnt + " created")
       }
       ActionResultType.SUCCESS
 //      super.onItemUse(context)

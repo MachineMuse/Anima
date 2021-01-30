@@ -12,7 +12,7 @@ import net.minecraft.item._
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.network.PacketBuffer
 import net.minecraft.util.math.BlockRayTraceResult
-import net.minecraft.util.{ActionResult, ActionResultType, Hand}
+import net.minecraft.util._
 import net.minecraft.world.World
 import net.minecraftforge.common.IPlantable
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent
@@ -23,6 +23,7 @@ import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataE
 import net.minecraftforge.fml.network.NetworkHooks
 import org.apache.logging.log4j.scala.Logging
 
+import java.util.function.Consumer
 import scala.jdk.CollectionConverters._
 
 /**
@@ -48,11 +49,11 @@ object Basket extends Logging {
     }
   }
 
-  logger.trace("Basket object initialized")
+  logger.debug("Basket object initialized")
 
   @SubscribeEvent
   def gatherData(event: GatherDataEvent): Unit = {
-    logger.trace("BasketDatagen.gatherData called")
+    logger.debug("BasketDatagen.gatherData called")
     mkRecipeProvider(event) {
       consumer =>
         ShapedRecipeBuilder
@@ -88,10 +89,6 @@ class Basket extends Item(new Item.Properties().maxStackSize(1).group(AnimaCreat
 
   override def getTagCompound(stack: ItemStack): CompoundNBT = super.getTagCompound(stack)
 
-  // Directly reference a log4j logger.
-  logger.trace("Basket class initialized")
-
-
   // Called when the item is used on a block
   override def onItemUse(context: ItemUseContext): ActionResultType = {
     val player = context.getPlayer
@@ -109,18 +106,18 @@ class Basket extends Item(new Item.Properties().maxStackSize(1).group(AnimaCreat
     }
   }
 
-  def tryOpenGuiServerSide(player: ServerPlayerEntity): Unit = {
-    val containerProvider = mkContainerProvider("basket", (id,inv,player) => new BasketContainer(id,inv))
-    val consumer = (t: PacketBuffer) => { }
-    NetworkHooks.openGui(player, containerProvider, consumer(_))
+  def tryOpenGuiServerSide(hand: Hand)(player: ServerPlayerEntity): Unit = {
+    val containerProvider = mkContainerProvider("basket", (id,inv,player) => new BasketContainer(id,inv,hand))
+    val consumer: Consumer[PacketBuffer] = (t: PacketBuffer) => { t.writeByte(hand.ordinal()) }
+    NetworkHooks.openGui(player, containerProvider, consumer)
   }
   // Called when the item is in the player's hand and right clicked. Replaces the item with the return value.
   override def onItemRightClick(world: World, player: PlayerEntity, hand: Hand): ActionResult[ItemStack] = {
     if(player.isSneaking) {
       if (!world.isRemote) {
-        logger.trace("item used facing elsewhere while sneaking by a player on the server side")
+        logger.debug("item used facing elsewhere while sneaking by a player on the server side")
         // Check if the player object is a ServerPlayerEntity, should be but just to be sure
-        player.optionallyDoAs [ServerPlayerEntity] (tryOpenGuiServerSide)
+        player.optionallyDoAs [ServerPlayerEntity] (tryOpenGuiServerSide(hand))
       }
       ActionResult.resultConsume(player.itemInHand(hand))
     } else {

@@ -1,13 +1,14 @@
 package net.machinemuse.anima
 package util
 
+import net.machinemuse.anima.util.RichDataParameter.ParameterTypes.ParameterType
 import net.minecraft.block.BlockState
+import net.minecraft.entity._
 import net.minecraft.entity.merchant.villager.VillagerData
-import net.minecraft.entity.{Entity, LivingEntity, Pose}
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.network.IPacket
-import net.minecraft.network.datasync.{DataParameter, DataSerializers, EntityDataManager, IDataSerializer}
+import net.minecraft.network.datasync._
 import net.minecraft.particles.IParticleData
 import net.minecraft.util.Direction
 import net.minecraft.util.math.{BlockPos, Rotations}
@@ -16,6 +17,7 @@ import net.minecraftforge.fml.network.NetworkHooks
 import shapeless.PolyDefns._
 
 import java.util.{Optional, OptionalInt, UUID}
+import scala.collection.mutable
 
 /**
  * Created by MachineMuse on 1/26/2021.
@@ -24,12 +26,15 @@ object RichDataParameter {
 
   // Trait for the class to extend for this package's boilerplate reduction
   trait DataHandlingEntity extends Entity {
-    def dataParameters: List[ParameterInstance[_]]
+    def registrar: ParameterRegistrar
+    def dataParameters: List[ParameterInstance[_]] = registrar.parameterRegistry.values.toList
 
-    override protected def registerData(): Unit = dataParameters.foreach {_.register(this.getDataManager)}
+    override protected def registerData(): Unit = {} // dataParameters.foreach {_.register(this.getDataManager)}
     override def writeAdditional(compound: CompoundNBT): Unit = dataParameters.foreach { _.write(this.getDataManager, compound) }
     override def readAdditional(compound: CompoundNBT): Unit = dataParameters.foreach { _.read(this.getDataManager, compound) }
     override def createSpawnPacket(): IPacket[_] = NetworkHooks.getEntitySpawningPacket(this)
+
+    def mkData[T: ParameterType](name: String, default: T) = Access(registrar.mkDataParameter(name, default), getDataManager)
   }
 
   trait DataHandlingLivingEntity extends LivingEntity {
@@ -59,12 +64,16 @@ object RichDataParameter {
   // Trait for the class's companion object to extend
   class ParameterRegistrar(clazz: Class[_ <: Entity]) {
     import ParameterTypes._ // Get those implicits in scope
-    def mkDataParameter[T](name: String, default: T)(implicit pt: ParameterType[T]): ParameterInstance[T] = pt.mkInstance(name, clazz, default)
+    val parameterRegistry = new mutable.HashMap[String, ParameterInstance[_]]()
+    def mkDataParameter[T](name: String, default: T)(implicit pt: ParameterType[T]): ParameterInstance[T] = {
+      parameterRegistry.getOrElseUpdate(name, pt.mkInstance(name, clazz, default)).asInstanceOf[ParameterInstance[T]]
+    }
   }
 
   // Case class for accessing a data parameter; you'll get these by calling `.zipConst(dataManager).map(Par2Access)` on a
   // tuple of ParameterInstances generated in the companion object with mkDataParameter.
   case class Access[T](param: ParameterInstance[T], dm: EntityDataManager) {
+    param.register(dm)
     def get(): T = param.get(dm)
     def set(value: T): Unit = param.set(value)(dm)
   }
