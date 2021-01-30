@@ -1,4 +1,5 @@
 package net.machinemuse.anima
+package datagen
 
 import net.machinemuse.anima.registration.AnimaRegistry
 import net.machinemuse.anima.util.VanillaClassEnrichers._
@@ -50,6 +51,9 @@ object AnimaDatagen {
         .addIngredientAsCriterion("animalbones", AnimaRegistry.ANIMALBONES_ITEM.get)
         .setGroup("bonemeal")
         .buildProperly(consumer, "bonemeal_from_animalbones")
+
+      CampfireRecipeBuilder.campfireRecipe(ItemTags.LOGS_THAT_BURN, Items.CHARCOAL, 0.35F)
+        .buildProperly(consumer, "charcoal_on_campfire")
     }
 
   }

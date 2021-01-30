@@ -5,8 +5,8 @@ import net.machinemuse.anima.gui.{BasketContainer, BasketGui}
 import net.machinemuse.anima.item.basket.BasketISTER
 import net.machinemuse.anima.registration.{AnimaRegistry, KeyBindings}
 import net.minecraft.client.gui.ScreenManager
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.client.renderer._
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.client.event.ModelRegistryEvent
 import net.minecraftforge.client.model.ModelLoader

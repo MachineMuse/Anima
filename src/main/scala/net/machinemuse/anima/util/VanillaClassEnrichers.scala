@@ -1,15 +1,16 @@
 package net.machinemuse.anima
 package util
 
-import net.minecraft.advancements.criterion.{EntityPredicate, InventoryChangeTrigger, ItemPredicate, MinMaxBounds}
+import net.minecraft.advancements.criterion._
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType
-import net.minecraft.data.{IFinishedRecipe, RecipeProvider, ShapedRecipeBuilder, ShapelessRecipeBuilder}
+import net.minecraft.data._
 import net.minecraft.entity.player.{PlayerEntity, PlayerInventory}
 import net.minecraft.inventory.container.{Container, INamedContainerProvider}
+import net.minecraft.item.crafting.{IRecipeSerializer, Ingredient}
 import net.minecraft.item.{Item, ItemStack}
 import net.minecraft.tags.ITag
 import net.minecraft.util.text.{ITextComponent, TranslationTextComponent}
-import net.minecraft.util.{Hand, IItemProvider, ResourceLocation}
+import net.minecraft.util.{Unit => _, _}
 import net.minecraftforge.common.crafting.conditions.IConditionBuilder
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
 import org.apache.logging.log4j.scala.Logging
@@ -77,6 +78,22 @@ object VanillaClassEnrichers extends Logging {
       builder.addIngredient(ingredient)
       builder.addCriterion("has_" + name, hasItem(ingredient))
     }
+    def buildProperly(consumer: Consumer[IFinishedRecipe], filename: String) = {
+      builder.build((a: IFinishedRecipe) => {
+        logger.info("Built recipe: " + a.getID)
+        consumer.accept(a)
+      }, new ResourceLocation(Anima.MODID, filename))
+    }
+  }
+  object CampfireRecipeBuilder {
+    def campfireRecipe(ingredient: ITag[Item], output: Item, exp: Float) = {
+      CookingRecipeBuilder.cookingRecipe(Ingredient.fromTag(ingredient), output, exp, 600, IRecipeSerializer.CAMPFIRE_COOKING).addCriterion("has_ingredient", hasItem(ingredient))
+    }
+    def campfireRecipe(ingredient: Item, output: Item, exp: Float) = {
+      CookingRecipeBuilder.cookingRecipe(Ingredient.fromItems(ingredient), output, exp, 600, IRecipeSerializer.CAMPFIRE_COOKING).addCriterion("has_ingredient", hasItem(ingredient))
+    }
+  }
+  implicit class CampfireRecipeBuilder(builder: CookingRecipeBuilder) {
     def buildProperly(consumer: Consumer[IFinishedRecipe], filename: String) = {
       builder.build((a: IFinishedRecipe) => {
         logger.info("Built recipe: " + a.getID)

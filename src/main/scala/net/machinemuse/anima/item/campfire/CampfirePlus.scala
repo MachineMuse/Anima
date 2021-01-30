@@ -2,7 +2,7 @@ package net.machinemuse.anima
 package item
 package campfire
 
-import net.machinemuse.anima.item.campfire.CampfirePlus.{fireDamage, properties, smokey}
+import net.machinemuse.anima.item.campfire.CampfirePlus._
 import net.minecraft.block._
 import net.minecraft.block.material.{Material, MaterialColor}
 import net.minecraft.entity.player.PlayerEntity
@@ -10,7 +10,7 @@ import net.minecraft.item.DyeItem
 import net.minecraft.state.Property
 import net.minecraft.state.properties.BlockStateProperties
 import net.minecraft.util.math.{BlockPos, BlockRayTraceResult}
-import net.minecraft.util.{ActionResultType, Hand}
+import net.minecraft.util.{Unit => _, _}
 import net.minecraft.world.{IBlockReader, World}
 
 import scala.jdk.OptionConverters._

@@ -18,8 +18,9 @@ object EntityLightSpirit extends ParameterRegistrar(classOf[EntityLightSpirit]) 
 }
 class EntityLightSpirit (entityType: EntityType[EntityLightSpirit], world: World) extends Entity(entityType, world) with DataHandlingEntity with Logging {
   override def registrar = EntityLightSpirit
-  val homeblock: Access[BlockPos] = mkData("homeblock", new BlockPos(0, 62, 0))
-  val attention: Access[Int] = mkData("attention", 1000)
+  val homeblock: DataSync[BlockPos] = mkDataSync("homeblock", new BlockPos(0, 62, 0))
+  val attention: DataSync[Int] =      mkDataSync("attention", 1000)
+
   private var lasttryticks: Int = 20
 
   override def tick(): Unit = {

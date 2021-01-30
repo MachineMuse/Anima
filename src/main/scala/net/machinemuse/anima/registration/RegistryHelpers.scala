@@ -4,7 +4,7 @@ package registration
 import net.machinemuse.anima.registration.AnimaRegistry.AnimaCreativeGroup
 import net.minecraft.block.Block
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer
-import net.minecraft.entity.{Entity, EntityClassification, EntityType}
+import net.minecraft.entity._
 import net.minecraft.inventory.container.{Container, ContainerType}
 import net.minecraft.item._
 import net.minecraft.tileentity.{TileEntity, TileEntityType}
@@ -14,7 +14,7 @@ import net.minecraftforge.common.extensions.IForgeContainerType
 import net.minecraftforge.fml.RegistryObject
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
 import net.minecraftforge.fml.network.IContainerFactory
-import net.minecraftforge.registries.{DeferredRegister, ForgeRegistries, IForgeRegistry, IForgeRegistryEntry}
+import net.minecraftforge.registries._
 
 import java.util.concurrent.Callable
 import java.util.function.Supplier
@@ -78,7 +78,7 @@ object RegistryHelpers {
   }
 
   def regSimpleItem(name: String, props: Option[ItemProperties] = None): RegistryObject[Item] = {
-    val concreteprops = props.map(_.apply).getOrElse(new Item.Properties)
+    val concreteprops = props.map(_.apply).getOrElse(ItemProperties().apply)
     ITEMS.register(name, () => new Item(concreteprops))
   }
 

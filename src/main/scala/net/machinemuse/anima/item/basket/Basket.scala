@@ -12,7 +12,7 @@ import net.minecraft.item._
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.network.PacketBuffer
 import net.minecraft.util.math.BlockRayTraceResult
-import net.minecraft.util._
+import net.minecraft.util.{Unit => _, _}
 import net.minecraft.world.World
 import net.minecraftforge.common.IPlantable
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent
@@ -30,7 +30,6 @@ import scala.jdk.CollectionConverters._
  * Created by MachineMuse on 1/21/2021.
  */
 
-@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 object Basket extends Logging {
 
   @SubscribeEvent
@@ -81,6 +80,7 @@ object Basket extends Logging {
 
 }
 
+@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 class Basket extends Item(new Item.Properties().maxStackSize(1).group(AnimaCreativeGroup).setISTER(() => () => BasketISTER)) with InventoriedItem with Logging {
   def isVeggie(stack: ItemStack): Boolean = stack.getItem.isFood && !stack.getItem.getFood.isMeat
   def isPlantable(stack: ItemStack): Boolean = OptionCast[BlockItem](stack.getItem).exists(_.getBlock.isInstanceOf[IPlantable])

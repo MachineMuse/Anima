@@ -1,10 +1,10 @@
 package net.machinemuse.anima
 package entity
 
+import net.minecraft.block._
 import net.minecraft.block.material.Material
-import net.minecraft.block.{AbstractBlock, Block, BlockRenderType, BlockState}
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.shapes.{ISelectionContext, VoxelShape, VoxelShapes}
+import net.minecraft.util.math.shapes._
 import net.minecraft.world.IBlockReader
 
 /**

@@ -10,13 +10,12 @@ import net.minecraft.nbt.CompoundNBT
 import net.minecraft.network.IPacket
 import net.minecraft.network.datasync._
 import net.minecraft.particles.IParticleData
-import net.minecraft.util.Direction
 import net.minecraft.util.math.{BlockPos, Rotations}
 import net.minecraft.util.text.ITextComponent
+import net.minecraft.util.{Unit => _, _}
 import net.minecraftforge.fml.network.NetworkHooks
-import shapeless.PolyDefns._
 
-import java.util.{Optional, OptionalInt, UUID}
+import java.util._
 import scala.collection.mutable
 
 /**
@@ -26,32 +25,28 @@ object RichDataParameter {
 
   // Trait for the class to extend for this package's boilerplate reduction
   trait DataHandlingEntity extends Entity {
-    def registrar: ParameterRegistrar
-    def dataParameters: List[ParameterInstance[_]] = registrar.parameterRegistry.values.toList
+    def registrar: ParameterRegistrar // has to be a def when overriding because it's called before the constructor can initialize it
+    def mkDataSync[T: ParameterType](name: String, default: T) = DataSync(registrar.mkDataParameter(name, default), getDataManager)
 
-    override protected def registerData(): Unit = {} // dataParameters.foreach {_.register(this.getDataManager)}
-    override def writeAdditional(compound: CompoundNBT): Unit = dataParameters.foreach { _.write(this.getDataManager, compound) }
-    override def readAdditional(compound: CompoundNBT): Unit = dataParameters.foreach { _.read(this.getDataManager, compound) }
+    override def writeAdditional(compound: CompoundNBT): Unit = registrar.parameterRegistry.values.foreach { _.write(this.getDataManager, compound) }
+    override def readAdditional(compound: CompoundNBT): Unit = registrar.parameterRegistry.values.foreach { _.read(this.getDataManager, compound) }
+
+    override def registerData(): Unit = {}
     override def createSpawnPacket(): IPacket[_] = NetworkHooks.getEntitySpawningPacket(this)
-
-    def mkData[T: ParameterType](name: String, default: T) = Access(registrar.mkDataParameter(name, default), getDataManager)
   }
 
-  trait DataHandlingLivingEntity extends LivingEntity {
-    def dataParameters: List[ParameterInstance[_]]
-
-    // LivingEntity overrides many of these abstract methods with important stuff so we need to call super()
-    override protected def registerData(): Unit = {
+  trait DataHandlingLivingEntity extends LivingEntity with DataHandlingEntity {
+    // LivingEntity overrides many of these abstract methods with important stuff so we need to call super(), cant do this by default because theyre abstract
+    override def registerData(): Unit = {
       super.registerData()
-      dataParameters.foreach {_.register(this.getDataManager)}
     }
     override def writeAdditional(compound: CompoundNBT): Unit = {
       super.writeAdditional(compound)
-      dataParameters.foreach { _.write(this.getDataManager, compound) }
+      registrar.parameterRegistry.values.foreach { _.write(this.getDataManager, compound) }
     }
     override def readAdditional(compound: CompoundNBT): Unit = {
       super.readAdditional(compound)
-      dataParameters.foreach { _.read(this.getDataManager, compound) }
+      registrar.parameterRegistry.values.foreach { _.read(this.getDataManager, compound) }
     }
 
     // TODO: test and make sure this works
@@ -70,32 +65,20 @@ object RichDataParameter {
     }
   }
 
-  // Case class for accessing a data parameter; you'll get these by calling `.zipConst(dataManager).map(Par2Access)` on a
-  // tuple of ParameterInstances generated in the companion object with mkDataParameter.
-  case class Access[T](param: ParameterInstance[T], dm: EntityDataManager) {
+  // Case class for accessing a data parameter.
+  case class DataSync[T](param: ParameterInstance[T], dm: EntityDataManager) {
     param.register(dm)
     def get(): T = param.get(dm)
     def set(value: T): Unit = param.set(value)(dm)
-  }
-
-  ////
-
-  type PDPPair[T] = (ParameterInstance[T], EntityDataManager) // seems to be needed in order to use it in a natural transformation
-  // Natural transformation to convert ParameterInstances (which are 1-per-entity-type) into Accessors (per-entity-instance)
-  // preserving type info of the DataParameter
-  object Par2Access extends (PDPPair ~> Access) {
-    override def apply[T](f: (ParameterInstance[T], EntityDataManager)): Access[T] = Access[T](f._1, f._2)
   }
 
   trait ParameterInstance[T] {
     def register(implicit dm: EntityDataManager): Unit
 
     def get(implicit dm: EntityDataManager): T
-
     def set(value: T) (implicit dm: EntityDataManager): Unit
 
     def write(dm: EntityDataManager, compound: CompoundNBT): Unit
-
     def read(dm: EntityDataManager, compound: CompoundNBT): Unit
   }
 

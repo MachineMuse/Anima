@@ -14,7 +14,7 @@ import net.minecraft.client.renderer.model.{BakedQuad, ItemCameraTransforms}
 import net.minecraft.client.renderer.tileentity.{TileEntityRenderer, TileEntityRendererDispatcher}
 import net.minecraft.item.{DyeColor, ItemStack}
 import net.minecraft.util.math.vector.Vector3f
-import net.minecraft.util.{Direction, NonNullList, ResourceLocation}
+import net.minecraft.util.{Unit => _, _}
 import net.minecraftforge.client.model.data.EmptyModelData
 import org.apache.logging.log4j.scala.Logging
 

@@ -6,7 +6,7 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.container.Container
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.{CompoundNBT, INBT, ListNBT}
+import net.minecraft.nbt._
 
 import scala.jdk.CollectionConverters._
 
@@ -83,7 +83,10 @@ trait InventoriedItem {
   // Nullsafe, returns empty, might drop a log message though
   def getFromOverloadedCompound(compound: CompoundNBT): ItemStack =
     ItemStack.read(compound).andDo { stack =>
-      if(compound.contains("realcount")) stack.setCount(compound.getInt("realcount"))
+      if(compound.contains("realcount")) {
+        stack.setCount(compound.getInt("realcount"))
+        compound.remove("realcount")
+      }
     }
 
   // Nullsafe, returns empty

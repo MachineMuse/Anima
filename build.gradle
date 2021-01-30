@@ -147,10 +147,10 @@ dependencies {
     shadow deps.scalalib
     runtimeOnly deps.scalalib
 
-    shadow deps.shapeless
-    runtimeOnly deps.shapeless
+//    shadow deps.shapeless
+//    runtimeOnly deps.shapeless
 
-    compile deps.shapeless
+//    compile deps.shapeless
     compile deps.log4j_scala
 
     runtimeOnly fg.deobf(deps.curios)
