@@ -15,6 +15,7 @@ import net.minecraftforge.fml.RegistryObject
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
 import net.minecraftforge.fml.network.IContainerFactory
 import net.minecraftforge.registries._
+import org.apache.logging.log4j.scala.Logging
 
 import java.util.concurrent.Callable
 import java.util.function.Supplier
@@ -22,7 +23,7 @@ import java.util.function.Supplier
 /**
  * Created by MachineMuse on 1/28/2021.
  */
-object RegistryHelpers {
+object RegistryHelpers extends Logging {
 
   def mkRegister[T <: IForgeRegistryEntry[T], RT <: IForgeRegistry[T]](registry: RT): DeferredRegister[T] = {
     DeferredRegister.create[T](registry, Anima.MODID).andDo(_.register(FMLJavaModLoadingContext.get.getModEventBus))
@@ -30,24 +31,22 @@ object RegistryHelpers {
 
   val ITEMS: DeferredRegister[Item] = mkRegister(ForgeRegistries.ITEMS)
   val BLOCKS: DeferredRegister[Block] = mkRegister(ForgeRegistries.BLOCKS)
-  type RegO[O <: IForgeRegistryEntry[_]] = RegistryObject[O]
   val CONTAINERS: DeferredRegister[ContainerType[_]] = mkRegister(ForgeRegistries.CONTAINERS)
-  type RegCT[C <: Container] = RegistryObject[ContainerType[C]]
   val TILE_ENTITIES: DeferredRegister[TileEntityType[_]] = mkRegister(ForgeRegistries.TILE_ENTITIES)
-  type RegTE[T <: TileEntity] = RegistryObject[TileEntityType[T]]
   val ENTITIES: DeferredRegister[EntityType[_]] = mkRegister(ForgeRegistries.ENTITIES)
-  type RegE[E <: Entity] = RegistryObject[EntityType[E]]
 
 
 
-  def regEntity[E <: Entity](name: String, initializer: () => Unit, ctor: (EntityType[E], World) => E,  classification:EntityClassification): RegE[E] = {
+  def regEntityType[E <: Entity](name: String, initializer: () => Unit, ctor: (EntityType[E], World) => E, classification:EntityClassification): RegistryObject[EntityType[E]] = {
+    logger.info(s"Registering EntityType $name")
     ENTITIES.register(name, () => EntityType.Builder.create(ctor.butFirst(initializer)(_,_), classification).setShouldReceiveVelocityUpdates(false).build(name))
   }
 
-  def regTE[T <: TileEntity, B <: Block](name: String, ctor: Supplier[T], validBlocks: RegistryObject[B]*): RegTE[T] = {
+  def regTE[T <: TileEntity](name: String, ctor: Supplier[T], validBlocks: Supplier[Block]*): RegistryObject[TileEntityType[T]] = {
+    logger.info(s"Registering TileEntityType $name")
     TILE_ENTITIES.register(name,
       () => {
-        TileEntityType.Builder.create[T](ctor, validBlocks.map(_.get): _*)
+        TileEntityType.Builder.create[T](ctor, validBlocks.map(_.get()): _*)
       }.build(null)
     )
   }
@@ -82,23 +81,24 @@ object RegistryHelpers {
     ITEMS.register(name, () => new Item(concreteprops))
   }
 
-  def regSimpleBlockItem(name: String, blockRegister: RegO[Block], props: Option[ItemProperties] = None) = {
+  def regSimpleBlockItem[B <: Block](name: String, blockRegister: RegistryObject[B], props: Option[ItemProperties] = None): RegistryObject[BlockItem]= {
     val concreteprops = props.map(_.apply).getOrElse(new Item.Properties)
     ITEMS.register(name, () => new BlockItem(blockRegister.get(), concreteprops))
   }
 
-  def regExtendedItem[I <: Item](name: String, supp: Supplier[I]): RegO[I] = {
+  def regExtendedItem[I <: Item](name: String, supp: Supplier[I]): RegistryObject[I] = {
     ITEMS.register(name, supp)
   }
 
-  def regBlock[B <: Block](name: String, supp: Supplier[B]): RegO[B] = {
+  def regBlock[B <: Block](name: String, supp: Supplier[B]): RegistryObject[B] = {
     BLOCKS.register(name, supp)
   }
 
-  def regContainer[C <: Container](name: String, fac: IContainerFactory[C]): RegCT[C] = {
+  def regContainerType[C <: Container](name: String, fac: IContainerFactory[C]): RegistryObject[ContainerType[C]] = {
     CONTAINERS.register(name, () => IForgeContainerType.create(fac))
   }
-  def regCreativeTab(item: () => RegO[Item]) = new ItemGroup(Anima.MODID + ".creativetab") {
+
+  def regCreativeTab(item: () => RegistryObject[Item]) = new ItemGroup(Anima.MODID) {
     override def createIcon(): ItemStack = {
       item().get.getDefaultInstance
     }

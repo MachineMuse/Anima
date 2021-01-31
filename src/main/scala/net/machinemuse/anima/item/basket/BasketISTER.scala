@@ -3,7 +3,6 @@ package item.basket
 
 import com.mojang.blaze3d.matrix.MatrixStack
 import net.machinemuse.anima.client.ClientSetup
-import net.machinemuse.anima.registration.AnimaRegistry
 import net.machinemuse.anima.util.RenderingShorthand.withPushedMatrix
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType
@@ -34,12 +33,11 @@ object BasketISTER extends ItemStackTileEntityRenderer with Logging {
                              ): Unit = {
     transformType match {
       case TransformType.GUI =>
-        val basketItem = AnimaRegistry.BASKET_ITEM.get()
-        val firstInBasket = basketItem.getContentsAt(bag, 0)
+        val selectedInBasket = Basket.getInstance.getSelectedStack(bag)
         doRenderModel(bag, transformType, matrixStack, buffer, combinedLight, combinedOverlay)
 
-        if(!firstInBasket.isEmpty) {
-          doRenderOverlay(firstInBasket, transformType, matrixStack, buffer, combinedLight, combinedOverlay)
+        if(!selectedInBasket.isEmpty) {
+          doRenderOverlay(selectedInBasket, transformType, matrixStack, buffer, combinedLight, combinedOverlay)
         }
 //      case _ if(transformType.isFirstPerson) =>
 //        doRenderModel(bag, transformType, matrixStack, buffer, combinedLight, combinedOverlay)

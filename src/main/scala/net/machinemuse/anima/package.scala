@@ -4,6 +4,7 @@ import net.minecraft.world.World
 import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.eventbus.api.Event
+import org.apache.logging.log4j.scala.Logger
 
 import java.util.function.Consumer
 
@@ -16,10 +17,11 @@ package object anima {
     def none = None
   }
 
-  implicit class RichInt(a: Int) {
-    def secondsInTicks = a * 20
-    def minutesInTicks = a * 20 * 60
-    def isFromUntil(b: Int, c: Int) = (a >= b && a < c) ||
+  implicit class RichNumeric[T](a: T)(implicit nt: Numeric[T]) {
+    import nt._
+    final def secondsInTicks = a * nt.fromInt(20)
+    final def minutesInTicks = a * nt.fromInt(20) * nt.fromInt(60)
+    def isFromUntil(b: T, c: T) = (a >= b && a < c) ||
                                     (a < b && a >= c)
 
   }
@@ -33,6 +35,10 @@ package object anima {
   implicit class AndDoable[T](ret: T) {
     def andDo(f: T => ()): T = {
       f(ret)
+      ret
+    }
+    def andLog(f: Logger => Unit)(implicit logr: Logger): T = {
+      f(logr)
       ret
     }
   }

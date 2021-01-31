@@ -3,8 +3,8 @@ package item
 package basket
 
 import net.machinemuse.anima.gui.BasketContainer
-import net.machinemuse.anima.registration.AnimaRegistry
 import net.machinemuse.anima.registration.AnimaRegistry.AnimaCreativeGroup
+import net.machinemuse.anima.registration.RegistryHelpers._
 import net.machinemuse.anima.util.VanillaClassEnrichers._
 import net.minecraft.data.ShapedRecipeBuilder
 import net.minecraft.entity.player.{PlayerEntity, ServerPlayerEntity}
@@ -15,6 +15,7 @@ import net.minecraft.util.math.BlockRayTraceResult
 import net.minecraft.util.{Unit => _, _}
 import net.minecraft.world.World
 import net.minecraftforge.common.IPlantable
+import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent
 import net.minecraftforge.eventbus.api.Event.Result
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -48,7 +49,8 @@ object Basket extends Logging {
     }
   }
 
-  logger.debug("Basket object initialized")
+  val instance = regExtendedItem("basket", () => new Basket)
+  def getInstance = instance.get()
 
   @SubscribeEvent
   def gatherData(event: GatherDataEvent): Unit = {
@@ -56,7 +58,7 @@ object Basket extends Logging {
     mkRecipeProvider(event) {
       consumer =>
         ShapedRecipeBuilder
-          .shapedRecipe(AnimaRegistry.BASKET_ITEM.get())
+          .shapedRecipe(getInstance)
           .patternLine(" / ")
           .patternLine("# #")
           .patternLine("###")
@@ -66,7 +68,7 @@ object Basket extends Logging {
           .buildProperly(consumer, "basket_from_sugar_cane")
 
         ShapedRecipeBuilder
-          .shapedRecipe(AnimaRegistry.BASKET_ITEM.get())
+          .shapedRecipe(getInstance)
           .patternLine(" / ")
           .patternLine("# #")
           .patternLine("###")
@@ -78,8 +80,14 @@ object Basket extends Logging {
     }
   }
 
+  @SubscribeEvent
+  def onRegisterItems(e: RegistryEvent.Register[Item]): Unit = {
+
+  }
+
 }
 
+// counterintuitively, this will autosubscribe all the methods annotated with @SubscribeEvent in the companion object above.
 @Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 class Basket extends Item(new Item.Properties().maxStackSize(1).group(AnimaCreativeGroup).setISTER(() => () => BasketISTER)) with InventoriedItem with Logging {
   def isVeggie(stack: ItemStack): Boolean = stack.getItem.isFood && !stack.getItem.getFood.isMeat

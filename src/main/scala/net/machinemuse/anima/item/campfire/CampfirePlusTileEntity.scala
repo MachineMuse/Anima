@@ -2,14 +2,17 @@ package net.machinemuse.anima
 package item
 package campfire
 
-import net.machinemuse.anima.registration.AnimaRegistry
-import net.machinemuse.anima.registration.AnimaRegistry.ENTITY_LIGHT_SPIRIT
+import net.machinemuse.anima.entity.EntityLightSpirit
+import net.machinemuse.anima.registration.RegistryHelpers._
 import net.minecraft.block.{BlockState, Blocks}
 import net.minecraft.entity.SpawnReason
 import net.minecraft.item.DyeColor
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.{CampfireTileEntity, TileEntityType}
 import net.minecraft.util.text.TranslationTextComponent
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 import org.apache.logging.log4j.scala.Logging
 
 import scala.annotation.nowarn
@@ -18,9 +21,17 @@ import scala.util.Random
 /**
  * Created by MachineMuse on 1/24/2021.
  */
+object CampfirePlusTileEntity {
+  @SubscribeEvent def init(e: FMLConstructModEvent) = {}
+
+  val CAMPFIREPLUS_TE = regTE[CampfirePlusTileEntity]("campfireplus", () => new CampfirePlusTileEntity, () => CampfirePlus.getBlock)
+  def getType = CAMPFIREPLUS_TE.get()
+}
+
+@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
-  def init(blockstate: BlockState, campfireTileEntity: CampfireTileEntity): Unit = {
-    val oldNBT: CompoundNBT = campfireTileEntity.write(new CompoundNBT)
+  def copyOldTE(blockstate: BlockState, oldTE: CampfireTileEntity): Unit = {
+    val oldNBT: CompoundNBT = oldTE.write(new CompoundNBT)
     this.read(blockstate, oldNBT)
   }
 
@@ -37,7 +48,7 @@ class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
         val blockPlace = pos.add(randX, randY, randZ)
         val spawnLocationState = world.getBlockState(blockPlace)
         if(spawnLocationState.isAir(world, blockPlace) && spawnLocationState.getBlock != Blocks.VOID_AIR : @nowarn ) {
-          val newEnt = ENTITY_LIGHT_SPIRIT.get().spawn(serverWorld, null, new TranslationTextComponent("lightspirit"), null, blockPlace, SpawnReason.SPAWNER, true, true)
+          val newEnt = EntityLightSpirit.getType.spawn(serverWorld, null, new TranslationTextComponent("lightspirit"), null, blockPlace, SpawnReason.SPAWNER, true, true)
           if(newEnt != null) {
             newEnt.homeblock.set(blockPlace)
             newEnt.attention.set(Random.between(10.minutesInTicks, 30.minutesInTicks))
@@ -49,7 +60,7 @@ class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
     super.tick()
   }
 
-  override def getType: TileEntityType[CampfirePlusTileEntity] = AnimaRegistry.CAMPFIREPLUS_TE.get()
+  override def getType: TileEntityType[CampfirePlusTileEntity] = CampfirePlusTileEntity.getType
 
   override def read(blockstate : BlockState, compound : CompoundNBT): Unit = {
     super.read(blockstate, compound)

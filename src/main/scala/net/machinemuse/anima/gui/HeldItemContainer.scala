@@ -21,14 +21,16 @@ object HeldItemContainer extends Logging {
 abstract class HeldItemContainer(playerInventory: PlayerInventory, hand: Hand, containerItem: InventoriedItem, ct: ContainerType[_], id: Int) extends Container(ct, id) with Logging {
   override def canInteractWith(playerIn: PlayerEntity): Boolean = true
 
-  val (selectedInventory, selectedInventorySlot, basketSlotNumber) = hand match {
+  val (usedInventory, usedInventorySlot, basketSlotNumber) = hand match {
     case Hand.MAIN_HAND => (playerInventory.mainInventory, playerInventory.currentItem, playerInventory.currentItem)
     case Hand.OFF_HAND => (playerInventory.offHandInventory, 0, 40)
   }
 
-  val containerItemStack: ItemStack = selectedInventory.get(selectedInventorySlot)
+  val containerItemStack: ItemStack = usedInventory.get(usedInventorySlot)
 
   val innerInventory: IInventory = containerItem.createInventory(containerItemStack)
+
+  def numInnerSlots: Int = innerInventory.getSizeInventory
 
   def mkInnerSlot(index: Int, xPosition: Int, yPosition: Int) = {
     new Slot(innerInventory, index, xPosition, yPosition) {
@@ -83,9 +85,6 @@ abstract class HeldItemContainer(playerInventory: PlayerInventory, hand: Hand, c
     }
     stackLeftAfterFilling
   }
-
-  def numInnerSlots: Int
-
 
   // They shift clicked a slot... do something smart!
   // Called repeatedly until it returns either an empty itemStack or a stack that doesn't match the contents of the slot clicked.

@@ -1,9 +1,11 @@
 package net.machinemuse.anima
 package client
 
+import net.machinemuse.anima.entity.EntityLightSpirit
 import net.machinemuse.anima.gui.{BasketContainer, BasketGui}
 import net.machinemuse.anima.item.basket.BasketISTER
-import net.machinemuse.anima.registration.{AnimaRegistry, KeyBindings}
+import net.machinemuse.anima.item.campfire.{CampfirePlus, CampfirePlusTileEntity}
+import net.machinemuse.anima.registration.KeyBindings
 import net.minecraft.client.gui.ScreenManager
 import net.minecraft.client.renderer._
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
@@ -48,10 +50,10 @@ object ClientSetup extends Logging {
   def init(event: FMLClientSetupEvent) : Unit = {
     val minecraft = event.getMinecraftSupplier.get()
     logger.debug("setting up client, event triggered")
-    ScreenManager.registerFactory[BasketContainer, BasketGui](AnimaRegistry.BASKET_CONTAINER.get(), new BasketGui(_, _, _)) // type annotations added for IntelliJ's sake
-    RenderTypeLookup.setRenderLayer(AnimaRegistry.CAMPFIREPLUS_BLOCK.get, RenderType.getCutout)
-    ClientRegistry.bindTileEntityRenderer(AnimaRegistry.CAMPFIREPLUS_TE.get, new CampfirePlusTileEntityRenderer(_))
-    RenderingRegistry.registerEntityRenderingHandler(AnimaRegistry.ENTITY_LIGHT_SPIRIT.get(), new LightSpiritRenderer(_))
+    ScreenManager.registerFactory[BasketContainer, BasketGui](BasketContainer.getType, new BasketGui(_, _, _)) // type annotations added for IntelliJ's sake
+    RenderTypeLookup.setRenderLayer(CampfirePlus.getBlock, RenderType.getCutout)
+    ClientRegistry.bindTileEntityRenderer(CampfirePlusTileEntity.getType, new CampfirePlusTileEntityRenderer(_))
+    RenderingRegistry.registerEntityRenderingHandler(EntityLightSpirit.getType, new LightSpiritRenderer(_))
     for( key <- KeyBindings.keybinds) {
       ClientRegistry.registerKeyBinding(key)
     }

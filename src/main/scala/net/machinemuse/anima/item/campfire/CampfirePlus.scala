@@ -2,16 +2,21 @@ package net.machinemuse.anima
 package item
 package campfire
 
-import net.machinemuse.anima.item.campfire.CampfirePlus._
+import net.machinemuse.anima.registration.RegistryHelpers._
 import net.minecraft.block._
 import net.minecraft.block.material.{Material, MaterialColor}
+import net.minecraft.data.BlockTagsProvider
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.DyeItem
 import net.minecraft.state.Property
 import net.minecraft.state.properties.BlockStateProperties
+import net.minecraft.tags.BlockTags
 import net.minecraft.util.math.{BlockPos, BlockRayTraceResult}
 import net.minecraft.util.{Unit => _, _}
 import net.minecraft.world.{IBlockReader, World}
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataEvent}
 
 import scala.jdk.OptionConverters._
 
@@ -20,17 +25,38 @@ import scala.jdk.OptionConverters._
  */
 
 object CampfirePlus {
+  // Init (Required for registration to work)
+  // Use event.enqueueWork{ () => doStuff() } if you need to run any actual mutating code in here
+  @SubscribeEvent def init(e: FMLConstructModEvent) = {}
 
-  val smokey = false
-  val fireDamage = 1
-  val properties = AbstractBlock.Properties.create(Material.WOOD, MaterialColor.OBSIDIAN)
-    .hardnessAndResistance(2.0F)
-    .sound(SoundType.WOOD)
-    .setLightLevel((state: BlockState) => if (state.get(BlockStateProperties.LIT)) 15 else 0)
-    .notSolid
+  // Add CampfirePlus to the list of valid Campfires so e.g. flint & steel can light them if doused
+  @SubscribeEvent def gatherData(event: GatherDataEvent): Unit = {
+    event.getGenerator.addProvider(
+      new BlockTagsProvider(event.getGenerator, Anima.MODID, null) {
+        override def registerTags(): Unit = {
+          this.getOrCreateBuilder(BlockTags.CAMPFIRES).add(CampfirePlus.getBlock)
+        }
+      }
+    )
+  }
+
+  // Block and BlockItem registration
+  val CAMPFIREPLUS_BLOCK = regBlock("campfireplus", () => new CampfirePlus(
+    false, 1,
+    AbstractBlock.Properties.create(Material.WOOD, MaterialColor.OBSIDIAN)
+      .hardnessAndResistance(2.0F)
+      .sound(SoundType.WOOD)
+      .setLightLevel((state: BlockState) => if (state.get(BlockStateProperties.LIT)) 15 else 0)
+      .notSolid
+  ))
+  def getBlock = CAMPFIREPLUS_BLOCK.get()
+
+  val CAMPFIREPLUS_ITEM = regSimpleBlockItem("campfireplus", CampfirePlus.CAMPFIREPLUS_BLOCK)
+  def getBlockItem = CAMPFIREPLUS_ITEM.get()
 }
 
-class CampfirePlus extends CampfireBlock(smokey, fireDamage, properties) {
+@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+class CampfirePlus(smokey: Boolean, fireDamage: Int, properties: AbstractBlock.Properties) extends CampfireBlock(smokey, fireDamage, properties) {
 
   override def createNewTileEntity(worldIn: IBlockReader) = new CampfirePlusTileEntity
 

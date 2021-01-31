@@ -60,7 +60,9 @@ object RichDataParameter {
   class ParameterRegistrar(clazz: Class[_ <: Entity]) {
     import ParameterTypes._ // Get those implicits in scope
     val parameterRegistry = new mutable.HashMap[String, ParameterInstance[_]]()
-    def mkDataParameter[T](name: String, default: T)(implicit pt: ParameterType[T]): ParameterInstance[T] = {
+    final def mkDataParameter[T](name: String, default: T)(implicit pt: ParameterType[T]): ParameterInstance[T] = {
+      // this is technically unsafe, but since it can only be accessed this way, it will only cause problems if you register
+      // two different data parameters with the same name.
       parameterRegistry.getOrElseUpdate(name, pt.mkInstance(name, clazz, default)).asInstanceOf[ParameterInstance[T]]
     }
   }
@@ -68,8 +70,22 @@ object RichDataParameter {
   // Case class for accessing a data parameter.
   case class DataSync[T](param: ParameterInstance[T], dm: EntityDataManager) {
     param.register(dm)
-    def get(): T = param.get(dm)
-    def set(value: T): Unit = param.set(value)(dm)
+    final def get(): T = param.get(dm)
+    final def set(value: T): Unit = param.set(value)(dm)
+    final def :=(that: T): T = that.andDo(result => set(result))
+    final def apply() = get()
+  }
+  implicit class DataSyncNumeric[T](data: DataSync[T])(implicit numeric: Numeric[T]) {
+    import numeric._
+    final def +(that: T): T = data.get() + that
+    final def +=(that: T): T = (this + that).andDo(result => data.set(result))
+    final def -(that: T): T = data.get() - that
+    final def -=(that: T): T = (this - that).andDo(result => data.set(result))
+    final def *(that: T): T = data.get() * that
+    final def *=(that: T): T = (this * that).andDo(result => data.set(result))
+    final def unary_- : T = -data.get()
+    final def unary_++ : T = this += numeric.one
+    final def unary_-- : T = this -= numeric.one
   }
 
   trait ParameterInstance[T] {
@@ -182,7 +198,7 @@ object RichDataParameter {
     implicit val O_BLOCK_POS:   VanillaParameterType[Optional[BlockPos]] = VanillaParameterType(
         DataSerializers.OPTIONAL_BLOCK_POS,
         (name, compound, value: Optional[BlockPos]) => if(value.isPresent) compound.putLong(name, value.get().toLong),
-        (name, compound) => if(compound.contains(name)) Optional.of(BlockPos.fromLong(compound.getLong(name))) else Optional.empty
+        (name, compound) => if(compound.contains(name)) Optional.of(BlockPos.fromLong(compound.getLong(name))) else Optional.empty()
       )
     implicit val DIRECTION:     VanillaParameterType[Direction] = VanillaParameterType(
         DataSerializers.DIRECTION,
@@ -207,7 +223,7 @@ object RichDataParameter {
     implicit val O_TEXTCOMP:    VanillaParameterType[Optional[ITextComponent]] = VanillaParameterType(
       DataSerializers.OPTIONAL_TEXT_COMPONENT,
       (name, compound, value) => if(value.isPresent) { compound.putString(name, ITextComponent.Serializer.toJson(value.get)) },
-      (name, compound) => if(compound.contains(name)) Optional.of(ITextComponent.Serializer.getComponentFromJson(compound.getString(name))) else Optional.empty
+      (name, compound) => if(compound.contains(name)) Optional.of(ITextComponent.Serializer.getComponentFromJson(compound.getString(name))) else Optional.empty()
     )
     // TODO: NBT serializers/deserializers for these ones if deemed necessary
     implicit val O_BLOCK_STATE: ParameterType[Optional[BlockState]] = UnsavedParameterType(DataSerializers.OPTIONAL_BLOCK_STATE)

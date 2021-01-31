@@ -4,17 +4,32 @@ package campfire
 
 import net.machinemuse.anima.entity.EntityLightSpirit
 import net.machinemuse.anima.registration.AnimaRegistry._
+import net.machinemuse.anima.registration.RegistryHelpers._
 import net.machinemuse.anima.util.BlockStateFlags
 import net.minecraft.block.CampfireBlock
 import net.minecraft.entity.SpawnReason
 import net.minecraft.item._
 import net.minecraft.tileentity.CampfireTileEntity
 import net.minecraft.util.ActionResultType
+import net.minecraft.util.text.TranslationTextComponent
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 import org.apache.logging.log4j.scala.Logging
 
 /**
  * Created by MachineMuse on 1/24/2021.
  */
+
+object DustForCampfire {
+  @SubscribeEvent def init(event: FMLConstructModEvent) = {} // Ensures the class gets initialized when the mod is constructed
+
+  final val instance = regExtendedItem("campfiredust", () => new DustForCampfire)
+  def getInstance = instance.get()
+}
+
+// counterintuitively, this will autosubscribe all the methods annotated with @SubscribeEvent in the companion object above.
+@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 class DustForCampfire extends Item(new Item.Properties().group(AnimaCreativeGroup)) with Logging {
   // Called when this item is used when targeting a Block
   override def onItemUse(context: ItemUseContext): ActionResultType = {
@@ -25,8 +40,8 @@ class DustForCampfire extends Item(new Item.Properties().group(AnimaCreativeGrou
       if(oldState.getBlock.isInstanceOf[CampfirePlus]) {
         ActionResultType.SUCCESS
       } else {
-        val newTileEntity = CAMPFIREPLUS_TE.get.create()
-        val newState = CAMPFIREPLUS_BLOCK.get.getCopiedState(oldState)
+        val newTileEntity = CampfirePlusTileEntity.getType.create()
+        val newState = CampfirePlus.getBlock.getCopiedState(oldState)
 
         val oldTileEntity = world.getTileEntity(pos)
         world.removeTileEntity(pos)
@@ -35,7 +50,7 @@ class DustForCampfire extends Item(new Item.Properties().group(AnimaCreativeGrou
         world.setTileEntity(context.getPos, newTileEntity)
 
         oldTileEntity.optionallyDoAs[CampfireTileEntity] { oldte =>
-          newTileEntity.init(newState, oldte)
+          newTileEntity.copyOldTE(newState, oldte)
         }
 
         ActionResultType.SUCCESS
@@ -44,9 +59,9 @@ class DustForCampfire extends Item(new Item.Properties().group(AnimaCreativeGrou
       world.onServer { serverWorld =>
         val blockAbove = pos.up()
         val itemstack = context.getItem
-        val newEnt = ENTITY_LIGHT_SPIRIT.get().spawn(serverWorld, itemstack, context.getPlayer, blockAbove, SpawnReason.SPAWN_EGG, true, true).asInstanceOf[EntityLightSpirit]
+        val newEnt = EntityLightSpirit.getType.spawn(serverWorld, itemstack.getTag, new TranslationTextComponent("lightspirit"), context.getPlayer, blockAbove, SpawnReason.SPAWN_EGG, true, true)
         if(newEnt != null) {
-          newEnt.homeblock.set(blockAbove)
+          newEnt.homeblock := blockAbove
           itemstack.shrink(1)
         }
         logger.debug("new entity " + newEnt + " created")
