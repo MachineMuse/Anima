@@ -22,12 +22,12 @@ object Network extends Logging {
   )
   private var NETWORK_ID: Int = 0
 
+  import JavaFunctionConverters._
   def registerMessage[P: ClassTag](
                        encode: (P, PacketBuffer) => (),
                        decode: PacketBuffer => P,
                        handle: (P, () => NetworkEvent.Context) => ()) = {
     val clazz: Class[P] = classTag[P].runtimeClass.asInstanceOf[Class[P]]
-    import JavaFunctionConverters._
     CHANNEL.registerMessage(NETWORK_ID, clazz, encode, decode, handle)
     NETWORK_ID = NETWORK_ID + 1
   }

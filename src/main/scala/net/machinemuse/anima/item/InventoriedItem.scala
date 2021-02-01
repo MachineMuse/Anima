@@ -16,8 +16,6 @@ import scala.jdk.CollectionConverters._
  */
 trait InventoriedItem extends ModeChangingItem[Int] {
 
-  def getTagCompound(stack:ItemStack): CompoundNBT = stack.getOrCreateTag()
-
   def canStoreItem(container: ItemStack, toStore: ItemStack): Boolean
 
   def accessor = IntNBTTagAccessor
@@ -31,16 +29,16 @@ trait InventoriedItem extends ModeChangingItem[Int] {
   def getSelectedStack(bag: ItemStack): ItemStack = getContentsAt(bag, getCurrentMode(bag))
   def setSelectedStack(bag: ItemStack, contents: ItemStack) = setContentsAt(bag, getCurrentMode(bag), contents)
 
-  def getContentsAsNBTTagList(stack: ItemStack): ListNBT = getTagCompound(stack).getList("contents", NBTTypeRef.TAG_COMPOUND)
+  private def getContentsAsNBTTagList(bag: ItemStack): ListNBT = bag.getOrCreateTag().getList("contents", NBTTypeRef.TAG_COMPOUND)
 
-  def getContents(stack: ItemStack): Seq[ItemStack] = getContentsAsNBTTagList(stack).asScala.iterateAs[CompoundNBT].map(getFromOverloadedCompound).toSeq
+  def getContents(bag: ItemStack): Seq[ItemStack] = getContentsAsNBTTagList(bag).asScala.iterateAs[CompoundNBT].map(getFromOverloadedCompound).toSeq
 
-  def setContents(stack: ItemStack, contents: Seq[ItemStack]): Unit = {
+  def setContents(bag: ItemStack, contents: Seq[ItemStack]): Unit = {
     val list = new ListNBT()
     contents foreach { item =>
       list.add(list.size, makeOverloadedCompound(item))
     }
-    getTagCompound(stack).put("contents", list)
+    bag.getOrCreateTag().put("contents", list)
   }
 
   def isValidForSlot(n: Int, bag: ItemStack, stackToInsert: ItemStack): Boolean
@@ -82,16 +80,18 @@ trait InventoriedItem extends ModeChangingItem[Int] {
 
   }
 
-  def getNumStacks(bag: ItemStack): Int = getTagCompound(bag).getList("contents", NBTTypeRef.TAG_COMPOUND).size
+  def getNumStacks(bag: ItemStack): Int = bag.getOrCreateTag().getList("contents", NBTTypeRef.TAG_COMPOUND).size
 
   def makeOverloadedCompound(stack: ItemStack): CompoundNBT = stack.write(new CompoundNBT()).andDo(_.putInt("realcount", stack.getCount))
 
   // Nullsafe, returns empty, might drop a log message though
   def getFromOverloadedCompound(compound: CompoundNBT): ItemStack =
-    ItemStack.read(compound).andDo { stack =>
+    ItemStack.read(compound.copy()).andDo { stack =>
       if(compound.contains("realcount")) {
         stack.setCount(compound.getInt("realcount"))
-        compound.remove("realcount")
+        if(stack.hasTag) {
+          stack.getTag().remove("realcount")
+        }
       }
     }
 
@@ -106,22 +106,22 @@ trait InventoriedItem extends ModeChangingItem[Int] {
       }
     }
     list.set(i, makeOverloadedCompound(stackToInsert))
-    getTagCompound(bag).put("contents", list)
+    bag.getOrCreateTag().put("contents", list)
   }
 
-  def clearContents(bag: ItemStack): Unit = getTagCompound(bag).remove("contents")
+  def clearContents(bag: ItemStack): Unit = bag.getOrCreateTag().remove("contents")
 
   def getSize(bag: ItemStack): Int
 
   def getStackLimit(bag: ItemStack): Int
 
-  def createInventory(containingItem: ItemStack): IInventory = new IInventory {
+  def createInventory(container: ItemStack): IInventory = new IInventory {
 
-    override def isEmpty: Boolean = getNumStacks(containingItem) > 0
+    override def isEmpty: Boolean = getNumStacks(container) > 0
 
     override def getStackInSlot(index: Int): ItemStack = {
 //      if(playerInventory.getStackInSlot(containingSlot) == containingItem) {
-        getContentsAt(containingItem, index)
+        getContentsAt(container, index)
 //      } else {
 //        ItemStack.EMPTY
 //      }
@@ -152,7 +152,7 @@ trait InventoriedItem extends ModeChangingItem[Int] {
 
     override def setInventorySlotContents(index: Int, stack: ItemStack): Unit = {
 //      if(playerInventory.getStackInSlot(containingSlot) == containingItem) {
-        setContentsAt(containingItem, index, stack)
+        setContentsAt(container, index, stack)
 //      } else {
 //         todo: error handling
 //      }
@@ -167,7 +167,7 @@ trait InventoriedItem extends ModeChangingItem[Int] {
 
     override def clear(): Unit = {
 //      if(playerInventory.getStackInSlot(containingSlot) == containingItem) {
-        clearContents(containingItem)
+        clearContents(container)
 //      } else {
 //         TODO: error handling
 //      }
@@ -175,12 +175,12 @@ trait InventoriedItem extends ModeChangingItem[Int] {
 
     override def getSizeInventory: Int = {
 //      if(playerInventory.getStackInSlot(containingSlot) == containingItem) {
-        getSize(containingItem)
+        getSize(container)
 //      } else {
 //        0
 //      }
     }
 
-    override def getInventoryStackLimit: Int = 999
+    override def getInventoryStackLimit: Int = getStackLimit(container)
   }
 }

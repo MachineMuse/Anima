@@ -10,7 +10,6 @@ import util.VanillaClassEnrichers._
 import net.minecraft.data.ShapedRecipeBuilder
 import net.minecraft.entity.player.{PlayerEntity, ServerPlayerEntity}
 import net.minecraft.item._
-import net.minecraft.nbt.CompoundNBT
 import net.minecraft.network.PacketBuffer
 import net.minecraft.util.math.BlockRayTraceResult
 import net.minecraft.util.{Unit => _, _}
@@ -38,8 +37,9 @@ object Basket extends Logging {
   def init(event: FMLConstructModEvent) = addForgeListeners(onEntityItemPickup)
 
   def onEntityItemPickup(event: EntityItemPickupEvent): Unit = {
+    // Iterate through the player's inventory slots for baskets
     for { slotStack <- event.getPlayer.inventory.mainInventory.asScala ++ event.getPlayer.inventory.offHandInventory.asScala
-          basket <- slotStack.getItem.optionallyAs[Basket].toList
+          basket <- slotStack.getItem.optionallyAs[Basket].toList // try to cast it, skip if it's not a Basket
           } {
       val remainder = basket.insertItem(slotStack, event.getItem.getItem)
       event.getItem.setItem(remainder)
@@ -95,8 +95,6 @@ class Basket extends Item(new Item.Properties().maxStackSize(1).group(AnimaCreat
   def isPlantable(stack: ItemStack): Boolean = OptionCast[BlockItem](stack.getItem).exists(_.getBlock.isInstanceOf[IPlantable])
 
   override def canStoreItem(container: ItemStack, toStore: ItemStack): Boolean = isVeggie(toStore) || isPlantable(toStore)
-
-  override def getTagCompound(stack: ItemStack): CompoundNBT = super.getTagCompound(stack)
 
   // Called when the item is used on a block
   override def onItemUse(context: ItemUseContext): ActionResultType = {
