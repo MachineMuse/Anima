@@ -1,7 +1,8 @@
 package net.machinemuse.anima
 package item
 
-import net.machinemuse.anima.util.NBTTypeRef
+import util.NBTTypeRef
+
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.container.Container
@@ -13,17 +14,22 @@ import scala.jdk.CollectionConverters._
 /**
  * Created by MachineMuse on 1/21/2021.
  */
-trait InventoriedItem {
+trait InventoriedItem extends ModeChangingItem[Int] {
 
   def getTagCompound(stack:ItemStack): CompoundNBT = stack.getOrCreateTag()
 
   def canStoreItem(container: ItemStack, toStore: ItemStack): Boolean
 
-  def getSelectedStack(bag: ItemStack): ItemStack = getContentsAt(bag, getSelectedSlot(bag))
-  def setSelectedStack(bag: ItemStack, contents: ItemStack) = setContentsAt(bag, getSelectedSlot(bag), contents)
+  def accessor = IntNBTTagAccessor
 
-  def getSelectedSlot(stack: ItemStack): Int = getTagCompound(stack).getInt("selected") // returns 0 if tag doesn't exist
-  def setSelectedSlot(stack: ItemStack, i:Int): Unit = getTagCompound(stack).putInt("selected", i)
+  override def getValidModes(stack: ItemStack): Seq[Int] = getContents(stack).zipWithIndex.flatMap {
+    case (null, _) => Seq.empty
+    case (stack, _) if stack.isEmpty => Seq.empty
+    case (_, index) => Seq(index)
+  }
+
+  def getSelectedStack(bag: ItemStack): ItemStack = getContentsAt(bag, getCurrentMode(bag))
+  def setSelectedStack(bag: ItemStack, contents: ItemStack) = setContentsAt(bag, getCurrentMode(bag), contents)
 
   def getContentsAsNBTTagList(stack: ItemStack): ListNBT = getTagCompound(stack).getList("contents", NBTTypeRef.TAG_COMPOUND)
 

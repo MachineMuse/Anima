@@ -1,18 +1,21 @@
 package net.machinemuse.anima
 package item.basket
 
+import client.ClientSetup
+import util.RenderingShorthand.withPushedMatrix
+
 import com.mojang.blaze3d.matrix.MatrixStack
-import net.machinemuse.anima.client.ClientSetup
-import net.machinemuse.anima.util.RenderingShorthand.withPushedMatrix
+import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer
-import net.minecraft.client.renderer.{IRenderTypeBuffer, ItemRenderer}
+import net.minecraft.client.renderer._
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import org.apache.logging.log4j.scala.Logging
 
 import java.util.Random
+import scala.annotation.nowarn
 
 /**
  * Created by MachineMuse on 1/21/2021.
@@ -38,6 +41,7 @@ object BasketISTER extends ItemStackTileEntityRenderer with Logging {
 
         if(!selectedInBasket.isEmpty) {
           doRenderOverlay(selectedInBasket, transformType, matrixStack, buffer, combinedLight, combinedOverlay)
+          doRenderText(selectedInBasket, matrixStack)
         }
 //      case _ if(transformType.isFirstPerson) =>
 //        doRenderModel(bag, transformType, matrixStack, buffer, combinedLight, combinedOverlay)
@@ -77,4 +81,28 @@ object BasketISTER extends ItemStackTileEntityRenderer with Logging {
       Minecraft.getInstance().getItemRenderer.renderModel(bakedmodel, bag, combinedLight, combinedOverlay, matrixStack, vertexBuilder)
     }
   }
+
+  def doRenderText(stack: ItemStack, matrixStack: MatrixStack) =
+    withPushedMatrix(matrixStack) { matEl =>
+      val fontScale = 1.0F / 16.0F
+      RenderSystem.pushMatrix(): @nowarn
+      RenderSystem.scalef(fontScale, fontScale, fontScale): @nowarn
+      RenderSystem.scalef(1.0F, -1.0F, 1.0F): @nowarn
+      RenderSystem.translatef(-8.0F, -8.0F, 0.0F): @nowarn
+      RenderSystem.translatef(0, 0, 50.0F): @nowarn
+
+      matrixStack.translate(0.0F, 0.25F, 0.0625F)
+      matrixStack.scale(0.75F, 0.75F, 1.0F)
+      if (stack.getCount != 1) {
+        val s = String.valueOf(stack.getCount)
+        val buffer = IRenderTypeBuffer.getImpl(Tessellator.getInstance.getBuffer)
+        val fr = Minecraft.getInstance().fontRenderer
+        val xPosition = (19 - 2 - fr.getStringWidth(s)).toFloat
+        val yPosition = (6 + 3).toFloat
+        fr.renderString(s, xPosition, yPosition, 16777215, true, matrixStack.getLast.getMatrix, buffer, false, 0, 15728880)
+        buffer.finish()
+      }
+      RenderSystem.popMatrix(): @nowarn
+    }
+
 }

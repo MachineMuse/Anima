@@ -7,6 +7,6 @@ import org.apache.logging.log4j.scala.Logging
  * Created by MachineMuse on 1/29/2021.
  */
 trait OverloadableContainer extends Container with Logging {
-
+// TODO: Factor out overloadable slot functionality from HeldItemContainer
 
 }

@@ -1,10 +1,11 @@
 package net.machinemuse.anima
 package entity
 
-import net.machinemuse.anima.entity.EntityLightSpirit.{AirLightBlock, getAirLightBlock}
-import net.machinemuse.anima.registration.RegistryHelpers._
-import net.machinemuse.anima.util.BlockStateFlags
-import net.machinemuse.anima.util.RichDataParameter._
+import entity.EntityLightSpirit.{AirLightBlock, getAirLightBlock}
+import registration.RegistryHelpers._
+import util.BlockStateFlags
+import util.RichDataParameter._
+
 import net.minecraft.block._
 import net.minecraft.block.material.Material
 import net.minecraft.entity._
@@ -22,10 +23,10 @@ import org.apache.logging.log4j.scala.Logging
 object EntityLightSpirit extends ParameterRegistrar(classOf[EntityLightSpirit]) with Logging {
   @SubscribeEvent def init(event: FMLConstructModEvent) = {}
 
-  val ENTITY_LIGHT_SPIRIT = regEntityType[EntityLightSpirit]("lightspirit", () => EntityLightSpirit, new EntityLightSpirit(_,_), EntityClassification.MISC)
+  private val ENTITY_LIGHT_SPIRIT = regEntityType[EntityLightSpirit]("lightspirit", () => EntityLightSpirit, new EntityLightSpirit(_,_), EntityClassification.MISC)
   def getType = ENTITY_LIGHT_SPIRIT.get()
 
-  val AIRLIGHT_BLOCK = regBlock("airlight", () => new AirLightBlock)
+  private val AIRLIGHT_BLOCK = regBlock("airlight", () => new AirLightBlock)
   def getAirLightBlock = AIRLIGHT_BLOCK.get()
 
   class AirLightBlock extends Block(AbstractBlock.Properties.create(Material.AIR).doesNotBlockMovement.noDrops.setLightLevel(_ => 15)) {

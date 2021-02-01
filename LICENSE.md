@@ -1,6 +1,6 @@
 DO WHAT THE HECK YOU WANT TO BUT IT'S NOT MY FAULT PUBLIC LICENSE
 Version 1, January 2021
-Copyright © 2021 MachineMuse
+Copyright © 2021 MachineMuse, Modified from WTFNMFPL-1.0 © 2013 Ben McGinnes
 
 Everyone is permitted to copy and distribute verbatim or modified copies of this license document, and changing it is allowed as long as the name is changed.
 

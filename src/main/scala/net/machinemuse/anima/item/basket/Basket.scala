@@ -2,10 +2,11 @@ package net.machinemuse.anima
 package item
 package basket
 
-import net.machinemuse.anima.gui.BasketContainer
-import net.machinemuse.anima.registration.AnimaRegistry.AnimaCreativeGroup
-import net.machinemuse.anima.registration.RegistryHelpers._
-import net.machinemuse.anima.util.VanillaClassEnrichers._
+import gui.BasketContainer
+import registration.AnimaRegistry.AnimaCreativeGroup
+import registration.RegistryHelpers._
+import util.VanillaClassEnrichers._
+
 import net.minecraft.data.ShapedRecipeBuilder
 import net.minecraft.entity.player.{PlayerEntity, ServerPlayerEntity}
 import net.minecraft.item._
@@ -168,4 +169,6 @@ class Basket extends Item(new Item.Properties().maxStackSize(1).group(AnimaCreat
 
   // TODO: dynamic or somethin
   override def getStackLimit(bag: ItemStack): Int = 999
+
+  override def getDefaultMode(stack: ItemStack): Int = 0
 }

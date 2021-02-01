@@ -2,7 +2,8 @@ package net.machinemuse.anima
 package item
 package campfire
 
-import net.machinemuse.anima.registration.RegistryHelpers._
+import registration.RegistryHelpers._
+
 import net.minecraft.block._
 import net.minecraft.block.material.{Material, MaterialColor}
 import net.minecraft.data.BlockTagsProvider
@@ -40,8 +41,9 @@ object CampfirePlus {
     )
   }
 
+  private val DATA_NAME = "campfireplus"
   // Block and BlockItem registration
-  val CAMPFIREPLUS_BLOCK = regBlock("campfireplus", () => new CampfirePlus(
+  private val CAMPFIREPLUS_BLOCK = regBlock(DATA_NAME, () => new CampfirePlus(
     false, 1,
     AbstractBlock.Properties.create(Material.WOOD, MaterialColor.OBSIDIAN)
       .hardnessAndResistance(2.0F)
@@ -51,7 +53,7 @@ object CampfirePlus {
   ))
   def getBlock = CAMPFIREPLUS_BLOCK.get()
 
-  val CAMPFIREPLUS_ITEM = regSimpleBlockItem("campfireplus", CampfirePlus.CAMPFIREPLUS_BLOCK)
+  private val CAMPFIREPLUS_ITEM = regSimpleBlockItem(DATA_NAME, CampfirePlus.CAMPFIREPLUS_BLOCK)
   def getBlockItem = CAMPFIREPLUS_ITEM.get()
 }
 

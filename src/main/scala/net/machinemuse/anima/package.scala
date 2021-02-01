@@ -1,9 +1,11 @@
 package net.machinemuse
 
+import net.minecraft.nbt._
 import net.minecraft.world.World
 import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.eventbus.api.Event
+import net.minecraftforge.fml.event.lifecycle.ParallelDispatchEvent
 import org.apache.logging.log4j.scala.Logger
 
 import java.util.function.Consumer
@@ -17,6 +19,32 @@ package object anima {
     def none = None
   }
 
+  trait NBTTagAccessor[T] {
+    def getFromCompound(tag: CompoundNBT, name: String): T
+    def putInCompound(tag: CompoundNBT, name: String, item: T): Unit
+
+    def getFromList(tag: ListNBT, index: Int): T
+    def putInList(tag: ListNBT, index: Int, item: T): Unit
+  }
+
+  implicit class RichCompoundNBT(compound: CompoundNBT) {
+    def putT[T](name: String, item: T)(implicit accessor: NBTTagAccessor[T]) = accessor.putInCompound(compound, name, item)
+    def getT[T](name: String)(implicit accessor: NBTTagAccessor[T]): T = accessor.getFromCompound(compound, name)
+  }
+
+  implicit object IntNBTTagAccessor extends NBTTagAccessor[Int] {
+    override def getFromCompound(tag: CompoundNBT, name: String): Int = tag.getInt(name)
+    override def putInCompound(tag: CompoundNBT, name: String, item: Int): Unit = tag.putInt(name, item)
+
+    override def getFromList(tag: ListNBT, index: Int): Int = tag.getInt(index)
+    override def putInList(tag: ListNBT, index: Int, item: Int): Unit = tag.add(index, IntNBT.valueOf(item))
+  }
+
+
+  implicit class RichTuple2[A, B](t: (A, B)) {
+    def mapFirst[C](f: A => C) = (f(t._1), t._2)
+    def mapSecond[C](f: B => C) = (t._1, f(t._2))
+  }
   implicit class RichNumeric[T](a: T)(implicit nt: Numeric[T]) {
     import nt._
     final def secondsInTicks = a * nt.fromInt(20)
@@ -72,6 +100,8 @@ package object anima {
         f(a,b,c)
     }
   }
+
+  // TODO: replace with ClassTag and stuff
 
   // Nullsafe!
   object OptionCast {
@@ -135,5 +165,17 @@ package object anima {
     }
   }
 
+  object JavaFunctionConverters {
+    import java.util.function._
+    implicit def biconsumer[A, B](bc: (A, B) => ()): BiConsumer[A, B] = bc(_,_)
+    implicit def function1[A, B](f: A => B): Function[A, B] = f(_)
+    implicit def supplier[A] (f: () => A): Supplier[A] = () => f()
+    implicit def consumer[A] (f: A => ()): Consumer[A] = f(_)
+    implicit def biconsumer1P2Supplier[P,S](f: (P, () => S) => ()): BiConsumer[P, Supplier[S]] = (p, s) => f(p,() => s.get())
+  }
+
+  implicit class OffThreadEvent(evt: ParallelDispatchEvent) {
+    def doOnMainThread(f: () => Unit) = evt.enqueueWork(new Runnable() {def run() = f()})
+  }
   def addForgeListeners(listeners: Consumer[_ <: Event]*) = for(listener <- listeners) {MinecraftForge.EVENT_BUS.addListener(listener)}
 }
