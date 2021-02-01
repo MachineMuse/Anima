@@ -22,6 +22,7 @@ mcmodsrepo
 eclipse
 run
 logs
+.scalafmt
 .scalafmt.conf
 
 # Files from Forge MDK
