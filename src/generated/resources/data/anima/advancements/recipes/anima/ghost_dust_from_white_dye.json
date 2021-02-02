@@ -1,0 +1,54 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "anima:ghost_dust_from_white_dye"
+    ]
+  },
+  "criteria": {
+    "has_gunpowder": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:gunpowder"
+          }
+        ]
+      }
+    },
+    "has_white_dye": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:white_dye"
+          }
+        ]
+      }
+    },
+    "has_sugar": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:sugar"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "anima:ghost_dust_from_white_dye"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_gunpowder",
+      "has_white_dye",
+      "has_sugar",
+      "has_the_recipe"
+    ]
+  ]
+}

@@ -32,6 +32,28 @@ object VanillaClassEnrichers extends Logging {
     }
   }
 
+  implicit class RichItemStack(stack: ItemStack) {
+    private val tagName = "transparency"
+    def hasTransparency: Boolean = {
+      stack.hasTag && stack.getTag.contains(tagName)
+    }
+    def getTransparency: Float = {
+      if(stack.hasTransparency) {
+        stack.getTag.getFloat(tagName)
+      } else {
+        0.0F
+      }
+    }
+    def setTransparency(f: Float): Unit = {
+      stack.getOrCreateTag().putFloat(tagName, f)
+    }
+
+    def removeTransparency(): Unit = {
+      stack.getOrCreateTag().remove(tagName)
+    }
+  }
+
+
   def mkContainerProvider[T <: Container](name: String, menuctor: (Int, PlayerInventory, PlayerEntity) => T): INamedContainerProvider = {
     new INamedContainerProvider() {
       override def getDisplayName: ITextComponent = new TranslationTextComponent(s"screen.${Anima.MODID}.$name")

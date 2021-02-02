@@ -15,7 +15,6 @@ import net.minecraft.util.math.BlockRayTraceResult
 import net.minecraft.util.{Unit => _, _}
 import net.minecraft.world.World
 import net.minecraftforge.common.IPlantable
-import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent
 import net.minecraftforge.eventbus.api.Event.Result
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -34,18 +33,17 @@ import scala.jdk.CollectionConverters._
 object Basket extends Logging {
 
   @SubscribeEvent
-  def init(event: FMLConstructModEvent) = addForgeListeners(onEntityItemPickup)
+  def onConstructMod(event: FMLConstructModEvent) = addForgeListeners(onEntityItemPickup)
 
   def onEntityItemPickup(event: EntityItemPickupEvent): Unit = {
     // Iterate through the player's inventory slots for baskets
-    for { slotStack <- event.getPlayer.inventory.mainInventory.asScala ++ event.getPlayer.inventory.offHandInventory.asScala
-          basket <- slotStack.getItem.optionallyAs[Basket].toList // try to cast it, skip if it's not a Basket
-          } {
-      val remainder = basket.insertItem(slotStack, event.getItem.getItem)
-      event.getItem.setItem(remainder)
+    for { slotStack <- event.getPlayer.inventory.mainInventory.asScala ++ event.getPlayer.inventory.offHandInventory.asScala} {
+      if(slotStack.getItem == getInstance) {
+        val remainder = getInstance.insertItem(slotStack, event.getItem.getItem)
+        event.getItem.setItem(remainder)
+      }
     }
-    val remainder = event.getItem.getItem
-    if(remainder.isEmpty) { // Whole stack was consumed in adding to basket
+    if(event.getItem.getItem.isEmpty) { // Whole stack was consumed in adding to basket
       event.setResult(Result.ALLOW) // process achievements etc. but skip adding the item to main inventory
     }
   }
@@ -56,34 +54,25 @@ object Basket extends Logging {
   @SubscribeEvent
   def gatherData(event: GatherDataEvent): Unit = {
     logger.debug("BasketDatagen.gatherData called")
-    mkRecipeProvider(event) {
-      consumer =>
-        ShapedRecipeBuilder
-          .shapedRecipe(getInstance)
-          .patternLine(" / ")
-          .patternLine("# #")
-          .patternLine("###")
-          .addKeyAsCriterion('/', Items.STICK)
-          .addKeyAsCriterion('#', Items.SUGAR_CANE)
-          .setGroup("basket")
-          .buildProperly(consumer, "basket_from_sugar_cane")
+    mkRecipeProvider(event) { consumer =>
+      ShapedRecipeBuilder.shapedRecipe(getInstance)
+        .patternLine(" / ")
+        .patternLine("# #")
+        .patternLine("###")
+        .addKeyAsCriterion('/', Items.STICK)
+        .addKeyAsCriterion('#', Items.SUGAR_CANE)
+        .setGroup("basket")
+        .buildProperly(consumer, "basket_from_sugar_cane")
 
-        ShapedRecipeBuilder
-          .shapedRecipe(getInstance)
-          .patternLine(" / ")
-          .patternLine("# #")
-          .patternLine("###")
-          .addKeyAsCriterion('/', Items.STICK)
-          .addKeyAsCriterion('#', Items.BAMBOO)
-          .setGroup("basket")
-          .buildProperly(consumer, "basket_from_bamboo")
-
+      ShapedRecipeBuilder.shapedRecipe(getInstance)
+        .patternLine(" / ")
+        .patternLine("# #")
+        .patternLine("###")
+        .addKeyAsCriterion('/', Items.STICK)
+        .addKeyAsCriterion('#', Items.BAMBOO)
+        .setGroup("basket")
+        .buildProperly(consumer, "basket_from_bamboo")
     }
-  }
-
-  @SubscribeEvent
-  def onRegisterItems(e: RegistryEvent.Register[Item]): Unit = {
-
   }
 
 }

@@ -16,7 +16,7 @@ import org.apache.logging.log4j.scala.Logging
 
 object ModeChangingItem extends Logging{
   @SubscribeEvent
-  def init(event: FMLConstructModEvent) = event.doOnMainThread{ () =>
+  def onConstructMod(event: FMLConstructModEvent) = event.doOnMainThread{ () =>
     Network.registerCaseMessage[ModeChangePacket](CaseNetCodec1(ModeChangePacket.apply, ModeChangePacket.unapply))
   }
   case class ModeChangePacket(delta: Int) extends CasePacket {

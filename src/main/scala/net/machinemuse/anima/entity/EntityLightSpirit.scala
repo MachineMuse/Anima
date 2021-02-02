@@ -21,7 +21,7 @@ import org.apache.logging.log4j.scala.Logging
  * Created by MachineMuse on 1/25/2021.
  */
 object EntityLightSpirit extends ParameterRegistrar(classOf[EntityLightSpirit]) with Logging {
-  @SubscribeEvent def init(event: FMLConstructModEvent) = {}
+  @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {}
 
   private val ENTITY_LIGHT_SPIRIT = regEntityType[EntityLightSpirit]("lightspirit", () => EntityLightSpirit, new EntityLightSpirit(_,_), EntityClassification.MISC)
   def getType = ENTITY_LIGHT_SPIRIT.get()

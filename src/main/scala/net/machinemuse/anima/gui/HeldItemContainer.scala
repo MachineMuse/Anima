@@ -1,7 +1,7 @@
 package net.machinemuse.anima
 package gui
 
-import item.{InventoriedItem, LockedSlot}
+import item.InventoriedItem
 
 import net.minecraft.entity.player.{PlayerEntity, PlayerInventory}
 import net.minecraft.inventory.IInventory
@@ -36,7 +36,15 @@ abstract class HeldItemContainer(playerInventory: PlayerInventory, hand: Hand, c
   def mkInnerSlot(index: Int, xPosition: Int, yPosition: Int) = {
     new Slot(innerInventory, index, xPosition, yPosition) {
       override def isItemValid(stack: ItemStack): Boolean = containerItem.canStoreItem(containerItemStack, stack)
+      override def getItemStackLimit(stack: ItemStack): Int = containerItem.getStackLimit(stack)
     }
+  }
+
+  class LockedSlot(inventoryIn: IInventory, index: Int, xPosition: Int, yPosition: Int) extends Slot(inventoryIn, index, xPosition, yPosition) {
+    override def canTakeStack(playerIn: PlayerEntity): Boolean = false
+    override def isItemValid(stack: ItemStack): Boolean = false
+    // This is used by rendering for various things
+    //  override def isEnabled: Boolean = false
   }
 
   def mkPlayerInventorySlots(x: Int, y: Int, lock: Int) = {
@@ -94,7 +102,6 @@ abstract class HeldItemContainer(playerInventory: PlayerInventory, hand: Hand, c
     val slot = this.inventorySlots.get(index)
     if(index >= numInnerSlots) { // shift clicked on a player inventory slot
       val stackInSlot = getSlot(index).getStack
-      val returnStack = stackInSlot.copy()
 
       if(stackInSlot != null && containerItem.canStoreItem(containerItemStack, stackInSlot)) {
         val stackRemaining = betterMergeItemStack(stackInSlot, 0, numInnerSlots)
@@ -107,7 +114,6 @@ abstract class HeldItemContainer(playerInventory: PlayerInventory, hand: Hand, c
     } else { // shift clicked on a basket inventory slot
       if (slot != null && slot.getHasStack) {
         val stackInSlot = slot.getStack
-        val returnStack = stackInSlot.copy()
         val stackRemaining = betterMergeItemStack(stackInSlot, numInnerSlots, this.inventorySlots.size, reverseDirection = true)
         slot.putStack(stackRemaining)
         slot.onSlotChanged()

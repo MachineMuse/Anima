@@ -12,16 +12,26 @@ import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.client.event.ModelRegistryEvent
+import net.minecraftforge.client.model.ModelLoader
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.common.Mod
 import org.apache.logging.log4j.scala.Logging
 
-import java.util.Random
 import scala.annotation.nowarn
 
 /**
  * Created by MachineMuse on 1/21/2021.
  */
+@Mod.EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Mod.EventBusSubscriber.Bus.MOD)
 object BasketISTER extends ItemStackTileEntityRenderer with Logging {
-  private val random = new Random()
+
+  @SubscribeEvent
+  def setupModels(event: ModelRegistryEvent): Unit = {
+    logger.debug("setting up models, event triggered")
+    ModelLoader.addSpecialModel(BasketISTER.MODEL_LOCATION)
+  }
 
   val MODEL_LOCATION = new ResourceLocation(Anima.MODID, "item/basket_underlay")
 

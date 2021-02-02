@@ -1,8 +1,8 @@
 package net.machinemuse.anima
 package client
 
-import client.CampfirePlusTileEntityRenderer.MODEL_LOCATION
-import item.campfire.CampfirePlusTileEntity
+import client.CampfirePlusTileEntityRenderer.{FLAMES_MODEL_LOCATION, campfireTER}
+import item.campfire.{CampfirePlus, CampfirePlusTileEntity}
 import util.Colour
 import util.RenderingShorthand.withPushedMatrix
 
@@ -10,13 +10,20 @@ import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.vertex.IVertexBuilder
 import net.minecraft.block.CampfireBlock
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.model.{BakedQuad, ItemCameraTransforms}
+import net.minecraft.client.renderer.model.BakedQuad
 import net.minecraft.client.renderer.tileentity.{TileEntityRenderer, TileEntityRendererDispatcher}
-import net.minecraft.item.{DyeColor, ItemStack}
-import net.minecraft.util.math.vector.Vector3f
+import net.minecraft.client.renderer._
+import net.minecraft.item.DyeColor
+import net.minecraft.tileentity.CampfireTileEntity
 import net.minecraft.util.{Unit => _, _}
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.client.event.ModelRegistryEvent
+import net.minecraftforge.client.model.ModelLoader
 import net.minecraftforge.client.model.data.EmptyModelData
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.client.registry.ClientRegistry
+import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.event.lifecycle.{FMLClientSetupEvent, GatherDataEvent}
 import org.apache.logging.log4j.scala.Logging
 
 import java.util.Random
@@ -26,51 +33,47 @@ import scala.jdk.CollectionConverters._
  * Created by MachineMuse on 1/24/2021.
  */
 object CampfirePlusTileEntityRenderer extends Logging {
-  val MODEL_LOCATION = new ResourceLocation(Anima.MODID, "block/campfireplus_flames")
+  val FLAMES_MODEL_LOCATION = new ResourceLocation(Anima.MODID, "block/campfireplus_flames")
+
+  @SubscribeEvent def onClientSetup(event: FMLClientSetupEvent) = {
+    RenderTypeLookup.setRenderLayer(CampfirePlus.getBlock, RenderType.getCutout)
+    ClientRegistry.bindTileEntityRenderer(CampfirePlusTileEntity.getType, new CampfirePlusTileEntityRenderer(_))
+  }
+
+  @SubscribeEvent def setupModels(event: ModelRegistryEvent): Unit = ModelLoader.addSpecialModel(FLAMES_MODEL_LOCATION)
+
+  @SubscribeEvent def gatherData(event: GatherDataEvent): Unit = {
+
+  }
+
+  lazy val campfireTER = TileEntityRendererDispatcher.instance.getRenderer(new CampfireTileEntity)
 }
+@Mod.EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Mod.EventBusSubscriber.Bus.MOD)
 class CampfirePlusTileEntityRenderer(dispatcher: TileEntityRendererDispatcher) extends TileEntityRenderer[CampfirePlusTileEntity](dispatcher) {
 
+  // Can't extend CampfireTileEntityRenderer because it locks in the type argument
   override def render (tileEntity: CampfirePlusTileEntity, partialTicks: Float, matrixStack: MatrixStack, buffer: IRenderTypeBuffer, combinedLight: Int, combinedOverlay: Int): Unit = {
-    val blockstate = tileEntity.getBlockState
-    val direction: Direction = blockstate.get (CampfireBlock.FACING)
-    val nonnulllist: NonNullList[ItemStack] = tileEntity.getInventory
-    val minecraft = Minecraft.getInstance()
-    val itemRenderer = minecraft.getItemRenderer
+    // Render items that are on the fire
+    campfireTER.render(tileEntity, partialTicks, matrixStack, buffer, combinedLight, combinedOverlay)
 
-    // Copied from regular campfire's special renderer
-    for (i <- 0 until nonnulllist.size) {
-      val itemstack: ItemStack = nonnulllist.get (i)
-      if (itemstack ne ItemStack.EMPTY) {
-        matrixStack.push()
-        matrixStack.translate (0.5D, 0.44921875D, 0.5D)
-        val direction1: Direction = Direction.byHorizontalIndex ((i + direction.getHorizontalIndex) % 4)
-        val f: Float = - direction1.getHorizontalAngle
-        matrixStack.rotate (Vector3f.YP.rotationDegrees (f) )
-        matrixStack.rotate (Vector3f.XP.rotationDegrees (90.0F) )
-        matrixStack.translate (- 0.3125D, - 0.3125D, 0.0D)
-        matrixStack.scale (0.375F, 0.375F, 0.375F)
-        itemRenderer.renderItem (itemstack, ItemCameraTransforms.TransformType.FIXED, combinedLight, combinedOverlay, matrixStack, buffer)
-        matrixStack.pop()
-      }
-    }
+    // Render the flames
+    if(CampfireBlock.isLit(tileEntity.getBlockState))
+      withPushedMatrix (matrixStack) { matrixEntry =>
+        val flamesModel = Minecraft.getInstance().getModelManager.getModel(FLAMES_MODEL_LOCATION)
+        val vertexBuffer: IVertexBuilder = buffer.getBuffer(ClientSetup.getBetterTranslucentState) // ClientSetup.getBetterTranslucentState
 
-    withPushedMatrix (matrixStack) { matrixEntry =>
-      val flamesModel = minecraft.getModelManager.getModel(MODEL_LOCATION)
-      val vertexBuffer: IVertexBuilder = buffer.getBuffer(ClientSetup.getBetterTranslucentState) // ClientSetup.getBetterTranslucentState
+        val rgb1 = Colour.toFloatArray(Colour.mixColours(tileEntity.colour1, DyeColor.BLACK.getTextColor, 4.0F/1.0F))
+        val rgb2 = Colour.toFloatArray(tileEntity.colour2)
 
-      val rgb1 = Colour.toFloatArray(Colour.mixColours(tileEntity.colour1, DyeColor.BLACK.getTextColor, 4.0F/1.0F))
-      val rgb2 = Colour.toFloatArray(tileEntity.colour2)
-
-      val listQuads = flamesModel.getQuads(blockstate, null, new Random(), EmptyModelData.INSTANCE)
-      for (bakedquad: BakedQuad <- listQuads.asScala) {
-        bakedquad.getTintIndex match {
-          case 0 => vertexBuffer.addQuad(matrixEntry, bakedquad, rgb1(0), rgb1(1), rgb1(2), combinedLight, combinedOverlay)
-          case 1 => vertexBuffer.addQuad(matrixEntry, bakedquad, rgb2(0), rgb2(1), rgb2(2), combinedLight, combinedOverlay)
-          case _ => vertexBuffer.addQuad(matrixEntry, bakedquad, 1.0F, 1.0F, 1.0F, combinedLight, combinedOverlay)
+        val listQuads = flamesModel.getQuads(tileEntity.getBlockState, null, new Random(), EmptyModelData.INSTANCE)
+        for (bakedquad: BakedQuad <- listQuads.asScala) {
+          bakedquad.getTintIndex match {
+            case 0 => vertexBuffer.addQuad(matrixEntry, bakedquad, rgb1(0), rgb1(1), rgb1(2), combinedLight, combinedOverlay)
+            case 1 => vertexBuffer.addQuad(matrixEntry, bakedquad, rgb2(0), rgb2(1), rgb2(2), combinedLight, combinedOverlay)
+            case _ => vertexBuffer.addQuad(matrixEntry, bakedquad, 1.0F, 1.0F, 1.0F, combinedLight, combinedOverlay)
+          }
         }
-
       }
-    }
 
   }
 }

@@ -4,12 +4,13 @@
   "item.anima.campfiredust": "Campfire Dust",
   "item.anima.birdbones": "Bird Bones",
   "item.anima.animalbones": "Animal Bones",
+  "item.anima.ghost_dust": "Ghost Dust",
+
   "block.anima.campfireplus": "Enhanced Campfire",
 
   "screen.anima.basket": "Basket",
+  "tooltip.anima.transparency": "Transparency: %s%%",
 
 
-
-
-  "itemGroup.anima.creativetab": "Anima"
+  "itemGroup.anima": "Anima"
 }

@@ -23,6 +23,10 @@ object AnimaRegistry {
 
   val ANIMALBONES_ITEM = regSimpleItem("animalbones")
 
+  val GHOSTDUST_ITEM = regSimpleItem("ghost_dust")
+
+  val GHOSTDUST_REMOVER_ITEM = regSimpleItem("ghost_dust_remover")
+
 
 //  // You can do it this way instead
 //  @Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)

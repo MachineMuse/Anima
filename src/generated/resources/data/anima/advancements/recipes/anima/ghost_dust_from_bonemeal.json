@@ -1,0 +1,54 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "anima:ghost_dust_from_bonemeal"
+    ]
+  },
+  "criteria": {
+    "has_gunpowder": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:gunpowder"
+          }
+        ]
+      }
+    },
+    "has_bonemeal": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:bone_meal"
+          }
+        ]
+      }
+    },
+    "has_sugar": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:sugar"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "anima:ghost_dust_from_bonemeal"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_gunpowder",
+      "has_bonemeal",
+      "has_sugar",
+      "has_the_recipe"
+    ]
+  ]
+}

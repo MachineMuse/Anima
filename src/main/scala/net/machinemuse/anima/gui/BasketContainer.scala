@@ -18,7 +18,7 @@ import org.apache.logging.log4j.scala.Logging
  */
 object BasketContainer {
 
-  @SubscribeEvent def init(event: FMLConstructModEvent) = {}
+  @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {}
   val typeInstance = regContainerType("basket", (id, inv, buf) => new BasketContainer(id, inv, buf))
   def getType = typeInstance.get()
 }

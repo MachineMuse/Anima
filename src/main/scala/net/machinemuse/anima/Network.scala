@@ -117,20 +117,4 @@ object Network extends Logging {
         implicitly[NetCodec[C]].decode(buf)
       )
   }
-//
-//
-//  case class CasePacket2[A: NetCodec, B: NetCodec](a: A, b: B) extends CasePacket {
-//    override def encode(buf: PacketBuffer) = {
-//      implicitly[NetCodec[A]].encode(buf, a)
-//      implicitly[NetCodec[B]].encode(buf, b)
-//    }
-//
-//  }
-//  def registerMessageC1[A: NetCodec](handle: (A, NetworkEvent.Context) => ()) = {
-//    registerMessage[CasePacket1[A]](
-//      (p, buf) => implicitly[NetCodec[A]].encode(buf, p.a),
-//      buf => CasePacket1(implicitly[NetCodec[A]].decode(buf)),
-//      (p: CasePacket1[A], ctxs) => handle(p.a, ctxs())
-//    )
-//  }
 }

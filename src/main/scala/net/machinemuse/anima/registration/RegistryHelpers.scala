@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer
 import net.minecraft.entity._
 import net.minecraft.inventory.container.{Container, ContainerType}
 import net.minecraft.item._
+import net.minecraft.item.crafting.IRecipeSerializer
 import net.minecraft.tileentity.{TileEntity, TileEntityType}
 import net.minecraft.world.World
 import net.minecraftforge.common.ToolType
@@ -35,7 +36,7 @@ object RegistryHelpers extends Logging {
   val CONTAINERS: DeferredRegister[ContainerType[_]] = mkRegister(ForgeRegistries.CONTAINERS)
   val TILE_ENTITIES: DeferredRegister[TileEntityType[_]] = mkRegister(ForgeRegistries.TILE_ENTITIES)
   val ENTITIES: DeferredRegister[EntityType[_]] = mkRegister(ForgeRegistries.ENTITIES)
-
+  val RECIPE_SERIALIZERS: DeferredRegister[IRecipeSerializer[_]] = mkRegister(ForgeRegistries.RECIPE_SERIALIZERS)
 
 
   def regEntityType[E <: Entity](name: String, initializer: () => Unit, ctor: (EntityType[E], World) => E, classification:EntityClassification): RegistryObject[EntityType[E]] = {

@@ -1,0 +1,54 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "anima:ghost_dust_remover_from_black_dye"
+    ]
+  },
+  "criteria": {
+    "has_gunpowder": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:gunpowder"
+          }
+        ]
+      }
+    },
+    "has_black_dye": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:black_dye"
+          }
+        ]
+      }
+    },
+    "has_sugar": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:sugar"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "anima:ghost_dust_remover_from_black_dye"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_gunpowder",
+      "has_black_dye",
+      "has_sugar",
+      "has_the_recipe"
+    ]
+  ]
+}

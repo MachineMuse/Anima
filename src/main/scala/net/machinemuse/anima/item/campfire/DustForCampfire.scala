@@ -11,8 +11,8 @@ import net.minecraft.block.CampfireBlock
 import net.minecraft.entity.SpawnReason
 import net.minecraft.item._
 import net.minecraft.tileentity.CampfireTileEntity
-import net.minecraft.util.ActionResultType
 import net.minecraft.util.text.TranslationTextComponent
+import net.minecraft.util.{ActionResultType, Direction}
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
@@ -23,7 +23,7 @@ import org.apache.logging.log4j.scala.Logging
  */
 
 object DustForCampfire {
-  @SubscribeEvent def init(event: FMLConstructModEvent) = {} // Ensures the class gets initialized when the mod is constructed
+  @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {} // Ensures the class gets initialized when the mod is constructed
 
   final val instance = regExtendedItem("campfiredust", () => new DustForCampfire)
   def getInstance = instance.get()
@@ -58,7 +58,7 @@ class DustForCampfire extends Item(new Item.Properties().group(AnimaCreativeGrou
       }
     } else {
       world.onServer { serverWorld =>
-        val blockAbove = pos.up()
+        val blockAbove = pos.offset(Direction.UP)
         val itemstack = context.getItem
         val newEnt = EntityLightSpirit.getType.spawn(serverWorld, itemstack.getTag, new TranslationTextComponent("lightspirit"), context.getPlayer, blockAbove, SpawnReason.SPAWN_EGG, true, true)
         if(newEnt != null) {

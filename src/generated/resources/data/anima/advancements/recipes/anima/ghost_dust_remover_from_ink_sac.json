@@ -1,0 +1,54 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "anima:ghost_dust_remover_from_ink_sac"
+    ]
+  },
+  "criteria": {
+    "has_gunpowder": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:gunpowder"
+          }
+        ]
+      }
+    },
+    "has_ink_sac": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:ink_sac"
+          }
+        ]
+      }
+    },
+    "has_sugar": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:sugar"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "anima:ghost_dust_remover_from_ink_sac"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_gunpowder",
+      "has_ink_sac",
+      "has_sugar",
+      "has_the_recipe"
+    ]
+  ]
+}
