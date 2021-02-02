@@ -1,12 +1,13 @@
 package net.machinemuse.anima
 package client
 
+import client.CampfirePlusTileEntityRenderer.MODEL_LOCATION
+import item.campfire.CampfirePlusTileEntity
+import util.Colour
+import util.RenderingShorthand.withPushedMatrix
+
 import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.vertex.IVertexBuilder
-import net.machinemuse.anima.client.CampfirePlusTileEntityRenderer.MODEL_LOCATION
-import net.machinemuse.anima.item.campfire.CampfirePlusTileEntity
-import net.machinemuse.anima.util.Colour
-import net.machinemuse.anima.util.RenderingShorthand.withPushedMatrix
 import net.minecraft.block.CampfireBlock
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.IRenderTypeBuffer
@@ -43,10 +44,10 @@ class CampfirePlusTileEntityRenderer(dispatcher: TileEntityRendererDispatcher) e
         matrixStack.push()
         matrixStack.translate (0.5D, 0.44921875D, 0.5D)
         val direction1: Direction = Direction.byHorizontalIndex ((i + direction.getHorizontalIndex) % 4)
-        val f: Float = - (direction1.getHorizontalAngle)
+        val f: Float = - direction1.getHorizontalAngle
         matrixStack.rotate (Vector3f.YP.rotationDegrees (f) )
         matrixStack.rotate (Vector3f.XP.rotationDegrees (90.0F) )
-        matrixStack.translate (- (0.3125D), - (0.3125D), 0.0D)
+        matrixStack.translate (- 0.3125D, - 0.3125D, 0.0D)
         matrixStack.scale (0.375F, 0.375F, 0.375F)
         itemRenderer.renderItem (itemstack, ItemCameraTransforms.TransformType.FIXED, combinedLight, combinedOverlay, matrixStack, buffer)
         matrixStack.pop()

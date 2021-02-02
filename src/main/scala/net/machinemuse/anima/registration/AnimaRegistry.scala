@@ -10,7 +10,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
  */
 @Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 object AnimaRegistry {
-  import net.machinemuse.anima.registration.RegistryHelpers._
+  import RegistryHelpers._
 
   @SubscribeEvent def init(e: FMLConstructModEvent) = {}
 

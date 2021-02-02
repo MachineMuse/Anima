@@ -1,4 +1,5 @@
-package net.machinemuse.anima.util
+package net.machinemuse.anima
+package util
 
 import org.apache.logging.log4j.scala.Logging
 

@@ -1,11 +1,12 @@
 package net.machinemuse.anima
 package client
 
-import net.machinemuse.anima.entity.EntityLightSpirit
-import net.machinemuse.anima.gui.{BasketContainer, BasketGui}
-import net.machinemuse.anima.item.basket.BasketISTER
-import net.machinemuse.anima.item.campfire.{CampfirePlus, CampfirePlusTileEntity}
-import net.machinemuse.anima.registration.KeyBindings
+import entity.EntityLightSpirit
+import gui.{BasketContainer, BasketGui}
+import item.basket.BasketISTER
+import item.campfire.{CampfirePlus, CampfirePlusTileEntity}
+import registration.KeyBindings
+
 import net.minecraft.client.gui.ScreenManager
 import net.minecraft.client.renderer._
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats

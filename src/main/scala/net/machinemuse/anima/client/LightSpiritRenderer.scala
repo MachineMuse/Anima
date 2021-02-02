@@ -1,8 +1,9 @@
 package net.machinemuse.anima
 package client
 
+import entity.EntityLightSpirit
+
 import com.sun.istack.internal.Nullable
-import net.machinemuse.anima.entity.EntityLightSpirit
 import net.minecraft.client.renderer.entity.{EntityRenderer, EntityRendererManager}
 import net.minecraft.util.ResourceLocation
 

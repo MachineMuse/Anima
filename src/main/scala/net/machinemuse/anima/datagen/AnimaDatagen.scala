@@ -1,8 +1,9 @@
 package net.machinemuse.anima
 package datagen
 
-import net.machinemuse.anima.registration.AnimaRegistry
-import net.machinemuse.anima.util.VanillaClassEnrichers._
+import registration.AnimaRegistry
+import util.VanillaClassEnrichers._
+
 import net.minecraft.block.Blocks
 import net.minecraft.data.{ShapedRecipeBuilder, ShapelessRecipeBuilder}
 import net.minecraft.item.Items

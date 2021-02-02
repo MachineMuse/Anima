@@ -1,4 +1,5 @@
-package net.machinemuse.anima.gui
+package net.machinemuse.anima
+package gui
 
 import net.minecraft.inventory.container.Container
 import org.apache.logging.log4j.scala.Logging

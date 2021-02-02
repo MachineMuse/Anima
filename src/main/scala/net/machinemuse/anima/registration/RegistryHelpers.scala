@@ -1,7 +1,8 @@
 package net.machinemuse.anima
 package registration
 
-import net.machinemuse.anima.registration.AnimaRegistry.AnimaCreativeGroup
+import registration.AnimaRegistry.AnimaCreativeGroup
+
 import net.minecraft.block.Block
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer
 import net.minecraft.entity._

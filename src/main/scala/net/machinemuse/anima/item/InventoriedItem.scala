@@ -90,7 +90,7 @@ trait InventoriedItem extends ModeChangingItem[Int] {
       if(compound.contains("realcount")) {
         stack.setCount(compound.getInt("realcount"))
         if(stack.hasTag) {
-          stack.getTag().remove("realcount")
+          stack.getTag.remove("realcount")
         }
       }
     }

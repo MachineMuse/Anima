@@ -1,7 +1,8 @@
 package net.machinemuse.anima
 package util
 
-import net.machinemuse.anima.util.RichDataParameter.ParameterTypes.ParameterType
+import util.RichDataParameter.ParameterTypes.ParameterType
+
 import net.minecraft.block.BlockState
 import net.minecraft.entity._
 import net.minecraft.entity.merchant.villager.VillagerData

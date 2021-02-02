@@ -1,7 +1,8 @@
 package net.machinemuse.anima
 package gui
 
-import net.machinemuse.anima.item.{InventoriedItem, LockedSlot}
+import item.{InventoriedItem, LockedSlot}
+
 import net.minecraft.entity.player.{PlayerEntity, PlayerInventory}
 import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.container._
@@ -107,7 +108,7 @@ abstract class HeldItemContainer(playerInventory: PlayerInventory, hand: Hand, c
       if (slot != null && slot.getHasStack) {
         val stackInSlot = slot.getStack
         val returnStack = stackInSlot.copy()
-        val stackRemaining = betterMergeItemStack(stackInSlot, numInnerSlots, this.inventorySlots.size, true)
+        val stackRemaining = betterMergeItemStack(stackInSlot, numInnerSlots, this.inventorySlots.size, reverseDirection = true)
         slot.putStack(stackRemaining)
         slot.onSlotChanged()
         ItemStack.EMPTY //returning StackRemaining may cause an infinite loop

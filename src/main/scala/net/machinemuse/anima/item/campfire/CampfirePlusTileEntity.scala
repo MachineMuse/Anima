@@ -2,8 +2,9 @@ package net.machinemuse.anima
 package item
 package campfire
 
-import net.machinemuse.anima.entity.EntityLightSpirit
-import net.machinemuse.anima.registration.RegistryHelpers._
+import entity.EntityLightSpirit
+import registration.RegistryHelpers._
+
 import net.minecraft.block.{BlockState, Blocks}
 import net.minecraft.entity.SpawnReason
 import net.minecraft.item.DyeColor

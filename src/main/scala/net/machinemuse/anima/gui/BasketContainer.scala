@@ -1,9 +1,10 @@
 package net.machinemuse.anima
 package gui
 
-import net.machinemuse.anima.gui.BasketContainer.getType
-import net.machinemuse.anima.item.basket.Basket
-import net.machinemuse.anima.registration.RegistryHelpers._
+import gui.BasketContainer.getType
+import item.basket.Basket
+import registration.RegistryHelpers._
+
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.network.PacketBuffer
 import net.minecraft.util.Hand

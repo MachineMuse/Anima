@@ -7,9 +7,9 @@ import util.RenderingShorthand.withPushedMatrix
 import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer._
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer
-import net.minecraft.client.renderer._
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import org.apache.logging.log4j.scala.Logging
@@ -59,7 +59,7 @@ object BasketISTER extends ItemStackTileEntityRenderer with Logging {
       matrixStack.translate(0.0F, 0.25F, 0.0625F)
       matrixStack.scale(0.75F, 0.75F, 1.0F)
       val stackModel = Minecraft.getInstance.getItemRenderer.getItemModelWithOverrides(contents, Minecraft.getInstance.world, Minecraft.getInstance.player)
-      val vertexBuilder = ItemRenderer.getEntityGlintVertexBuilder(buffer, ClientSetup.getBetterTranslucentState, true, contents.hasEffect);
+      val vertexBuilder = ItemRenderer.getEntityGlintVertexBuilder(buffer, ClientSetup.getBetterTranslucentState, true, contents.hasEffect)
       if(stackModel.isBuiltInRenderer) {
         contents.getItem.getItemStackTileEntityRenderer.func_239207_a_(contents, transformType, matrixStack, buffer, combinedLight, combinedOverlay)
       } else {
@@ -76,7 +76,7 @@ object BasketISTER extends ItemStackTileEntityRenderer with Logging {
                     combinedOverlay: Int): Unit = {
     withPushedMatrix(matrixStack) { matEl =>
       val bakedmodel = Minecraft.getInstance().getModelManager.getModel(MODEL_LOCATION)
-      val vertexBuilder = ItemRenderer.getEntityGlintVertexBuilder(buffer, ClientSetup.getBetterTranslucentState, true, bag.hasEffect);
+      val vertexBuilder = ItemRenderer.getEntityGlintVertexBuilder(buffer, ClientSetup.getBetterTranslucentState, true, bag.hasEffect)
       //    val transformedModel = ForgeHooksClient.handleCameraTransforms(matrixStack, bakedmodel, transformType, transformType.isLeftHand);
       Minecraft.getInstance().getItemRenderer.renderModel(bakedmodel, bag, combinedLight, combinedOverlay, matrixStack, vertexBuilder)
     }

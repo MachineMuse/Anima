@@ -2,10 +2,11 @@ package net.machinemuse.anima
 package item
 package campfire
 
-import net.machinemuse.anima.entity.EntityLightSpirit
-import net.machinemuse.anima.registration.AnimaRegistry._
-import net.machinemuse.anima.registration.RegistryHelpers._
-import net.machinemuse.anima.util.BlockStateFlags
+import entity.EntityLightSpirit
+import registration.AnimaRegistry._
+import registration.RegistryHelpers._
+import util.BlockStateFlags
+
 import net.minecraft.block.CampfireBlock
 import net.minecraft.entity.SpawnReason
 import net.minecraft.item._
