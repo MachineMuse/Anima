@@ -1,8 +1,8 @@
 package net.machinemuse.anima
 package client
 
+import basket.{BasketContainer, BasketGui}
 import entity.EntityLightSpirit
-import gui.{BasketContainer, BasketGui}
 import registration.KeyBindings
 
 import net.minecraft.client.gui.ScreenManager

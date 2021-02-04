@@ -1,7 +1,7 @@
 package net.machinemuse.anima
-package item
+package ghostdust
 
-import item.GhostDustingRecipe.GhostDustingIngredient
+import ghostdust.GhostDustingRecipe.GhostDustingIngredient
 import registration.RegistryHelpers.RECIPE_SERIALIZERS
 import util.VanillaClassEnrichers.RichItemStack
 

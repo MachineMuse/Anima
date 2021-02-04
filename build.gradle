@@ -135,15 +135,10 @@ dependencies {
     shadow deps.scalalib
     runtimeOnly deps.scalalib
 
-    // adds 18mb
-//    shadow deps.lift_json
-//    runtimeOnly deps.lift_json
-
     // adds 3-5mb
 //    shadow deps.shapeless
 //    runtimeOnly deps.shapeless
 
-//    compile deps.shapeless
     // adds 4mb
     shadow deps.log4j_scala
     runtimeOnly deps.log4j_scala
