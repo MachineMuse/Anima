@@ -2,16 +2,16 @@ package net.machinemuse.anima
 package item
 
 import item.GhostDustingRecipe.GhostDustingIngredient
-import registration.AnimaRegistry
 import registration.RegistryHelpers.RECIPE_SERIALIZERS
 import util.VanillaClassEnrichers.RichItemStack
 
-import com.google.gson.{Gson, JsonObject}
+import com.google.gson._
 import net.minecraft.inventory.CraftingInventory
 import net.minecraft.item.crafting.{ICraftingRecipe, IRecipeSerializer}
 import net.minecraft.item.{ArmorItem, ItemStack}
 import net.minecraft.network.PacketBuffer
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.math.MathHelper
 import net.minecraft.util.text.{TextFormatting, TranslationTextComponent}
 import net.minecraft.world.World
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
@@ -20,7 +20,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.RegistryObject
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.{FMLClientSetupEvent, FMLConstructModEvent}
-import net.minecraftforge.registries.ForgeRegistryEntry
+import net.minecraftforge.registries.{ForgeRegistries, ForgeRegistryEntry}
 import org.apache.logging.log4j.scala.Logging
 
 import scala.jdk.CollectionConverters.IteratorHasAsScala
@@ -29,9 +29,9 @@ import scala.jdk.CollectionConverters.IteratorHasAsScala
  * Created by MachineMuse on 2/2/2021.
  */
 object GhostDustingRecipe extends Logging {
-  val SERIALIZER: RegistryObject[GhostDustingRecipeSerializer] = RECIPE_SERIALIZERS.register("ghost_dusting", () => new GhostDustingRecipeSerializer)
+  private val SERIALIZER: RegistryObject[GhostDustingRecipeSerializer] = RECIPE_SERIALIZERS.register("ghost_dusting", () => new GhostDustingRecipeSerializer)
 
-  def getSerializer = SERIALIZER.get
+  def getSerializerInstance = SERIALIZER.get
 
   @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {}
 
@@ -41,7 +41,7 @@ object GhostDustingRecipe extends Logging {
 
   private val gson = new Gson
 
-  case class GhostDustingIngredient (item : String, transparency: Float, limit: Float, clamp: Boolean)
+  case class GhostDustingIngredient (item : String, transparency: Float, limit: Int, clamp: Boolean)
 
   class GhostDustingRecipeSerializer extends ForgeRegistryEntry[IRecipeSerializer[_]] with IRecipeSerializer[GhostDustingRecipe] {
     override def read(recipeId: ResourceLocation, json: JsonObject): GhostDustingRecipe = {
@@ -54,20 +54,20 @@ object GhostDustingRecipe extends Logging {
     }
     override def read(recipeId: ResourceLocation, buffer: PacketBuffer): GhostDustingRecipe = {
             logger.info(s"Received packet about GhostDustingRecipe... doing nothing")
-//      val stream = buffer.readString
-//      logger.info(s"Read raw: $stream from packet")
-//      val json = new JsonParser().parse(stream).getAsJsonArray
-//      val ingredients = for(itemNode <- json.iterator().asScala) yield gson.fromJson(itemNode, classOf[GhostDustingIngredient])
-//      logger.info(s"Read decoded: $json from packet")
-      new GhostDustingRecipe(Seq.empty)
+      val stream = buffer.readString
+      logger.info(s"Read raw: $stream from packet")
+      val json = new JsonParser().parse(stream).getAsJsonArray
+      val ingredients = for(itemNode <- json.iterator().asScala) yield gson.fromJson(itemNode, classOf[GhostDustingIngredient])
+      logger.info(s"Read decoded: $json from packet")
+      new GhostDustingRecipe(ingredients.toSeq)
     }
     override def write(buffer: PacketBuffer, recipe: GhostDustingRecipe): Unit = {
       logger.info(s"Writing packet about GhostDustingRecipe..by doing nothing")
-//      val ingredientsAsJava = recipe.ingredients.toArray
-//      logger.info(s"Writing raw: $ingredientsAsJava to packet")
-//      val json = gson.toJson(ingredientsAsJava)
-//      logger.info(s"Writing string $json to packet")
-//      buffer.writeString(json)
+      val ingredientsAsJava = recipe.ingredients.toArray
+      logger.info(s"Writing raw: $ingredientsAsJava to packet")
+      val json = gson.toJson(ingredientsAsJava)
+      logger.info(s"Writing string $json to packet")
+      buffer.writeString(json)
     }
   }
 
@@ -84,12 +84,17 @@ case class GhostDustingRecipe(ingredients: Seq[GhostDustingIngredient]) extends 
     var armorFound = false
     var ghostDustFound = false
     var tooMany = false
+
+    val ghostDustItems = ingredients.map { ingredient =>
+      ForgeRegistries.ITEMS.getValue(new ResourceLocation(ingredient.item))
+    }
     for(slot <- 0 until inv.getSizeInventory) {
       val stackInSlot = inv.getStackInSlot(slot)
       stackInSlot.getItem match {
         case armorItem: ArmorItem => if(!armorFound) armorFound = true else tooMany = true
-        case ghostdust if ghostdust == AnimaRegistry.GHOSTDUST_ITEM.get() => ghostDustFound = true
-        case ghostdustremover if ghostdustremover == AnimaRegistry.GHOSTDUST_REMOVER_ITEM.get() => ghostDustFound = true
+        case ghostdust if ghostDustItems.contains(ghostdust) => {
+          ghostDustFound = true
+        }
         case _ =>
       }
     }
@@ -99,38 +104,53 @@ case class GhostDustingRecipe(ingredients: Seq[GhostDustingIngredient]) extends 
 
   override def getCraftingResult(inv: CraftingInventory): ItemStack = {
     var armorFound = ItemStack.EMPTY
-    var ghostDustFound = 0
-    var removerFound = false
     var tooManyArmors = false
-    var tooManyRemovers = false
+    var ghostDustFound = 0
+
+    val ghostDustItems = ingredients.map { ingredient =>
+      ForgeRegistries.ITEMS.getValue(new ResourceLocation(ingredient.item))
+    }
+
     for(slot <- 0 until inv.getSizeInventory) {
       val stackInSlot = inv.getStackInSlot(slot)
       stackInSlot.getItem match {
         case armorItem: ArmorItem => if(armorFound.isEmpty) armorFound = stackInSlot else tooManyArmors = true
-        case ghostdust if ghostdust == AnimaRegistry.GHOSTDUST_ITEM.get() => ghostDustFound += 1
-        case ghostdustremover if ghostdustremover == AnimaRegistry.GHOSTDUST_REMOVER_ITEM.get() => if(removerFound) tooManyRemovers = true else removerFound = true
+        case ghostdust if ghostDustItems.contains(ghostdust) => ghostDustFound += 1
         case _ =>
       }
     }
     val transparencyPerDust = 0.125F
     if( !armorFound.isEmpty &&
         !tooManyArmors &&
-        !tooManyRemovers &&
-        (ghostDustFound > 0 || removerFound)
+        (ghostDustFound > 0)
     ) {
+      var fail = false
       val armorCopy = armorFound.copy()
-
-      if(removerFound) armorCopy.removeTransparency()
-
-      if(ghostDustFound > 0) {
-        if((transparencyPerDust * ghostDustFound + armorCopy.getTransparency) <= 1.0F) {
-          armorCopy.setTransparency(armorCopy.getTransparency + transparencyPerDust * ghostDustFound)
-          armorCopy
-        } else {
-          ItemStack.EMPTY
+      var currTransparency = armorCopy.getTransparency
+      for(ingredient <- ingredients) {
+        if(!fail) {
+          val item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(ingredient.item))
+          var found = 0
+          for(slot <- 0 until inv.getSizeInventory) {
+            if(inv.getStackInSlot(slot).getItem == item) found += 1
+          }
+          if(ingredient.limit > 0 && found > ingredient.limit) {
+            fail = true
+          } else {
+            val newTransparency = found * ingredient.transparency + currTransparency
+            if(newTransparency.isFromTo(0.0F, 1.0F)) {
+              currTransparency = newTransparency
+            } else {
+              if(ingredient.clamp) currTransparency = MathHelper.clamp(newTransparency, 0.0F, 1.0F) else fail = true
+            }
+          }
         }
-      } else {
+      }
+      if(!fail) {
+        armorCopy.setTransparency(currTransparency)
         armorCopy
+      } else {
+        ItemStack.EMPTY
       }
     } else {
       ItemStack.EMPTY
@@ -144,5 +164,5 @@ case class GhostDustingRecipe(ingredients: Seq[GhostDustingIngredient]) extends 
 
   override def getId: ResourceLocation = new ResourceLocation(Anima.MODID, "ghost_dusting")
 
-  override def getSerializer: IRecipeSerializer[GhostDustingRecipe] = getSerializer
+  override def getSerializer: IRecipeSerializer[GhostDustingRecipe] = GhostDustingRecipe.getSerializerInstance
 }

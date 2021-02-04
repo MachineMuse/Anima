@@ -52,7 +52,8 @@ package object anima {
     final def minutesInTicks = a * nt.fromInt(20) * nt.fromInt(60)
     def isFromUntil(b: T, c: T) = (a >= b && a < c) ||
                                     (a < b && a >= c)
-
+    def isFromTo(b: T, c: T) = (a >= b && a <= c) ||
+      (a <= b && a >= c)
   }
 
   implicit class FoldableID[A](optA: Option[A]) {
