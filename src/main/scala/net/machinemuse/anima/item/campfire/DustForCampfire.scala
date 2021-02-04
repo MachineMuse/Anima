@@ -3,8 +3,8 @@ package item
 package campfire
 
 import entity.EntityLightSpirit
-import registration.AnimaRegistry._
 import registration.RegistryHelpers._
+import registration.SimpleItems._
 import util.BlockStateFlags
 
 import net.minecraft.block.CampfireBlock

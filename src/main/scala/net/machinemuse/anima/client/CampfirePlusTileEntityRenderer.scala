@@ -10,9 +10,9 @@ import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.vertex.IVertexBuilder
 import net.minecraft.block.CampfireBlock
 import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer._
 import net.minecraft.client.renderer.model.BakedQuad
 import net.minecraft.client.renderer.tileentity.{TileEntityRenderer, TileEntityRendererDispatcher}
-import net.minecraft.client.renderer._
 import net.minecraft.item.DyeColor
 import net.minecraft.tileentity.CampfireTileEntity
 import net.minecraft.util.{Unit => _, _}

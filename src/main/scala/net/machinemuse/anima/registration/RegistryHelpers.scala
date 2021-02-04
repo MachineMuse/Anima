@@ -1,7 +1,7 @@
 package net.machinemuse.anima
 package registration
 
-import registration.AnimaRegistry.AnimaCreativeGroup
+import registration.SimpleItems.AnimaCreativeGroup
 
 import net.minecraft.block.Block
 import net.minecraft.entity._

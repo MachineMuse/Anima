@@ -23,7 +23,7 @@ import scala.util.Random
  * Created by MachineMuse on 1/24/2021.
  */
 object CampfirePlusTileEntity {
-  @SubscribeEvent def init(e: FMLConstructModEvent) = {}
+  @SubscribeEvent def onConstructMod(e: FMLConstructModEvent) = {}
 
   val CAMPFIREPLUS_TE = regTE[CampfirePlusTileEntity]("campfireplus", () => new CampfirePlusTileEntity, () => CampfirePlus.getBlock)
   def getType = CAMPFIREPLUS_TE.get()

@@ -3,8 +3,8 @@ package item
 package basket
 
 import gui.BasketContainer
-import registration.AnimaRegistry.AnimaCreativeGroup
 import registration.RegistryHelpers._
+import registration.SimpleItems.AnimaCreativeGroup
 import util.VanillaClassEnrichers._
 
 import net.minecraft.client.util.ITooltipFlag

@@ -28,7 +28,7 @@ import scala.jdk.OptionConverters._
 object CampfirePlus {
   // Init (Required for registration to work)
   // Use event.enqueueWork{ () => doStuff() } if you need to run any actual mutating code in here
-  @SubscribeEvent def init(e: FMLConstructModEvent) = {}
+  @SubscribeEvent def onConstructMod(e: FMLConstructModEvent) = {}
 
   // Add CampfirePlus to the list of valid Campfires so e.g. flint & steel can light them if doused
   @SubscribeEvent def gatherData(event: GatherDataEvent): Unit = {
