@@ -7,13 +7,16 @@ import registration.AnimaRegistry.AnimaCreativeGroup
 import registration.RegistryHelpers._
 import util.VanillaClassEnrichers._
 
+import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.data.ShapedRecipeBuilder
 import net.minecraft.entity.player.{PlayerEntity, ServerPlayerEntity}
 import net.minecraft.item._
 import net.minecraft.network.PacketBuffer
 import net.minecraft.util.math.BlockRayTraceResult
+import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.{Unit => _, _}
 import net.minecraft.world.World
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import net.minecraftforge.common.IPlantable
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent
 import net.minecraftforge.eventbus.api.Event.Result
@@ -23,6 +26,7 @@ import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataE
 import net.minecraftforge.fml.network.NetworkHooks
 import org.apache.logging.log4j.scala.Logging
 
+import java.util
 import java.util.function.Consumer
 import scala.jdk.CollectionConverters._
 
@@ -75,13 +79,20 @@ object Basket extends Logging {
     }
   }
 
+  val properties = new Item.Properties().maxStackSize(1).group(AnimaCreativeGroup).setISTER(() => BasketISTER.mkISTER)
 }
 
 // counterintuitively, this will autosubscribe all the methods annotated with @SubscribeEvent in the companion object above.
 @Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
-class Basket extends Item(new Item.Properties().maxStackSize(1).group(AnimaCreativeGroup).setISTER(() => () => BasketISTER)) with InventoriedItem with Logging {
+class Basket extends Item(Basket.properties) with InventoriedItem with Logging {
   def isVeggie(stack: ItemStack): Boolean = stack.getItem.isFood && !stack.getItem.getFood.isMeat
   def isPlantable(stack: ItemStack): Boolean = OptionCast[BlockItem](stack.getItem).exists(_.getBlock.isInstanceOf[IPlantable])
+
+
+  @OnlyIn(Dist.CLIENT)
+  override def addInformation(bag : ItemStack, world : World, tooltip : util.List[ITextComponent], tooltipFlag : ITooltipFlag): Unit = {
+    addContentsToTooltip(bag, tooltip)
+  }
 
   override def canStoreItem(container: ItemStack, toStore: ItemStack): Boolean = isVeggie(toStore) || isPlantable(toStore)
 

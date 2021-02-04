@@ -8,6 +8,7 @@ import net.minecraftforge.eventbus.api.Event
 import net.minecraftforge.fml.event.lifecycle.ParallelDispatchEvent
 import org.apache.logging.log4j.scala.Logger
 
+import java.util.concurrent.Callable
 import java.util.function.Consumer
 
 /**
@@ -170,7 +171,9 @@ package object anima {
     implicit def biconsumer[A, B](bc: (A, B) => ()): BiConsumer[A, B] = bc(_,_)
     implicit def function1[A, B](f: A => B): Function[A, B] = f(_)
     implicit def supplier[A] (f: () => A): Supplier[A] = () => f()
+    implicit def suppliercallable[A] (f: () => () => A): Supplier[Callable[A]] = () => () => f()()
     implicit def consumer[A] (f: A => ()): Consumer[A] = f(_)
+    implicit def callable[A] (f: () => A): Callable[A] = () => f()
     implicit def biconsumer1P2Supplier[P,S](f: (P, () => S) => ()): BiConsumer[P, Supplier[S]] = (p, s) => f(p,() => s.get())
   }
 

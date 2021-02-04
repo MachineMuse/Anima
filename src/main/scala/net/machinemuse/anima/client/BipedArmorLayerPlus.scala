@@ -33,12 +33,11 @@ object BipedArmorLayerPlus extends Logging {
       val layerUntyped = layerRenderers.get(i)
       type T = AbstractClientPlayerEntity
       type M = PlayerModel[T]
-      layerUntyped match {
-        case layer: BipedArmorLayerPlus[T, M, M] => // do nothing if it's already hooked!
-        case layer: BipedArmorLayer[T, M, M] =>
-          logger.info("Successfully inserted BipedArmorLayer hook")
+      layerUntyped.optionallyDoAs[BipedArmorLayer[T, M, M]] { layer =>
+        if(!layer.isInstanceOf[BipedArmorLayerPlus[_,_,_]]) {
           layerRenderers.set(i, new BipedArmorLayerPlus(layer).asInstanceOf[LayerRenderer[T, M]])
-        case _ => // It's a different layer anyway so who cares
+          logger.info("Successfully inserted BipedArmorLayer hook")
+        }
       }
     }
 

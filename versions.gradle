@@ -7,15 +7,24 @@ ext {
 
     mcpmappings = [channel: 'snapshot', version: '20201028-1.16.3']
 
+    mkApi = { dep ->
+        def apidep = dep.clone()
+        apidep["classifier"] = "api"
+        return apidep
+    }
+
     deps = [
             curios: [group: "top.theillusivec4.curios", name: "curios-forge", version: "1.16.4-4.0.3.5"],
             forge: [group : 'net.minecraftforge' , name: 'forge', version: '1.16.4-35.1.4'],
             scalalib: [group: 'org.scala-lang', name: 'scala-library', version: '2.13.2'],
             shapeless: [group: 'com.chuusai', name: 'shapeless_2.13', version: '2.3.3'],
-            log4j_scala: [group: 'org.apache.logging.log4j', name: 'log4j-api-scala_2.13', version: '12.0']
+            log4j_scala: [group: 'org.apache.logging.log4j', name: 'log4j-api-scala_2.13', version: '12.0'],
+            lift_json: [group: 'net.liftweb', name: 'lift-json_2.13', version: '3.4.3']
     ]
 }
-
-def curiosapi = ext.deps.curios.clone()
-curiosapi.put("classifier", "api")
-ext.deps.put("curiosapi", curiosapi)
+//
+//def curios = [group: "top.theillusivec4.curios", name: "curios-forge", version: "1.16.4-4.0.3.5"]
+//curios.
+//def curiosapi = ext.deps.curios.clone()
+//curiosapi.put("classifier", "api")
+//ext.deps.put("curiosapi", curiosapi)

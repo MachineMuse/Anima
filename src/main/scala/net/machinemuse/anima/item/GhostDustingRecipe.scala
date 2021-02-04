@@ -1,25 +1,29 @@
 package net.machinemuse.anima
 package item
 
+import item.GhostDustingRecipe.GhostDustingIngredient
 import registration.AnimaRegistry
 import registration.RegistryHelpers.RECIPE_SERIALIZERS
 import util.VanillaClassEnrichers.RichItemStack
 
-import com.google.gson.JsonObject
+import com.google.gson.{Gson, JsonObject}
 import net.minecraft.inventory.CraftingInventory
 import net.minecraft.item.crafting.{ICraftingRecipe, IRecipeSerializer}
 import net.minecraft.item.{ArmorItem, ItemStack}
 import net.minecraft.network.PacketBuffer
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.TranslationTextComponent
+import net.minecraft.util.text.{TextFormatting, TranslationTextComponent}
 import net.minecraft.world.World
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import net.minecraftforge.event.entity.player.ItemTooltipEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.RegistryObject
 import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
+import net.minecraftforge.fml.event.lifecycle.{FMLClientSetupEvent, FMLConstructModEvent}
 import net.minecraftforge.registries.ForgeRegistryEntry
 import org.apache.logging.log4j.scala.Logging
+
+import scala.jdk.CollectionConverters.IteratorHasAsScala
 
 /**
  * Created by MachineMuse on 2/2/2021.
@@ -29,25 +33,53 @@ object GhostDustingRecipe extends Logging {
 
   def getSerializer = SERIALIZER.get
 
-  @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = addForgeListeners(onItemTooltip)
+  @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {}
+
+  @OnlyIn(Dist.CLIENT)
+  @SubscribeEvent def onClientSetup(event: FMLClientSetupEvent) = addForgeListeners(onItemTooltip)
+
+
+  private val gson = new Gson
+
+  case class GhostDustingIngredient (item : String, transparency: Float, limit: Float, clamp: Boolean)
 
   class GhostDustingRecipeSerializer extends ForgeRegistryEntry[IRecipeSerializer[_]] with IRecipeSerializer[GhostDustingRecipe] {
-    override def read(recipeId: ResourceLocation, json: JsonObject): GhostDustingRecipe = new GhostDustingRecipe
-    override def read(recipeId: ResourceLocation, buffer: PacketBuffer): GhostDustingRecipe = new GhostDustingRecipe
-    override def write(buffer: PacketBuffer, recipe: GhostDustingRecipe): Unit = { }
+    override def read(recipeId: ResourceLocation, json: JsonObject): GhostDustingRecipe = {
+      logger.info(s"Attempting to read recipe from JSON... ")
+      val itemsJson = json.getAsJsonArray("items")
+      val ingredients = for(itemNode <- itemsJson.iterator().asScala) yield gson.fromJson(itemNode, classOf[GhostDustingIngredient])
+
+      logger.info(s"Ingredients: $ingredients")
+      new GhostDustingRecipe(ingredients.toSeq)
+    }
+    override def read(recipeId: ResourceLocation, buffer: PacketBuffer): GhostDustingRecipe = {
+            logger.info(s"Received packet about GhostDustingRecipe... doing nothing")
+//      val stream = buffer.readString
+//      logger.info(s"Read raw: $stream from packet")
+//      val json = new JsonParser().parse(stream).getAsJsonArray
+//      val ingredients = for(itemNode <- json.iterator().asScala) yield gson.fromJson(itemNode, classOf[GhostDustingIngredient])
+//      logger.info(s"Read decoded: $json from packet")
+      new GhostDustingRecipe(Seq.empty)
+    }
+    override def write(buffer: PacketBuffer, recipe: GhostDustingRecipe): Unit = {
+      logger.info(s"Writing packet about GhostDustingRecipe..by doing nothing")
+//      val ingredientsAsJava = recipe.ingredients.toArray
+//      logger.info(s"Writing raw: $ingredientsAsJava to packet")
+//      val json = gson.toJson(ingredientsAsJava)
+//      logger.info(s"Writing string $json to packet")
+//      buffer.writeString(json)
+    }
   }
 
-
+  @OnlyIn(Dist.CLIENT)
   def onItemTooltip(event: ItemTooltipEvent): Unit = {
     val stack = event.getItemStack
-    if(stack.hasTransparency) {
-      event.getToolTip.add(new TranslationTextComponent(s"tooltip.${Anima.MODID}.transparency", (stack.getTransparency * 100).toString))
-    }
+    if(stack.hasTransparency) event.getToolTip.add(new TranslationTextComponent(s"tooltip.${Anima.MODID}.transparency", (stack.getTransparency * 100).toString).mergeStyle(TextFormatting.GRAY, TextFormatting.ITALIC))
   }
 }
 
 @Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
-class GhostDustingRecipe extends ICraftingRecipe with Logging {
+case class GhostDustingRecipe(ingredients: Seq[GhostDustingIngredient]) extends ICraftingRecipe with Logging {
   override def matches(inv: CraftingInventory, worldIn: World): Boolean = {
     var armorFound = false
     var ghostDustFound = false

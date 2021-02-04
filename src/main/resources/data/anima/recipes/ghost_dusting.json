@@ -1,4 +1,18 @@
 {
   "type": "anima:ghost_dusting",
-  "group": "ghost_dusting"
+  "group": "ghost_dusting",
+  "items": [
+    {
+      "item": "anima:ghost_dust",
+      "transparency": 0.125,
+      "limit": 1.0,
+      "clamp": false
+    },
+    {
+      "item": "anima:ghost_dust_remover",
+      "transparency": -1.0,
+      "limit": 0.0,
+      "clamp": true
+    }
+  ]
 }

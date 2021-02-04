@@ -19,13 +19,22 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 import org.apache.logging.log4j.scala.Logging
 
+import java.util.concurrent.Callable
 import scala.annotation.nowarn
 
 /**
  * Created by MachineMuse on 1/21/2021.
  */
+
+object BasketISTER {
+
+  val MODEL_LOCATION = new ResourceLocation(Anima.MODID, "item/basket_underlay")
+
+  def mkISTER: Callable[ItemStackTileEntityRenderer] = () => new BasketISTER
+}
 @Mod.EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Mod.EventBusSubscriber.Bus.MOD)
-object BasketISTER extends ItemStackTileEntityRenderer with Logging {
+class BasketISTER extends ItemStackTileEntityRenderer with Logging {
+
 
   @SubscribeEvent
   def setupModels(event: ModelRegistryEvent): Unit = {
@@ -33,7 +42,6 @@ object BasketISTER extends ItemStackTileEntityRenderer with Logging {
     ModelLoader.addSpecialModel(BasketISTER.MODEL_LOCATION)
   }
 
-  val MODEL_LOCATION = new ResourceLocation(Anima.MODID, "item/basket_underlay")
 
 
   // the actual render method
@@ -85,7 +93,7 @@ object BasketISTER extends ItemStackTileEntityRenderer with Logging {
                     combinedLight: Int,
                     combinedOverlay: Int): Unit = {
     withPushedMatrix(matrixStack) { matEl =>
-      val bakedmodel = Minecraft.getInstance().getModelManager.getModel(MODEL_LOCATION)
+      val bakedmodel = Minecraft.getInstance().getModelManager.getModel(BasketISTER.MODEL_LOCATION)
       val vertexBuilder = ItemRenderer.getEntityGlintVertexBuilder(buffer, ClientSetup.getBetterTranslucentState, true, bag.hasEffect)
       //    val transformedModel = ForgeHooksClient.handleCameraTransforms(matrixStack, bakedmodel, transformType, transformType.isLeftHand);
       Minecraft.getInstance().getItemRenderer.renderModel(bakedmodel, bag, combinedLight, combinedOverlay, matrixStack, vertexBuilder)

@@ -23,7 +23,7 @@ sourceSets.main.scala.srcDir "src/main/java"
 sourceSets.main.java.srcDirs = []
 
 sourceSets.main.scala.outputDir = sourceSets.main.java.getOutputDir()
-println(sourceSets.main.scala.outputDir)
+println('Output Directory: ' + sourceSets.main.scala.outputDir)
 
 // Need this here so eclipse task generates correctly.
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
@@ -147,14 +147,21 @@ dependencies {
     shadow deps.scalalib
     runtimeOnly deps.scalalib
 
+    // adds 18mb
+//    shadow deps.lift_json
+//    runtimeOnly deps.lift_json
+
+    // adds 3-5mb
 //    shadow deps.shapeless
 //    runtimeOnly deps.shapeless
 
 //    compile deps.shapeless
-    compile deps.log4j_scala
+    // adds 4mb
+    shadow deps.log4j_scala
+    runtimeOnly deps.log4j_scala
 
     runtimeOnly fg.deobf(deps.curios)
-    compileOnly fg.deobf(deps.curiosapi)
+    compileOnly fg.deobf(mkApi(deps.curios))
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
@@ -173,7 +180,7 @@ jar {
 }
 
 shadowJar {
-    project.configurations.shadow.setTransitive(true);
+    project.configurations.shadow.setTransitive(true)
     configurations = [project.configurations.shadow]
 
     classifier '' // Replace the default JAR

@@ -8,7 +8,9 @@ import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.container.Container
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt._
+import net.minecraft.util.text.{ITextComponent, TextFormatting}
 
+import java.util
 import scala.jdk.CollectionConverters._
 
 /**
@@ -16,6 +18,18 @@ import scala.jdk.CollectionConverters._
  */
 trait InventoriedItem extends ModeChangingItem[Int] {
 
+  // TODO: use ItemStackHelper methods where applicable
+
+  def addContentsToTooltip(bag: ItemStack, tooltip: util.List[ITextComponent]) = {
+    for (stack <- getContents(bag)) {
+      if(stack != null && !stack.isEmpty) {
+        val iformattabletextcomponent = stack.getDisplayName.deepCopy
+        iformattabletextcomponent.mergeStyle(TextFormatting.GRAY, TextFormatting.ITALIC).appendString(" x").appendString(String.valueOf(stack.getCount))
+        tooltip.add(iformattabletextcomponent)
+      }
+    }
+
+  }
   def canStoreItem(container: ItemStack, toStore: ItemStack): Boolean
 
   def accessor = IntNBTTagAccessor
