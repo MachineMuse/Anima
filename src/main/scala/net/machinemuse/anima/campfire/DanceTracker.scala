@@ -41,31 +41,36 @@ object DanceTracker extends Logging {
 
   private val TIMEOUT = 1000
 
-  @SubscribeEvent def onUpdate(event: LivingUpdateEvent) =
-    event.getEntityLiving.optionallyDoAs[PlayerEntity] { player =>
-      val now = System.currentTimeMillis()
-      val data = entityMap.getOrElseUpdate(player.getUniqueID, newDanceData())
-      data.lookQueue.enqueue(VectorEntry(now, player.getLookVec))
-      data.lookQueue.dequeueWhile(_.timestamp < now - TIMEOUT)
-      val entPos = player.getPositionVec.mul(1.0, 0.0, 1.0)
-      data.posQueue.enqueue(VectorEntry(now, entPos))
-      data.posQueue.dequeueWhile(_.timestamp < now - TIMEOUT)
-      data.sneakingQueue.enqueue(BooleanEntry(now, player.isSneaking))
-      data.sneakingQueue.dequeueWhile(_.timestamp < now - TIMEOUT)
+  @SubscribeEvent def onUpdate(event: LivingUpdateEvent) = {
+    if(!event.getEntityLiving.world.isRemote) {
 
-      data.danceValueQueue.enqueue(DoubleEntry(now, getDanceValue(player)))
-      data.danceValueQueue.dequeueWhile(_.timestamp < now - TIMEOUT * 5)
+      event.getEntityLiving.optionallyDoAs[PlayerEntity] { player =>
+        val now = System.currentTimeMillis()
+        val data = entityMap.getOrElseUpdate(player.getUniqueID, newDanceData())
+        data.lookQueue.enqueue(VectorEntry(now, player.getLookVec))
+        data.lookQueue.dequeueWhile(_.timestamp < now - TIMEOUT)
+        val entPos = player.getPositionVec.mul(1.0, 0.0, 1.0)
+        data.posQueue.enqueue(VectorEntry(now, entPos))
+        data.posQueue.dequeueWhile(_.timestamp < now - TIMEOUT)
+        data.sneakingQueue.enqueue(BooleanEntry(now, player.isSneaking))
+        data.sneakingQueue.dequeueWhile(_.timestamp < now - TIMEOUT)
+
+        data.danceValueQueue.enqueue(DoubleEntry(now, getDanceValue(player)))
+        data.danceValueQueue.dequeueWhile(_.timestamp < now - TIMEOUT * 5)
+      }
     }
+  }
 
 
   def getDanceValue(player: PlayerEntity): Double = {
     val data = entityMap.getOrElseUpdate(player.getUniqueID, newDanceData())
 
-    val lookValue: Double = data.lookQueue.sliding(2).map {
-      case mutable.Queue(a,b) => a.vector.subtract(b.vector).length()
+    val lookValueIterator = data.lookQueue.sliding(2).toSeq.map {
+      case mutable.Queue(a,b) => Math.sqrt(a.vector.subtract(b.vector).length())
       case _ => 0.0
-    }.sum
-    val look = Math.log(lookValue * 4 + 1)
+    }
+    val lookValue = lookValueIterator.sum * (TIMEOUT / 50) / lookValueIterator.size
+    val look = Math.log(lookValue * 4 + 1) * 2
 
     val velocities: Seq[Vector3d] = data.posQueue.sliding(2).map {
       case mutable.Queue(a,b) => b.vector.subtract(a.vector)
@@ -86,10 +91,10 @@ object DanceTracker extends Logging {
     }
     val velocitySum: Vector3d = velocities.foldLeft(Vector3d.ZERO) {_.add(_)}
 
-    val accelScore = accelerationsMagnitude.sum - accelerationsSum.length
-    val speedScore = speeds.sum - velocitySum.length
+    val accelScore = accelerationsMagnitude.sum * (TIMEOUT / 50) / accelerationsMagnitude.size - accelerationsSum.length
+    val speedScore = speeds.sum * (TIMEOUT / 50) / speeds.size - velocitySum.length
 
-    val motion = accelScore * speedScore * 15
+    val motion = accelScore * speedScore * 10
 
     val sneakValue = data.sneakingQueue.sliding(2).map {
       case mutable.Queue(a,b) => if(a.boolean != b.boolean) 1 else 0

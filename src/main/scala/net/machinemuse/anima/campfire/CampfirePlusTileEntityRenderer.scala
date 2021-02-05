@@ -66,10 +66,10 @@ class CampfirePlusTileEntityRenderer(dispatcher: TileEntityRendererDispatcher) e
         val rgb2 = Colour.toFloatArray(tileEntity.colour2)
 
         val listQuads = flamesModel.getQuads(tileEntity.getBlockState, null, new Random(), EmptyModelData.INSTANCE)
-        val dance = (tileEntity.dance_enhancement / 500.0f).toFloat
-        matrixStack.translate(0.5f, 0f, 0.5f)
-        matrixStack.scale(1.0f + dance/10.0f, 1.0f + dance, 1.0f + dance/10.0f)
-        matrixStack.translate(-0.5f, 0f, -0.5f)
+        val danceMod = (tileEntity.dance_enhancement / 1000.0f).toFloat
+        matrixStack.translate(0.5f, 0.0625f, 0.5f)
+        matrixStack.scale(1.0f + danceMod/10.0f, 1.0f + danceMod, 1.0f + danceMod/10.0f)
+        matrixStack.translate(-0.5f, -0.0625f, -0.5f)
         for (bakedquad: BakedQuad <- listQuads.asScala) {
           bakedquad.getTintIndex match {
             case 0 => vertexBuffer.addQuad(matrixEntry, bakedquad, rgb1(0), rgb1(1), rgb1(2), combinedLight, combinedOverlay)
