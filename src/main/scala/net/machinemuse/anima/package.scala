@@ -116,7 +116,7 @@ package object anima {
   }
 
   implicit class Optionally[I](x: I) {
-    def optionallyAs[O: Manifest]: Option[O] =
+    final def optionallyAs[O: Manifest]: Option[O] =
       if (implicitly[Manifest[O]].runtimeClass.isInstance(x)) {
         Some(x.asInstanceOf[O])
       } else {
@@ -130,14 +130,14 @@ package object anima {
     //        List.empty[O]
     //      }
 
-    def optionallyDoAs[O: Manifest](f: O => ()): Unit =
+    final def optionallyDoAs[O: Manifest](f: O => ()): Unit =
       if (implicitly[Manifest[O]].runtimeClass.isInstance(x)) {
         f(x.asInstanceOf[O])
       } else {
         ()
       }
 
-    def doAsOrElse[O: Manifest, D](default: D)(f: O => D): D = {
+    final def doAsOrElse[O: Manifest, D](default: D)(f: O => D): D = {
       if(implicitly[Manifest[O]].runtimeClass.isInstance(x)) {
         f(x.asInstanceOf[O])
       } else {

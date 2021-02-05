@@ -9,13 +9,17 @@ import net.minecraft.entity.SpawnReason
 import net.minecraft.item.DyeColor
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.{CampfireTileEntity, TileEntityType}
+import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.util.text.TranslationTextComponent
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 import org.apache.logging.log4j.scala.Logging
 
 import scala.annotation.nowarn
+import scala.jdk.CollectionConverters.ListHasAsScala
 import scala.util.Random
 
 /**
@@ -38,7 +42,29 @@ class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
   var colour1: Int = DyeColor.GREEN.getTextColor
   var colour2: Int = DyeColor.LIME.getTextColor
 
+  var dance_enhancement: Double = 0.0F
+
+  val DANCE_RANGE = 50
+
+  @OnlyIn(Dist.CLIENT)
+  override def getRenderBoundingBox: AxisAlignedBB = {
+    val bb = new AxisAlignedBB(pos.add(-1, 0, -1), pos.add(2, 2 + dance_enhancement/500, 2))
+    bb
+  }
+
   override def tick(): Unit = {
+    val nearbyPlayers = world.getPlayers.asScala.toList.flatMap {
+      case player if player.getDistanceSq(Vector3d.copy(getPos)) < DANCE_RANGE * DANCE_RANGE => Some(player)
+      case _ => None
+    }
+    dance_enhancement = 0
+    nearbyPlayers.foreach { player =>
+      val danceScore = DanceTracker.getPlayerDanceScore(player)
+      if(danceScore > 1000) {
+        dance_enhancement += danceScore - 1000
+      }
+    }
+
     if(Random.nextInt(500) == 0) {
       logger.debug("random tick from Campfire Plus")
       world.onServer{ serverWorld =>

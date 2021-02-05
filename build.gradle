@@ -163,6 +163,7 @@ jar {
 }
 
 shadowJar {
+    minimize() // experimental
     project.configurations.shadow.setTransitive(true)
     configurations = [project.configurations.shadow]
 

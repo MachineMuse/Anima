@@ -16,13 +16,13 @@ object BlockStateFlags {
   // 64 will signify the block is being moved.
   // Flags can be OR-ed
 
-  val BLOCK_UPDATE = 1
-  val SEND_TO_CLIENTS = 2
-  val DONT_RE_RENDER = 4
-  val RERENDER_ON_MAIN = 8
-  val PREVENT_NEIGHBOUR_REACTIONS = 16
-  val PREVENT_NEIGHBOURS_SPAWNING_DROPS = 32
-  val BEING_MOVED = 64
+  @inline final val BLOCK_UPDATE = 1
+  @inline final val SEND_TO_CLIENTS = 2
+  @inline final val DONT_RE_RENDER = 4
+  @inline final val RERENDER_ON_MAIN = 8
+  @inline final val PREVENT_NEIGHBOUR_REACTIONS = 16
+  @inline final val PREVENT_NEIGHBOURS_SPAWNING_DROPS = 32
+  @inline final val BEING_MOVED = 64
 
-  val STANDARD_CLIENT_UPDATE = BLOCK_UPDATE | SEND_TO_CLIENTS | RERENDER_ON_MAIN
+  @inline final val STANDARD_CLIENT_UPDATE = BLOCK_UPDATE | SEND_TO_CLIENTS | RERENDER_ON_MAIN
 }
