@@ -10,8 +10,10 @@ import net.minecraft.item.DyeColor
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.{CampfireTileEntity, TileEntityType}
 import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.util.math.{AxisAlignedBB, MathHelper}
+import net.minecraft.util.math._
 import net.minecraft.util.text.TranslationTextComponent
+import net.minecraft.world.gen.Heightmap
+import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
@@ -52,6 +54,40 @@ class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
     bb
   }
 
+  def trySpawnLightSpirit(serverWorld: ServerWorld): Unit = {
+    logger.info("Trying to spawn a Light Spirit")
+    val randDir = Random.between(0.0, Math.PI*2)
+    val randLen = Random.between(0.0, 50.0)
+    val x = randLen * Math.sin(randDir) + pos.getX
+    val z = randLen * Math.cos(randDir) + pos.getZ
+    val y = serverWorld.getHeight(Heightmap.Type.WORLD_SURFACE, x.toInt, z.toInt)
+    val blockPlace = new BlockPos(x, y, z)
+    if(serverWorld.getChunkProvider.isChunkLoaded(new ChunkPos(blockPlace))) {
+      var success = false
+      var yAdd = 0
+      while(yAdd < 5 && !success) {
+        val newPos = blockPlace.add(0, yAdd, 0)
+        val newState = serverWorld.getBlockState(newPos)
+        if (newState.isAir(serverWorld, newPos) && newState.getBlock != Blocks.VOID_AIR: @nowarn) {
+          spawnLightSpirit(serverWorld, newPos)
+          success = true
+        } else {
+          yAdd += 1
+        }
+
+      }
+    }
+
+  }
+  def spawnLightSpirit(serverWorld: ServerWorld, blockPlace: BlockPos): Unit = {
+    val newEnt = EntityLightSpirit.getType.spawn(serverWorld, null, new TranslationTextComponent("lightspirit"), null, blockPlace, SpawnReason.SPAWNER, true, true)
+    if (newEnt != null) {
+      newEnt.homeblock.set(blockPlace)
+      newEnt.attention.set(Random.between(10.minutesInTicks, 30.minutesInTicks))
+    }
+    logger.info("new entity " + newEnt + " created")
+  }
+
   override def tick(): Unit = {
     world.onServer { serverWorld =>
 
@@ -63,27 +99,16 @@ class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
       nearbyPlayers.foreach { player =>
         val danceScore = DanceTracker.getPlayerDanceScore(player)
         dance_enhancement += MathHelper.clamp(danceScore - 800, 0, 800)
-        if (Random.nextInt(20) == 0) logger.info("Dance Thing: " + dance_enhancement)
+//        if (Random.nextInt(20) == 0) logger.info("Dance Thing: " + dance_enhancement)
 
 //        world.setBlockState(this.getPos, this.getBlockState, BlockStateFlags.STANDARD_CLIENT_UPDATE)
         //        this.markDirty()
       }
       serverWorld.getChunkProvider().markBlockChanged(this.getPos) // send update to clients
 
-      if (Random.nextInt(500) == 0) {
-        logger.debug("random tick from Campfire Plus")
-        val randX = Random.between(-50, 50)
-        val randY = Random.between(-10, 10)
-        val randZ = Random.between(-50, 50)
-        val blockPlace = pos.add(randX, randY, randZ)
-        val spawnLocationState = world.getBlockState(blockPlace)
-        if (spawnLocationState.isAir(world, blockPlace) && spawnLocationState.getBlock != Blocks.VOID_AIR: @nowarn) {
-          val newEnt = EntityLightSpirit.getType.spawn(serverWorld, null, new TranslationTextComponent("lightspirit"), null, blockPlace, SpawnReason.SPAWNER, true, true)
-          if (newEnt != null) {
-            newEnt.homeblock.set(blockPlace)
-            newEnt.attention.set(Random.between(10.minutesInTicks, 30.minutesInTicks))
-          }
-          logger.debug("new entity " + newEnt + " created")
+      if(dance_enhancement > 0) {
+        if(Random.nextInt(800 * 10) < dance_enhancement) {
+          trySpawnLightSpirit(serverWorld)
         }
       }
     }

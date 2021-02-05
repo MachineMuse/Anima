@@ -62,7 +62,7 @@ class CampfirePlusTileEntityRenderer(dispatcher: TileEntityRendererDispatcher) e
         val flamesModel = Minecraft.getInstance().getModelManager.getModel(FLAMES_MODEL_LOCATION)
         val vertexBuffer: IVertexBuilder = buffer.getBuffer(ClientSetup.getBetterTranslucentState) // ClientSetup.getBetterTranslucentState
 
-        val rgb1 = Colour.toFloatArray(Colour.mixColours(tileEntity.colour1, DyeColor.BLACK.getTextColor, 4.0F/1.0F))
+        val rgb1 = Colour.toFloatArray(Colour.mixColoursByRatio(tileEntity.colour1, DyeColor.BLACK.getTextColor, 4.0F/1.0F))
         val rgb2 = Colour.toFloatArray(tileEntity.colour2)
 
         val listQuads = flamesModel.getQuads(tileEntity.getBlockState, null, new Random(), EmptyModelData.INSTANCE)

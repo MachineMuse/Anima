@@ -12,11 +12,19 @@ object Colour {
 
   @inline final def colourFromFloats(r: Float, g: Float, b: Float): Int = (r * 255).toInt * 65536 + (g * 255).toInt * 256 + (b * 255).toInt
 
-  @inline final def mixColours(c1: Int, c2: Int, ratio: Float = 1.0F): Int = {
+  @inline final def mixColoursByRatio(c1: Int, c2: Int, ratio: Float = 1.0F): Int = {
     val denominator = ratio + 1.0F
     val newred = (redFromInt(c1) * ratio + redFromInt(c2)) / denominator
     val newgreen = (greenFromInt(c1) * ratio + greenFromInt(c2) ) / denominator
     val newblue = (blueFromInt(c1) * ratio + blueFromInt(c2)) / denominator
+    colourFromFloats(newred, newgreen, newblue)
+  }
+
+  @inline final def mixColoursByWeight(c1: Int, c2: Int, w1: Float, w2: Float): Int = {
+    val denominator = w1+w2
+    val newred   = (  redFromInt(c1) * w1 +   redFromInt(c2) * w2) / denominator
+    val newgreen = (greenFromInt(c1) * w1 + greenFromInt(c2) * w2) / denominator
+    val newblue  = ( blueFromInt(c1) * w1 +  blueFromInt(c2) * w2) / denominator
     colourFromFloats(newred, newgreen, newblue)
   }
 
