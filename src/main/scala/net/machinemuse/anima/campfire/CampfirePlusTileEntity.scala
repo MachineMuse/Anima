@@ -9,9 +9,10 @@ import net.minecraft.entity.SpawnReason
 import net.minecraft.item.DyeColor
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.{CampfireTileEntity, TileEntityType}
-import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.util.math._
+import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.util.text.TranslationTextComponent
+import net.minecraft.world.LightType
 import net.minecraft.world.gen.Heightmap
 import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
@@ -20,7 +21,7 @@ import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 import org.apache.logging.log4j.scala.Logging
 
-import scala.annotation.nowarn
+import scala.annotation.{nowarn, tailrec}
 import scala.jdk.CollectionConverters.ListHasAsScala
 import scala.util.Random
 
@@ -54,31 +55,54 @@ class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
     bb
   }
 
-  def trySpawnLightSpirit(serverWorld: ServerWorld): Unit = {
-    logger.info("Trying to spawn a Light Spirit")
+  def trySpawnLightSpirit(serverWorld: ServerWorld, tries: Int): Unit = {
+    logger.debug("Trying to spawn a Light Spirit")
     val randDir = Random.between(0.0, Math.PI*2)
     val randLen = Random.between(0.0, 50.0)
     val x = randLen * Math.sin(randDir) + pos.getX
     val z = randLen * Math.cos(randDir) + pos.getZ
     val y = serverWorld.getHeight(Heightmap.Type.WORLD_SURFACE, x.toInt, z.toInt)
     val blockPlace = new BlockPos(x, y, z)
-    if(serverWorld.getChunkProvider.isChunkLoaded(new ChunkPos(blockPlace))) {
-      var success = false
-      var yAdd = 0
-      while(yAdd < 5 && !success) {
-        val newPos = blockPlace.add(0, yAdd, 0)
-        val newState = serverWorld.getBlockState(newPos)
-        if (newState.isAir(serverWorld, newPos) && newState.getBlock != Blocks.VOID_AIR: @nowarn) {
-          spawnLightSpirit(serverWorld, newPos)
-          success = true
-        } else {
-          yAdd += 1
-        }
-
+    if(serverWorld.getChunkProvider.isChunkLoaded(new ChunkPos(blockPlace))){
+      val deeper = goDeeper(serverWorld, blockPlace, blockPlace)
+      if(serverWorld.getLightFor(LightType.BLOCK, deeper) < 8) {
+        checkBlockAndSpawn(serverWorld, deeper, tries)
+      } else if (tries > 0) {
+        logger.trace(s"Light level too high at $deeper; trying a different spot")
+        trySpawnLightSpirit(serverWorld, tries-1)
+      } else {
+        logger.info(s"Failed attempt to spawn light spirit; couldn't find a good spawn location")
       }
     }
 
   }
+
+  @tailrec
+  final def checkBlockAndSpawn(world: ServerWorld, blockPlace: BlockPos, tries: Int): Unit = {
+    val blockState = world.getBlockState(blockPlace)
+    if(blockState.isAir && blockState.getBlock != Blocks.VOID_AIR : @nowarn) {
+      spawnLightSpirit(world, blockPlace)
+    } else if(tries > 0) {
+      logger.trace(s"Spawn location invalid at $blockPlace; trying one higher")
+      checkBlockAndSpawn(world, blockPlace.up(), tries-1)
+    }
+  }
+
+
+  @tailrec
+  final def goDeeper(world: ServerWorld, blockPlaceStart: BlockPos, foundBlock: BlockPos): BlockPos = {
+    val deeperPos = blockPlaceStart.down()
+    val blockStateHere = world.getBlockState(blockPlaceStart)
+    val blockStateDeeper = world.getBlockState(deeperPos)
+    val newFoundBlock = if(blockStateHere.isAir : @nowarn) blockPlaceStart else foundBlock
+    if(blockStateDeeper.isSolid) {
+      logger.trace(s"Went deeper from $blockPlaceStart, found $foundBlock")
+      newFoundBlock
+    } else {
+      goDeeper(world, deeperPos, newFoundBlock)
+    }
+  }
+
   def spawnLightSpirit(serverWorld: ServerWorld, blockPlace: BlockPos): Unit = {
     val newEnt = EntityLightSpirit.getType.spawn(serverWorld, null, new TranslationTextComponent("lightspirit"), null, blockPlace, SpawnReason.SPAWNER, true, true)
     if (newEnt != null) {
@@ -108,7 +132,7 @@ class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
 
       if(dance_enhancement > 0) {
         if(Random.nextInt(800 * 10) < dance_enhancement) {
-          trySpawnLightSpirit(serverWorld)
+          trySpawnLightSpirit(serverWorld, 5)
         }
       }
     }
