@@ -169,12 +169,18 @@ package object anima {
 
   object JavaFunctionConverters {
     import java.util.function._
-    implicit def biconsumer[A, B](bc: (A, B) => ()): BiConsumer[A, B] = bc(_,_)
-    implicit def function1[A, B](f: A => B): Function[A, B] = f(_)
-    implicit def supplier[A] (f: () => A): Supplier[A] = () => f()
-    implicit def suppliercallable[A] (f: () => () => A): Supplier[Callable[A]] = () => () => f()()
     implicit def consumer[A] (f: A => ()): Consumer[A] = f(_)
+    implicit def biconsumer[A, B](f: (A, B) => ()): BiConsumer[A, B] = f(_,_)
+
+    implicit def function1[A, B](f: A => B): Function[A, B] = f(_)
+    implicit def bifunction[A, B, O](f: (A, B) => O): BiFunction[A, B, O] = f(_,_)
+
+    implicit def supplier[A] (f: () => A): Supplier[A] = () => f()
+
+    implicit def suppliercallable[A] (f: () => () => A): Supplier[Callable[A]] = () => () => f()()
+
     implicit def callable[A] (f: () => A): Callable[A] = () => f()
+
     implicit def biconsumer1P2Supplier[P,S](f: (P, () => S) => ()): BiConsumer[P, Supplier[S]] = (p, s) => f(p,() => s.get())
   }
 

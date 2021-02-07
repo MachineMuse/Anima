@@ -136,8 +136,8 @@ dependencies {
     runtimeOnly deps.scalalib
 
     // adds 3-5mb
-//    shadow deps.shapeless
-//    runtimeOnly deps.shapeless
+    shadow deps.shapeless
+    runtimeOnly deps.shapeless
 
     // adds 4mb
     shadow deps.log4j_scala

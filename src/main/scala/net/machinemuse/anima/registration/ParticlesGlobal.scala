@@ -2,11 +2,11 @@ package net.machinemuse.anima
 package registration
 
 import registration.RegistryHelpers.PARTICLES
+import util.VanillaCodecs._
 
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.serialization.Codec
-import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.item.DyeColor
 import net.minecraft.network.PacketBuffer
 import net.minecraft.particles.{IParticleData, ParticleType}
@@ -40,17 +40,9 @@ object ParticlesGlobal extends Logging {
       AnimaParticleData(size = buffer.readDouble, colour = buffer.readInt, lifeticks = buffer.readInt, doCollision = buffer.readBoolean, gravity = buffer.readFloat, spin = buffer.readFloat)
     }
   }
-  /*_*/ // Disable type-aware highlighting for this val 'cause IDEA throws a fit
-  val CODEC: Codec[AnimaParticleData] = RecordCodecBuilder.create[AnimaParticleData] {builderInstance =>
-    builderInstance.group(
-      Codec.DOUBLE.fieldOf("size").forGetter(_.size),
-      Codec.INT.fieldOf("colour").forGetter(_.colour),
-      Codec.INT.fieldOf("lifeticks").forGetter(_.lifeticks),
-      Codec.BOOL.fieldOf("doCollision").forGetter(_.doCollision),
-      Codec.FLOAT.fieldOf("gravity").forGetter(_.gravity),
-      Codec.FLOAT.fieldOf("spin").forGetter(_.spin)
-    )(builderInstance, AnimaParticleData(_, _, _, _, _, _))
-  }
+  /*_*/ // Disable type-aware highlighting for this val 'cause IDEA can't find all the implicits
+  import HListHasMapCodec._
+  val CODEC: Codec[AnimaParticleData] = new CodecMaker[AnimaParticleData].genCaseCodec
   /*_*/
 
   class AnimaParticleType extends ParticleType[AnimaParticleData](true, AnimaParticleDeserializer) {

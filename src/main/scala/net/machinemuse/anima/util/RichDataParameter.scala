@@ -7,7 +7,7 @@ import net.minecraft.block.BlockState
 import net.minecraft.entity._
 import net.minecraft.entity.merchant.villager.VillagerData
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.{CompoundNBT, NBTDynamicOps}
 import net.minecraft.network.IPacket
 import net.minecraft.network.datasync._
 import net.minecraft.particles.IParticleData
@@ -15,6 +15,7 @@ import net.minecraft.util.math.{BlockPos, Rotations}
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.{Unit => _, _}
 import net.minecraftforge.fml.network.NetworkHooks
+import org.apache.logging.log4j.scala.Logging
 
 import java.util._
 import scala.collection.mutable
@@ -22,7 +23,7 @@ import scala.collection.mutable
 /**
  * Created by MachineMuse on 1/26/2021.
  */
-object RichDataParameter {
+object RichDataParameter extends Logging {
 
   // Trait for the class to extend for this package's boilerplate reduction
   trait DataHandlingEntity extends Entity {
@@ -226,11 +227,22 @@ object RichDataParameter {
       (name, compound, value) => if(value.isPresent) { compound.putString(name, ITextComponent.Serializer.toJson(value.get)) },
       (name, compound) => if(compound.contains(name)) Optional.of(ITextComponent.Serializer.getComponentFromJson(compound.getString(name))) else Optional.empty()
     )
+    implicit val POSE:          ParameterType[Pose] =                 VanillaParameterType(
+      DataSerializers.POSE,
+      (name, compound, value) => compound.putInt(name, value.ordinal()),
+      (name, compound) => Pose.values()(compound.getInt(name))
+    )
+    implicit val O_BLOCK_STATE: ParameterType[Optional[BlockState]] = VanillaParameterType(
+      DataSerializers.OPTIONAL_BLOCK_STATE,
+      (name, compound, value) => if(value.isPresent) { compound.put(name, BlockState.CODEC.encodeStart(NBTDynamicOps.INSTANCE, value.get).result().get()) },
+      (name, compound) => BlockState.CODEC.parse(NBTDynamicOps.INSTANCE, compound.get(name)).result()
+    )
+    implicit val VILLAGER_DATA: ParameterType[VillagerData] =         VanillaParameterType(
+      DataSerializers.VILLAGER_DATA,
+      (name, compound, value) => compound.put(name, VillagerData.CODEC.encodeStart(NBTDynamicOps.INSTANCE, value).result().get()),
+      (name, compound) => VillagerData.CODEC.parse(NBTDynamicOps.INSTANCE, compound.get(name)).resultOrPartial(errStr => logger.error(s"Problem loading villager data: $errStr")).get()
+    )
     // TODO: NBT serializers/deserializers for these ones if deemed necessary
-    implicit val O_BLOCK_STATE: ParameterType[Optional[BlockState]] = UnsavedParameterType(DataSerializers.OPTIONAL_BLOCK_STATE)
     implicit val PARTICLE_DATA: ParameterType[IParticleData] =        UnsavedParameterType(DataSerializers.PARTICLE_DATA)
-    implicit val VILLAGER_DATA: ParameterType[VillagerData] =         UnsavedParameterType(DataSerializers.VILLAGER_DATA)
-    implicit val POSE:          ParameterType[Pose] =                 UnsavedParameterType(DataSerializers.POSE)
-
   }
 }
