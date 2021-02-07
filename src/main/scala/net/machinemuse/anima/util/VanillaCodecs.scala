@@ -26,11 +26,11 @@ import shapeless.ops.record.Keys
 
 import java.io._
 import java.nio.ByteBuffer
-import java.util.stream
 import java.util.stream.{IntStream, LongStream, Stream}
+import java.util.{Optional, stream}
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
-import scala.jdk.OptionConverters.RichOptional
+import scala.jdk.OptionConverters.{RichOption, RichOptional}
 
 /**
  * Created by MachineMuse on 2/6/2021.
@@ -104,6 +104,18 @@ object VanillaCodecs extends Logging {
   implicit def VECTOR4FCODEC  : Codec[Vector4f] =   MATCHINGQUADCODEC[Float]    .xmap(t => new Vector4f(t._1,t._2,t._3,t._4), v => (v.getW, v.getX, v.getY, v.getZ))
   implicit def QUATERNIONCODEC: Codec[Quaternion] = MATCHINGQUADCODEC[Float]    .xmap(t => new Quaternion(t._1,t._2,t._3,t._4), v => (v.getW, v.getX, v.getY, v.getZ))
 
+  sealed trait Optionalizer[A] {
+    def genField(name: String): MapCodec[A]
+  }
+  implicit def OptionalOptionalizer[A : Codec] = new Optionalizer[Optional[A]] {
+    def genField(name: String): MapCodec[Optional[A]] = implicitly[Codec[A]].optionalFieldOf(name)
+  }
+  implicit def OptionOptionalizer[A : Codec] = new Optionalizer[Option[A]] {
+    def genField(name: String): MapCodec[Option[A]] = implicitly[Codec[A]].optionalFieldOf(name).xmap(_.toScala, _.toJava)
+  }
+  implicit def NonOptionOptionalizer[A: Codec] = new Optionalizer[A] {
+    override def genField(name: String): MapCodec[A] = implicitly[Codec[A]].fieldOf(name)
+  }
 
   import JavaFunctionConverters._
 
@@ -125,11 +137,11 @@ object VanillaCodecs extends Logging {
     implicit def HConsHasMapCodec[HeadVal, TailVals <: HList]
     (implicit
      tailCodec: HListHasMapCodec.Aux[TailVals],
-     headCodec: Codec[HeadVal]
+     headCodec: Optionalizer[HeadVal]
     ) = new HListHasMapCodec[HeadVal :: TailVals] {
       def genMapCodec( keys: List[String]) = {
         val (key, remainder) = (keys.head, keys.tail)
-        val mapCodecHead = headCodec.fieldOf(key)
+        val mapCodecHead = headCodec.genField(key)
         val mapCodecTail = tailCodec.genMapCodec(remainder)
         val newCodec = MapCodec.of[HeadVal :: TailVals] (
           new MapEncoder.Implementation[HeadVal :: TailVals] {
