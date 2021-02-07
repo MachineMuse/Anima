@@ -10,7 +10,8 @@ import net.minecraft.network.PacketBuffer
 import net.minecraft.particles.{IParticleData, ParticleType}
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.RegistryObject
-import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 import org.apache.logging.log4j.scala.Logging
 
@@ -18,7 +19,7 @@ import org.apache.logging.log4j.scala.Logging
  * Created by MachineMuse on 2/5/2021.
  */
 
-@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
 object ParticlesGlobal extends Logging {
   @SubscribeEvent def onConstructMod(e: FMLConstructModEvent) = {}
 

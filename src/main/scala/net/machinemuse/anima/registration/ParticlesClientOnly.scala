@@ -11,7 +11,8 @@ import net.minecraft.util.math.vector.Vector3d
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.client.event.ParticleFactoryRegisterEvent
 import net.minecraftforge.eventbus.api.{EventPriority, SubscribeEvent}
-import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import org.apache.logging.log4j.scala.Logging
 
@@ -19,7 +20,7 @@ import org.apache.logging.log4j.scala.Logging
 /**
  * Created by MachineMuse on 2/5/2021.
  */
-@Mod.EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Bus.MOD)
 object ParticlesClientOnly extends Logging {
 
   @SubscribeEvent def onClientSetup(event: FMLClientSetupEvent): Unit = { }

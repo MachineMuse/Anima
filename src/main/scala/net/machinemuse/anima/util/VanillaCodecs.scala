@@ -1,20 +1,24 @@
 package net.machinemuse.anima
 package util
 
-import com.google.gson.{JsonElement, JsonParser}
+import com.google.gson._
 import com.mojang.brigadier.StringReader
 import com.mojang.datafixers.util
+import com.mojang.datafixers.util.Pair
 import com.mojang.serialization
 import com.mojang.serialization._
 import com.mojang.serialization.codecs._
 import io.netty.buffer._
 import net.minecraft.entity.ai.attributes.Attribute
 import net.minecraft.item.Item
+import net.minecraft.item.crafting.{IRecipe, IRecipeSerializer}
 import net.minecraft.nbt._
 import net.minecraft.network.PacketBuffer
 import net.minecraft.particles.{IParticleData, ParticleType}
-import net.minecraft.util.SharedConstants
+import net.minecraft.util.math.vector._
 import net.minecraft.util.registry.Registry
+import net.minecraft.util.{ResourceLocation, SharedConstants}
+import net.minecraftforge.registries.ForgeRegistryEntry
 import org.apache.logging.log4j.scala.Logging
 import shapeless._
 import shapeless.ops.hlist.ToTraversable
@@ -71,12 +75,35 @@ object VanillaCodecs extends Logging {
   //etc...
 
   // Generics
-  implicit def LISTCODEC[A: Codec]: Codec[java.util.List[A]] = new ListCodec(implicitly[Codec[A]])
-  implicit def SLISTCODEC[A: Codec]: Codec[List[A]] = new ListCodec(implicitly[Codec[A]]).xmap (
-    _.asScala.toList,
-    _.asJava
-  )
+  implicit def LISTCODEC[A: Codec](implicit ca: Codec[A]): Codec[java.util.List[A]] = new ListCodec(ca)
+  implicit def SLISTCODEC[A: Codec](implicit ca: Codec[A]): Codec[List[A]] = new ListCodec(ca).xmap (_.asScala.toList, _.asJava)
+
+  implicit def PAIRCODEC[A: Codec, B: Codec]: Codec[Pair[A, B]] = new PairCodec(implicitly[Codec[A]], implicitly[Codec[B]])
+  implicit def SPAIRCODEC[A: Codec, B: Codec]: Codec[(A, B)] = PAIRCODEC[A,B].xmap (p => (p.getFirst, p.getSecond), t => Pair.of(t._1, t._2))
+
+  implicit def MATCHINGTRIPLETCODEC[A: Codec]: Codec[(A, A, A)] = SLISTCODEC[A].flatXmap ({
+      case List(x,y,z) => DataResult.success((x,y,z))
+      case el => DataResult.error(s"Triplet didn't contain 3 elements: $el")
+    },{
+      case (x,y,z) => DataResult.success(List(x,y,z))
+    })
+
+  implicit def MATCHINGQUADCODEC[A: Codec]: Codec[(A, A, A, A)] = SLISTCODEC[A].flatXmap ({
+    case List(w,x,y,z) => DataResult.success((w,x,y,z))
+    case el => DataResult.error(s"Quad didn't contain 4 elements: $el")
+  },{
+    case (w,x,y,z) => DataResult.success(List(w,x,y,z))
+  })
   //more?
+
+  // Vectors
+  implicit def VECTOR2FCODEC  : Codec[Vector2f] =   PAIRCODEC[Float, Float]     .xmap(t => new Vector2f(t.getFirst, t.getSecond), v => Pair.of(v.x, v.y))
+  implicit def VECTOR3DCODEC  : Codec[Vector3d] =   MATCHINGTRIPLETCODEC[Double].xmap(t => new Vector3d(t._1,t._2,t._3), v => (v.getX, v.getY, v.getZ))
+  implicit def VECTOR3ICODEC  : Codec[Vector3i] =   MATCHINGTRIPLETCODEC[Int]   .xmap(t => new Vector3i(t._1,t._2,t._3), v => (v.getX, v.getY, v.getZ))
+  implicit def VECTOR3FCODEC  : Codec[Vector3f] =   MATCHINGTRIPLETCODEC[Float] .xmap(t => new Vector3f(t._1,t._2,t._3), v => (v.getX, v.getY, v.getZ))
+  implicit def VECTOR4FCODEC  : Codec[Vector4f] =   MATCHINGQUADCODEC[Float]    .xmap(t => new Vector4f(t._1,t._2,t._3,t._4), v => (v.getW, v.getX, v.getY, v.getZ))
+  implicit def QUATERNIONCODEC: Codec[Quaternion] = MATCHINGQUADCODEC[Float]    .xmap(t => new Quaternion(t._1,t._2,t._3,t._4), v => (v.getW, v.getX, v.getY, v.getZ))
+
 
   import JavaFunctionConverters._
 
@@ -201,6 +228,14 @@ object VanillaCodecs extends Logging {
     } : @nowarn
     def mkParticleType(alwaysShow: Boolean) = new ParticleType[A](alwaysShow, deserializer) {
       override def func_230522_e_(): Codec[A] = codec
+    }
+  }
+
+  implicit class ConvenientRecipeSerializer[A <: IRecipe[_]](codec: Codec[A]) {
+    def mkSerializer(default: A) = new ForgeRegistryEntry[IRecipeSerializer[_]] with IRecipeSerializer[A] {
+      override def read(recipeId: ResourceLocation, json: JsonObject): A = codec.parseJson(json).getOrElse(default)
+      override def read(recipeId: ResourceLocation, buffer: PacketBuffer): A = codec.readUncompressed(buffer).getOrElse(default)
+      override def write(buffer: PacketBuffer, recipe: A): Unit = codec.writeUncompressed(buffer, recipe)
     }
   }
 

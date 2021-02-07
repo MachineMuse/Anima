@@ -20,6 +20,8 @@ trait InventoriedItem extends ModeChangingItem[Int] {
 
   // TODO: use ItemStackHelper methods where applicable
 
+  // TODO: Convert to IItemHandler capability
+
   def addContentsToTooltip(bag: ItemStack, tooltip: util.List[ITextComponent]) = {
     for (stack <- getContents(bag)) {
       if(stack != null && !stack.isEmpty) {

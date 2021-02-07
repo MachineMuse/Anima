@@ -1,16 +1,14 @@
 package net.machinemuse.anima
 package ghostdust
 
-import ghostdust.GhostDustingRecipe.GhostDustingIngredient
+import ghostdust.GhostDustingRecipe.{GhostDustingIngredient, SERIALIZER}
 import registration.RegistryHelpers.RECIPE_SERIALIZERS
 import util.VanillaClassEnrichers.RichItemStack
 
-import com.google.gson._
 import com.mojang.serialization.Codec
 import net.minecraft.inventory.CraftingInventory
 import net.minecraft.item._
 import net.minecraft.item.crafting.{ICraftingRecipe, IRecipeSerializer}
-import net.minecraft.network.PacketBuffer
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.text.{TextFormatting, TranslationTextComponent}
@@ -19,44 +17,39 @@ import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import net.minecraftforge.event.entity.player.ItemTooltipEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.RegistryObject
-import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.{FMLClientSetupEvent, FMLConstructModEvent}
-import net.minecraftforge.registries.ForgeRegistryEntry
 import org.apache.logging.log4j.scala.Logging
 
 /**
  * Created by MachineMuse on 2/2/2021.
  */
 object GhostDustingRecipe extends Logging {
-
-  private val SERIALIZER: RegistryObject[GhostDustingRecipeSerializer] = RECIPE_SERIALIZERS.register("ghost_dusting", () => new GhostDustingRecipeSerializer)
-  def getSerializerInstance = SERIALIZER.get
-
   @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {}
 
-  case class GhostDustingIngredient(item : Item, transparency: Float, limit: Int, clamp: Boolean)
   /*_*/
   import util.VanillaCodecs._
   val RecipeCodec = implicitly[Codec[GhostDustingRecipe]]
+  private val SERIALIZER: RegistryObject[IRecipeSerializer[GhostDustingRecipe]] = RECIPE_SERIALIZERS.register("ghost_dusting", () => RecipeCodec.mkSerializer(new GhostDustingRecipe(List.empty)))
   /*_*/
-  class GhostDustingRecipeSerializer extends ForgeRegistryEntry[IRecipeSerializer[_]] with IRecipeSerializer[GhostDustingRecipe] {
-    override def read(recipeId: ResourceLocation, json: JsonObject): GhostDustingRecipe = RecipeCodec.parseJson(json).getOrElse(new GhostDustingRecipe(List.empty))
-    override def read(recipeId: ResourceLocation, buffer: PacketBuffer): GhostDustingRecipe = RecipeCodec.readUncompressed(buffer).getOrElse(new GhostDustingRecipe(List.empty))
-    override def write(buffer: PacketBuffer, recipe: GhostDustingRecipe): Unit = RecipeCodec.writeUncompressed(buffer, recipe)
-  }
 
-  @OnlyIn(Dist.CLIENT)
-  @SubscribeEvent def onClientSetup(event: FMLClientSetupEvent) = addForgeListeners(onItemTooltip)
+  case class GhostDustingIngredient(item : Item, transparency: Float, limit: Int, clamp: Boolean)
 
-  @OnlyIn(Dist.CLIENT)
-  def onItemTooltip(event: ItemTooltipEvent): Unit = {
-    val stack = event.getItemStack
-    if(stack.hasTransparency) event.getToolTip.add(new TranslationTextComponent(s"tooltip.${Anima.MODID}.transparency", (stack.getTransparency * 100).toString).mergeStyle(TextFormatting.GRAY, TextFormatting.ITALIC))
+  @OnlyIn(Dist.CLIENT) @SubscribeEvent def onClientSetup(event: FMLClientSetupEvent) = addForgeListeners(onItemTooltip)
+
+  @OnlyIn(Dist.CLIENT) def onItemTooltip(event: ItemTooltipEvent): Unit = {
+    if(event.getItemStack.hasTransparency)
+      event.getToolTip.add(
+        new TranslationTextComponent(s"tooltip.${Anima.MODID}.transparency", (event.getItemStack.getTransparency * 100).toString)
+          .mergeStyle(TextFormatting.GRAY, TextFormatting.ITALIC)
+      )
   }
 }
 
-@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
 case class GhostDustingRecipe(items: List[GhostDustingIngredient]) extends ICraftingRecipe with Logging {
+  // TODO: Cleaning
   override def matches(inv: CraftingInventory, worldIn: World): Boolean = {
     var armorFound = false
     var ghostDustFound = false
@@ -67,9 +60,7 @@ case class GhostDustingRecipe(items: List[GhostDustingIngredient]) extends ICraf
       val stackInSlot = inv.getStackInSlot(slot)
       stackInSlot.getItem match {
         case armorItem: ArmorItem => if(!armorFound) armorFound = true else tooMany = true
-        case ghostdust if ghostDustItems.contains(ghostdust) => {
-          ghostDustFound = true
-        }
+        case ghostdust if ghostDustItems.contains(ghostdust) => ghostDustFound = true
         case _ =>
       }
     }
@@ -137,5 +128,5 @@ case class GhostDustingRecipe(items: List[GhostDustingIngredient]) extends ICraf
 
   override def getId: ResourceLocation = new ResourceLocation(Anima.MODID, "ghost_dusting")
 
-  override def getSerializer: IRecipeSerializer[GhostDustingRecipe] = GhostDustingRecipe.getSerializerInstance
+  override def getSerializer: IRecipeSerializer[GhostDustingRecipe] = SERIALIZER.get
 }

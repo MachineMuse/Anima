@@ -11,7 +11,7 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.client.event.InputEvent.MouseScrollEvent
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import org.apache.logging.log4j.scala.Logging
 
@@ -20,7 +20,7 @@ import scala.annotation.nowarn
 /**
  * Created by MachineMuse on 1/31/2021.
  */
-@Mod.EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Bus.FORGE)
+@EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Bus.FORGE)
 object GuiEventHandler extends Logging {
   @SubscribeEvent
   def onScrollWheel(event: MouseScrollEvent): Unit = {

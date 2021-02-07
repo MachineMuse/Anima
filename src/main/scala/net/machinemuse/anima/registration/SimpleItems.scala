@@ -8,13 +8,14 @@ import net.minecraft.data.{ShapedRecipeBuilder, ShapelessRecipeBuilder}
 import net.minecraft.item.Items
 import net.minecraft.tags.ItemTags
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataEvent}
 
 /**
  * Created by MachineMuse on 1/21/2021.
  */
-@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
 object SimpleItems {
   import RegistryHelpers._
 

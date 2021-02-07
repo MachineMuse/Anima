@@ -22,7 +22,8 @@ import net.minecraftforge.client.model.ModelLoader
 import net.minecraftforge.client.model.data.EmptyModelData
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.client.registry.ClientRegistry
-import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.{FMLClientSetupEvent, GatherDataEvent}
 import org.apache.logging.log4j.scala.Logging
 
@@ -48,7 +49,7 @@ object CampfirePlusTileEntityRenderer extends Logging {
 
   lazy val campfireTER = TileEntityRendererDispatcher.instance.getRenderer(new CampfireTileEntity)
 }
-@Mod.EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Bus.MOD)
 class CampfirePlusTileEntityRenderer(dispatcher: TileEntityRendererDispatcher) extends TileEntityRenderer[CampfirePlusTileEntity](dispatcher) {
 
   // Can't extend CampfireTileEntityRenderer because it locks in the type argument

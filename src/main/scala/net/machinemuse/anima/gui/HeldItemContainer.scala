@@ -22,7 +22,7 @@ object HeldItemContainer extends Logging {
 abstract class HeldItemContainer(playerInventory: PlayerInventory, hand: Hand, containerItem: InventoriedItem, ct: ContainerType[_], id: Int) extends Container(ct, id) with Logging {
   override def canInteractWith(playerIn: PlayerEntity): Boolean = true
 
-  val (usedInventory, usedInventorySlot, basketSlotNumber) = hand match {
+  val (usedInventory, usedInventorySlot, activeSlot) = hand match {
     case Hand.MAIN_HAND => (playerInventory.mainInventory, playerInventory.currentItem, playerInventory.currentItem)
     case Hand.OFF_HAND => (playerInventory.offHandInventory, 0, 40)
   }
@@ -47,7 +47,7 @@ abstract class HeldItemContainer(playerInventory: PlayerInventory, hand: Hand, c
     //  override def isEnabled: Boolean = false
   }
 
-  def mkPlayerInventorySlots(x: Int, y: Int, lock: Int) = {
+  def mkPlayerInventorySlots(x: Int, y: Int) = {
     for (k <- 0 until 3) {
       for (i1 <- 0 until 9) {
         this.addSlot(new Slot(playerInventory, i1 + k * 9 + 9, x + i1 * 18, y + k * 18))
@@ -55,7 +55,7 @@ abstract class HeldItemContainer(playerInventory: PlayerInventory, hand: Hand, c
     }
 
     for (l <- 0 until 9) {
-      if(l == lock) {
+      if(l == activeSlot) {
         this.addSlot(new LockedSlot(playerInventory, l, x + l * 18, y + 58))
       } else {
         this.addSlot(new Slot(playerInventory, l, x + l * 18, y + 58))
@@ -125,7 +125,7 @@ abstract class HeldItemContainer(playerInventory: PlayerInventory, hand: Hand, c
   }
 
   override def slotClick(slotId: Int, dragType: Int, clickTypeIn: ClickType, player: PlayerEntity): ItemStack = {
-    if(clickTypeIn == ClickType.SWAP && dragType == basketSlotNumber) {
+    if(clickTypeIn == ClickType.SWAP && dragType == activeSlot) {
       ItemStack.EMPTY
     } else if (clickTypeIn == ClickType.SWAP && slotId < numInnerSlots) {
       // TODO: smarter hotkey behaviour

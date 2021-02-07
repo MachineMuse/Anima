@@ -20,7 +20,8 @@ import net.minecraftforge.common.IPlantable
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent
 import net.minecraftforge.eventbus.api.Event.Result
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataEvent}
 import net.minecraftforge.fml.network.NetworkHooks
 import org.apache.logging.log4j.scala.Logging
@@ -82,7 +83,7 @@ object Basket extends Logging {
 }
 
 // counterintuitively, this will autosubscribe all the methods annotated with @SubscribeEvent in the companion object above.
-@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
 class Basket extends Item(Basket.properties) with InventoriedItem with Logging {
   def isVeggie(stack: ItemStack): Boolean = stack.getItem.isFood && !stack.getItem.getFood.isMeat
   def isPlantable(stack: ItemStack): Boolean = OptionCast[BlockItem](stack.getItem).exists(_.getBlock.isInstanceOf[IPlantable])

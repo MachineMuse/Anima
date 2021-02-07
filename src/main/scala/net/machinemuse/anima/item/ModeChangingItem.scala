@@ -5,7 +5,8 @@ import Network._
 
 import net.minecraft.item.ItemStack
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 import net.minecraftforge.fml.network.NetworkEvent
 import org.apache.logging.log4j.scala.Logging
@@ -31,7 +32,7 @@ object ModeChangingItem extends Logging{
   }
 }
 
-@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
 trait ModeChangingItem[T] extends Logging {
 
   def getDefaultMode(stack: ItemStack): T

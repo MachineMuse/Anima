@@ -19,7 +19,8 @@ import net.minecraft.util.math.MathHelper
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.client.event.RenderPlayerEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import org.apache.logging.log4j.scala.Logging
 
 
@@ -44,7 +45,7 @@ object BipedArmorLayerPlus extends Logging {
   }
 }
 
-@Mod.EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Bus.FORGE)
 class BipedArmorLayerPlus[T <: LivingEntity, M <: BipedModel[T], A <: BipedModel[T]](entity: IEntityRenderer[T, M], modelLeggings: A, modelArmor: A)
   extends BipedArmorLayer(entity, modelLeggings, modelArmor) with Logging {
   def this(old: BipedArmorLayer[T, M, A]) = {

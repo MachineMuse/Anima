@@ -1,13 +1,14 @@
 package net.machinemuse.anima
 package client
 
-import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import org.apache.logging.log4j.scala.Logging
 
 /**
  * Created by MachineMuse on 1/27/2021.
  */
-@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Anima.MODID, bus = Bus.FORGE)
 object ClientForgeEvents extends Logging {
 
 //  def logTranslations() ={

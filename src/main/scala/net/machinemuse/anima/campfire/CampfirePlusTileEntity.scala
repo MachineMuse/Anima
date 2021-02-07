@@ -17,7 +17,8 @@ import net.minecraft.world.gen.Heightmap
 import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 import org.apache.logging.log4j.scala.Logging
 
@@ -35,7 +36,7 @@ object CampfirePlusTileEntity {
   def getType = CAMPFIREPLUS_TE.get()
 }
 
-@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
 class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
   def copyOldTE(blockstate: BlockState, oldTE: CampfireTileEntity): Unit = {
     val oldNBT: CompoundNBT = oldTE.write(new CompoundNBT)

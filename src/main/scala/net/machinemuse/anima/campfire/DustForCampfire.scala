@@ -16,7 +16,8 @@ import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.util.{ActionResultType, Direction}
 import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 import org.apache.logging.log4j.scala.Logging
 
@@ -34,7 +35,7 @@ object DustForCampfire {
 }
 
 // counterintuitively, this will autosubscribe all the methods annotated with @SubscribeEvent in the companion object above.
-@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
 class DustForCampfire extends Item(new Item.Properties().group(AnimaCreativeGroup)) with Logging {
   // Called when this item is used when targeting a Block
   override def onItemUse(context: ItemUseContext): ActionResultType = {

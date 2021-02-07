@@ -15,7 +15,8 @@ import net.minecraft.util.math.{BlockPos, BlockRayTraceResult}
 import net.minecraft.util.{Unit => _, _}
 import net.minecraft.world.{IBlockReader, World}
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataEvent}
 
 import scala.jdk.OptionConverters._
@@ -56,7 +57,7 @@ object CampfirePlus {
   def getBlockItem = CAMPFIREPLUS_ITEM.get()
 }
 
-@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
 class CampfirePlus(smokey: Boolean, fireDamage: Int, properties: AbstractBlock.Properties) extends CampfireBlock(smokey, fireDamage, properties) {
 
   override def createNewTileEntity(worldIn: IBlockReader) = new CampfirePlusTileEntity

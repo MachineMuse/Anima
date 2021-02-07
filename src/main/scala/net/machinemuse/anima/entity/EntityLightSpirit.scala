@@ -15,7 +15,8 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.shapes._
 import net.minecraft.world.{IBlockReader, World}
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 import org.apache.logging.log4j.scala.Logging
 
@@ -40,7 +41,7 @@ object EntityLightSpirit extends ParameterRegistrar(classOf[EntityLightSpirit]) 
 
 }
 
-@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
 class EntityLightSpirit (entityType: EntityType[EntityLightSpirit], world: World) extends Entity(entityType, world) with DataHandlingEntity with Logging {
   override def registrar = EntityLightSpirit
   val homeblock: DataSync[BlockPos] = mkDataSync("homeblock", new BlockPos(0, 62, 0))

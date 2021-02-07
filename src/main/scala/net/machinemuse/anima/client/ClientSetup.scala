@@ -13,7 +13,8 @@ import net.minecraft.util.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.client.registry.{ClientRegistry, RenderingRegistry}
-import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import org.apache.logging.log4j.scala.Logging
 import org.lwjgl.opengl.GL11
@@ -21,7 +22,7 @@ import org.lwjgl.opengl.GL11
 /**
  * Created by MachineMuse on 1/22/2021.
  */
-@Mod.EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Bus.MOD)
 //@Mod.EventBusSubscriber(modid = "anima", value = Array(Dist.CLIENT), bus = Mod.EventBusSubscriber.Bus.FORGE)
 object ClientSetup extends Logging {
 

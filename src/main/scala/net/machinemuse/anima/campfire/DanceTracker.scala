@@ -5,7 +5,8 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.math.vector.Vector3d
 import net.minecraftforge.event.entity.living.LivingEvent.{LivingJumpEvent, LivingUpdateEvent}
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import org.apache.logging.log4j.scala.Logging
 
 import scala.collection.mutable
@@ -13,7 +14,7 @@ import scala.collection.mutable
 /**
  * Created by MachineMuse on 2/4/2021.
  */
-@Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Anima.MODID, bus = Bus.FORGE)
 object DanceTracker extends Logging {
   // TODO: Optimize the heck out of this, it's very expensive atm!!!
 

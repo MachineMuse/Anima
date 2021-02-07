@@ -29,11 +29,11 @@ import scala.annotation.nowarn
 object BasketISTER extends Logging {
   @SubscribeEvent
   def setupModels(event: ModelRegistryEvent): Unit = {
-    logger.debug("setting up models, event triggered")
+    logger.debug("adding special model for BasketISTER")
     ModelLoader.addSpecialModel(MODEL_LOCATION)
   }
 
-  val MODEL_LOCATION = new ResourceLocation(Anima.MODID, "item/basket_underlay")
+  private val MODEL_LOCATION = new ResourceLocation(Anima.MODID, "item/basket_underlay")
 
   def mkISTER: Callable[ItemStackTileEntityRenderer] = () => new BasketISTER
 }
