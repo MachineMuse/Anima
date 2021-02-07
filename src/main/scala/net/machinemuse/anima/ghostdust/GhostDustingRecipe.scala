@@ -4,13 +4,12 @@ package ghostdust
 import ghostdust.GhostDustingRecipe.GhostDustingIngredient
 import registration.RegistryHelpers.RECIPE_SERIALIZERS
 import util.VanillaClassEnrichers.RichItemStack
-import util.VanillaCodecs._
 
 import com.google.gson._
-import com.mojang.serialization.{Codec, JsonOps}
+import com.mojang.serialization.Codec
 import net.minecraft.inventory.CraftingInventory
-import net.minecraft.item.crafting.{ICraftingRecipe, IRecipeSerializer}
 import net.minecraft.item._
+import net.minecraft.item.crafting.{ICraftingRecipe, IRecipeSerializer}
 import net.minecraft.network.PacketBuffer
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
@@ -29,38 +28,21 @@ import org.apache.logging.log4j.scala.Logging
  * Created by MachineMuse on 2/2/2021.
  */
 object GhostDustingRecipe extends Logging {
-  private val gson = new Gson
+
   private val SERIALIZER: RegistryObject[GhostDustingRecipeSerializer] = RECIPE_SERIALIZERS.register("ghost_dusting", () => new GhostDustingRecipeSerializer)
   def getSerializerInstance = SERIALIZER.get
 
   @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {}
 
-
-  case class GhostDustingIngredientSerial(item : String, transparency: Float, limit: Int, clamp: Boolean)
   case class GhostDustingIngredient(item : Item, transparency: Float, limit: Int, clamp: Boolean)
   /*_*/
-  val GDICodec = new CodecMaker[GhostDustingIngredient].genCaseCodec
-  val IngredientsCodec: Codec[List[GhostDustingIngredient]] = SLISTCODEC(GDICodec)
+  import util.VanillaCodecs._
+  val RecipeCodec = implicitly[Codec[GhostDustingRecipe]]
   /*_*/
   class GhostDustingRecipeSerializer extends ForgeRegistryEntry[IRecipeSerializer[_]] with IRecipeSerializer[GhostDustingRecipe] {
-    override def read(recipeId: ResourceLocation, json: JsonObject): GhostDustingRecipe = {
-      val itemsJson = json.getAsJsonArray("items")
-      val ingredients = IngredientsCodec.decode(JsonOps.INSTANCE, itemsJson).resultOrPartial(err => logger.error(s"error reading stream: $err")).get().getFirst
-      logger.warn(s"Recipe deserialized from json: $ingredients")
-      new GhostDustingRecipe(ingredients)
-    }
-    override def read(recipeId: ResourceLocation, buffer: PacketBuffer): GhostDustingRecipe = {
-      val string = buffer.readString
-      val itemsJson = new JsonParser().parse(string).getAsJsonArray
-      val ingredients = IngredientsCodec.decode(JsonOps.INSTANCE, itemsJson).resultOrPartial(err => logger.error(s"error reading stream: $err")).get().getFirst
-      logger.warn(s"Recipe deserialized from packet: $ingredients")
-      new GhostDustingRecipe(ingredients)
-    }
-    override def write(buffer: PacketBuffer, recipe: GhostDustingRecipe): Unit = {
-      val json = IngredientsCodec.encodeStart(JsonOps.INSTANCE, recipe.ingredients).result().get()
-      logger.warn(s"Recipe serialized: $json")
-      buffer.writeString(json.toString)
-    }
+    override def read(recipeId: ResourceLocation, json: JsonObject): GhostDustingRecipe = RecipeCodec.parseJson(json).getOrElse(new GhostDustingRecipe(List.empty))
+    override def read(recipeId: ResourceLocation, buffer: PacketBuffer): GhostDustingRecipe = RecipeCodec.readUncompressed(buffer).getOrElse(new GhostDustingRecipe(List.empty))
+    override def write(buffer: PacketBuffer, recipe: GhostDustingRecipe): Unit = RecipeCodec.writeUncompressed(buffer, recipe)
   }
 
   @OnlyIn(Dist.CLIENT)
@@ -74,13 +56,13 @@ object GhostDustingRecipe extends Logging {
 }
 
 @Mod.EventBusSubscriber(modid = Anima.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
-case class GhostDustingRecipe(ingredients: List[GhostDustingIngredient]) extends ICraftingRecipe with Logging {
+case class GhostDustingRecipe(items: List[GhostDustingIngredient]) extends ICraftingRecipe with Logging {
   override def matches(inv: CraftingInventory, worldIn: World): Boolean = {
     var armorFound = false
     var ghostDustFound = false
     var tooMany = false
 
-    val ghostDustItems = ingredients.map { _.item }
+    val ghostDustItems = items.map { _.item }
     for(slot <- 0 until inv.getSizeInventory) {
       val stackInSlot = inv.getStackInSlot(slot)
       stackInSlot.getItem match {
@@ -100,7 +82,7 @@ case class GhostDustingRecipe(ingredients: List[GhostDustingIngredient]) extends
     var tooManyArmors = false
     var ghostDustFound = 0
 
-    val ghostDustItems = ingredients.map { _.item }
+    val ghostDustItems = items.map { _.item }
 
     for(slot <- 0 until inv.getSizeInventory) {
       val stackInSlot = inv.getStackInSlot(slot)
@@ -118,7 +100,7 @@ case class GhostDustingRecipe(ingredients: List[GhostDustingIngredient]) extends
       var fail = false
       val armorCopy = armorFound.copy()
       var currTransparency = armorCopy.getTransparency
-      for(ingredient <- ingredients) {
+      for(ingredient <- items) {
         if(!fail) {
           val item = ingredient.item
           var found = 0

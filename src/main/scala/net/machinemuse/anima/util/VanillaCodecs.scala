@@ -1,23 +1,32 @@
 package net.machinemuse.anima
 package util
 
+import com.google.gson.{JsonElement, JsonParser}
+import com.mojang.brigadier.StringReader
 import com.mojang.datafixers.util
 import com.mojang.serialization
-import com.mojang.serialization.codecs._
 import com.mojang.serialization._
+import com.mojang.serialization.codecs._
+import io.netty.buffer._
 import net.minecraft.entity.ai.attributes.Attribute
 import net.minecraft.item.Item
+import net.minecraft.nbt._
+import net.minecraft.network.PacketBuffer
+import net.minecraft.particles.{IParticleData, ParticleType}
+import net.minecraft.util.SharedConstants
 import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.scala.Logging
 import shapeless._
 import shapeless.ops.hlist.ToTraversable
 import shapeless.ops.record.Keys
 
+import java.io._
 import java.nio.ByteBuffer
 import java.util.stream
 import java.util.stream.{IntStream, LongStream, Stream}
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters.RichOptional
 
 /**
  * Created by MachineMuse on 2/6/2021.
@@ -115,20 +124,84 @@ object VanillaCodecs extends Logging {
 
   }
 
-  class CodecMaker[P] {
-    def genCaseCodec[Repr <: HList, KeysRepr <: HList, ValuesRepr <: HList]
-    (implicit
-      lgen: LabelledGeneric.Aux[P, Repr],
-      keys: Keys.Aux[Repr, KeysRepr],
-      gen: Generic.Aux[P, ValuesRepr],
-      traversableSymbol: ToTraversable.Aux[KeysRepr, List, Symbol],
-      codecGen: HListHasMapCodec.Aux[ValuesRepr]
-    ): Codec[P] = {
-      val names = keys().toList.map(_.name)
-      codecGen.genMapCodec(names).codec.xmap(repr => gen.from(repr), p => gen.to(p))
+  implicit def genCaseCodec[P, Repr <: HList, KeysRepr <: HList, ValuesRepr <: HList]
+  (implicit
+    lgen: LabelledGeneric.Aux[P, Repr],
+    keys: Keys.Aux[Repr, KeysRepr],
+    gen: Generic.Aux[P, ValuesRepr],
+    traversableSymbol: ToTraversable.Aux[KeysRepr, List, Symbol],
+    codecGen: HListHasMapCodec.Aux[ValuesRepr]
+  ): Codec[P] = {
+    val names = keys().toList.map(_.name)
+    codecGen.genMapCodec(names).codec.xmap(repr => gen.from(repr), p => gen.to(p))
+  }
+
+
+  lazy val NBTOps: DynamicOps[INBT] = NBTDynamicOps.INSTANCE
+  lazy val JSONOps: DynamicOps[JsonElement] = JsonOps.INSTANCE
+
+
+  implicit class ConvenientCodec[A](codec: Codec[A]) {
+    // Basic functionality
+    def parseINBT(nbt: INBT): Option[A] = {
+      codec.parse(NBTOps, nbt)
+        .resultOrPartial { err =>
+          logger.error(s"Error while decoding input from stream: $err")
+          logger.error(s" [input: $nbt ]")
+        }.toScala
+    }
+    def writeINBT(obj: A): INBT = codec.encodeStart(NBTOps, obj).result().get() // we assume that encoding will always be successful
+
+    def parseJson(json: JsonElement): Option[A] = {
+      codec.parse(JSONOps, json)
+        .resultOrPartial { err =>
+          logger.error(s"Error while decoding input from stream: $err")
+          logger.error(s" [input: $json ]")
+        }.toScala
+    }
+    def writeJson(obj: A): JsonElement = codec.encodeStart(JSONOps, obj).result().get() // we assume that encoding will always be successful
+
+    // Helpers for compressed stream tools
+    def mkDataCompound(nbt: INBT): CompoundNBT = {
+      val data = new CompoundNBT
+      data.put("data", nbt)
+      data.putInt("DataVersion", SharedConstants.getVersion.getWorldVersion)
+      data
+    }
+    def mkDataCompound(obj: A): CompoundNBT = mkDataCompound(writeINBT(obj))
+    def parseDataCompound(nbt: CompoundNBT): Option[A] = if(nbt.contains("data")) parseINBT(nbt.get("data")) else None
+
+    // Using compressed stream tools
+    def writeCompressed(output: OutputStream, obj: A): Unit = CompressedStreamTools.writeCompressed(mkDataCompound(writeINBT(obj)), output)
+    def readCompressed(input: InputStream): Option[A] = parseDataCompound(CompressedStreamTools.readCompressed(input))
+    def writeCompressed(output: File, obj: A): Unit = CompressedStreamTools.writeCompressed(mkDataCompound(writeINBT(obj)), output)
+    def readCompressed(input: File): Option[A] = parseDataCompound(CompressedStreamTools.readCompressed(input))
+    def writeCompressed(byteBuf: ByteBuf, obj: A): Unit = writeCompressed(new ByteBufOutputStream(byteBuf), obj)
+    def readCompressed(byteBuf: ByteBuf): Option[A] = readCompressed(new ByteBufInputStream(byteBuf))
+
+    def writeUncompressed(output: DataOutput, obj: A): Unit = CompressedStreamTools.write(mkDataCompound(writeINBT(obj)), output)
+    def readUncompressed(input: DataInput): Option[A] = parseDataCompound(CompressedStreamTools.read(input))
+    def writeUncompressed(output: File, obj: A): Unit = CompressedStreamTools.write(mkDataCompound(writeINBT(obj)), output)
+    def readUncompressed(input: File): Option[A] = parseDataCompound(CompressedStreamTools.read(input))
+    def writeUncompressed(output: ByteBuf, obj: A): Unit = writeUncompressed(new ByteBufOutputStream(output), obj)
+    def readUncompressed(input: ByteBuf): Option[A] = readUncompressed(new ByteBufInputStream(input))
+
+  }
+
+  implicit class ConvenientParticleDataCodec[A <: IParticleData](codec: Codec[A]) {
+    def deserializer = new IParticleData.IDeserializer[A] {
+      override def deserialize(particleTypeIn: ParticleType[A], reader: StringReader): A = {
+        reader.expect(' ')
+        val string = reader.getRemaining
+        val json = new JsonParser().parse(string)
+        codec.parseJson(json).get // Unsafe for command but who knows maybe it handles exceptions gracefully
+      }
+
+      override def read(particleTypeIn: ParticleType[A], buffer: PacketBuffer): A = codec.readCompressed(buffer).get
+    } : @nowarn
+    def mkParticleType(alwaysShow: Boolean) = new ParticleType[A](alwaysShow, deserializer) {
+      override def func_230522_e_(): Codec[A] = codec
     }
   }
 
-  //implicit val ISTRINGSERIALIZABLECODEC: Codec[IStringSerializable] = IStringSerializable.createCodec
-  //implicit val Codec
 }
