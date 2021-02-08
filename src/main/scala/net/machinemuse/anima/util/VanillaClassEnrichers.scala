@@ -1,12 +1,14 @@
 package net.machinemuse.anima
 package util
 
+import util.VanillaCodecs.ConvenientCodec
+
 import net.minecraft.advancements.criterion._
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType
 import net.minecraft.data._
 import net.minecraft.entity.player.{PlayerEntity, PlayerInventory}
 import net.minecraft.inventory.container.{Container, INamedContainerProvider}
-import net.minecraft.item.crafting.{IRecipeSerializer, Ingredient}
+import net.minecraft.item.crafting._
 import net.minecraft.item.{Item, ItemStack}
 import net.minecraft.tags.ITag
 import net.minecraft.util.text.{ITextComponent, TranslationTextComponent}

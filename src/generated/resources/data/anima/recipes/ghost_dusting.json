@@ -1,6 +1,5 @@
 {
   "type": "anima:ghost_dusting",
-  "group": "ghost_dusting",
   "items": [
     {
       "item": "anima:ghost_dust_remover",

@@ -1,0 +1,93 @@
+{
+  "type": "anima:campfire_dust",
+  "ingredients": [
+    {
+      "item": "minecraft:gunpowder",
+      "base": true
+    },
+    {
+      "item": "minecraft:charcoal",
+      "attracts": "anima:lightspirit"
+    },
+    {
+      "item": "minecraft:white_dye",
+      "outercolour": 16383998,
+      "innercolour": 16777215
+    },
+    {
+      "item": "minecraft:orange_dye",
+      "outercolour": 16351261,
+      "innercolour": 16738335
+    },
+    {
+      "item": "minecraft:magenta_dye",
+      "outercolour": 13061821,
+      "innercolour": 16711935
+    },
+    {
+      "item": "minecraft:light_blue_dye",
+      "outercolour": 3847130,
+      "innercolour": 10141901
+    },
+    {
+      "item": "minecraft:yellow_dye",
+      "outercolour": 16701501,
+      "innercolour": 16776960
+    },
+    {
+      "item": "minecraft:lime_dye",
+      "outercolour": 8439583,
+      "innercolour": 12582656
+    },
+    {
+      "item": "minecraft:pink_dye",
+      "outercolour": 15961002,
+      "innercolour": 16738740
+    },
+    {
+      "item": "minecraft:gray_dye",
+      "outercolour": 4673362,
+      "innercolour": 8421504
+    },
+    {
+      "item": "minecraft:light_gray_dye",
+      "outercolour": 10329495,
+      "innercolour": 13882323
+    },
+    {
+      "item": "minecraft:cyan_dye",
+      "outercolour": 1481884,
+      "innercolour": 65535
+    },
+    {
+      "item": "minecraft:purple_dye",
+      "outercolour": 8991416,
+      "innercolour": 10494192
+    },
+    {
+      "item": "minecraft:blue_dye",
+      "outercolour": 3949738,
+      "innercolour": 255
+    },
+    {
+      "item": "minecraft:brown_dye",
+      "outercolour": 8606770,
+      "innercolour": 9127187
+    },
+    {
+      "item": "minecraft:green_dye",
+      "outercolour": 6192150,
+      "innercolour": 65280
+    },
+    {
+      "item": "minecraft:red_dye",
+      "outercolour": 11546150,
+      "innercolour": 16711680
+    },
+    {
+      "item": "minecraft:black_dye",
+      "outercolour": 1908001,
+      "innercolour": 0
+    }
+  ]
+}

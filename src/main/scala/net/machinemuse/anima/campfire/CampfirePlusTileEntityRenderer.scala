@@ -13,7 +13,6 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer._
 import net.minecraft.client.renderer.model.BakedQuad
 import net.minecraft.client.renderer.tileentity.{TileEntityRenderer, TileEntityRendererDispatcher}
-import net.minecraft.item.DyeColor
 import net.minecraft.tileentity.CampfireTileEntity
 import net.minecraft.util.{ResourceLocation, Unit => _}
 import net.minecraftforge.api.distmarker.Dist
@@ -63,8 +62,26 @@ class CampfirePlusTileEntityRenderer(dispatcher: TileEntityRendererDispatcher) e
         val flamesModel = Minecraft.getInstance().getModelManager.getModel(FLAMES_MODEL_LOCATION)
         val vertexBuffer: IVertexBuilder = buffer.getBuffer(ClientSetup.getBetterTranslucentState) // ClientSetup.getBetterTranslucentState
 
-        val rgb1 = Colour.toFloatArray(Colour.mixColoursByRatio(tileEntity.colour1, DyeColor.BLACK.getTextColor, 4.0F/1.0F))
-        val rgb2 = Colour.toFloatArray(tileEntity.colour2)
+
+        val (outer, inner) = {
+          if(tileEntity.activeDusts.isEmpty) {
+            (CampfirePlusTileEntity.defaultOuterColour, CampfirePlusTileEntity.defaultOuterColour)
+          } else {
+            var outerFound = 0.0F
+            var outerColour = 0
+            var innerFound = 0.0F
+            var innerColour = 0
+            for(dust <- tileEntity.activeDusts) {
+              innerColour = Colour.mixColoursByWeight(dust.innerColour, innerColour, 1, innerFound)
+              innerFound += 1.0F
+              outerColour = Colour.mixColoursByWeight(dust.outerColour, outerColour, 1, outerFound)
+              outerFound += 1.0F
+            }
+            (outerColour, innerColour)
+          }
+        }
+        val rgb1 = Colour.toFloatArray(outer)
+        val rgb2 = Colour.toFloatArray(inner)
 
         val listQuads = flamesModel.getQuads(tileEntity.getBlockState, null, new Random(), EmptyModelData.INSTANCE)
         val danceMod = (tileEntity.dance_enhancement / 1000.0f).toFloat

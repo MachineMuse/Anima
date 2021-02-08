@@ -7,7 +7,6 @@ import net.minecraft.block._
 import net.minecraft.block.material.{Material, MaterialColor}
 import net.minecraft.data.BlockTagsProvider
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.DyeItem
 import net.minecraft.state.Property
 import net.minecraft.state.properties.BlockStateProperties
 import net.minecraft.tags.BlockTags
@@ -73,15 +72,15 @@ class CampfirePlus(smokey: Boolean, fireDamage: Int, properties: AbstractBlock.P
 
   override def onBlockActivated(blockstate : BlockState, world : World, blockpos : BlockPos, playerentity : PlayerEntity, hand : Hand, blockRayTraceResult : BlockRayTraceResult): ActionResultType = {
     val heldItem = playerentity.getHeldItem(hand)
-    heldItem.getItem.optionallyAs[DyeItem].fold {
+//    heldItem.getItem.optionallyAs[DyeItem].fold {
       // Item is not dye
       super.onBlockActivated(blockstate, world, blockpos, playerentity, hand, blockRayTraceResult)
-    } { dyeItem => // Item is dye!
-      world.getTileEntity(blockpos).optionallyDoAs[CampfirePlusTileEntity] { campfire =>
-        campfire.colour1 = campfire.colour2
-        campfire.colour2 = dyeItem.getDyeColor.getTextColor // Colour.mixColours(dyeItem.getDyeColor.getTextColor, campfire.colour, 1.0F/1.0F)
-      }
-      ActionResultType.SUCCESS
-    }
+//    } { dyeItem => // Item is dye!
+//      world.getTileEntity(blockpos).optionallyDoAs[CampfirePlusTileEntity] { campfire =>
+//        campfire.colour1 = campfire.colour2
+//        campfire.colour2 = dyeItem.getDyeColor.getTextColor // Colour.mixColours(dyeItem.getDyeColor.getTextColor, campfire.colour, 1.0F/1.0F)
+//      }
+//      ActionResultType.SUCCESS
+//    }
   }
 }

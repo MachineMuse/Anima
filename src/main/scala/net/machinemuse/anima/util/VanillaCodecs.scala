@@ -9,6 +9,7 @@ import com.mojang.serialization
 import com.mojang.serialization._
 import com.mojang.serialization.codecs._
 import io.netty.buffer._
+import net.minecraft.entity.EntityType
 import net.minecraft.entity.ai.attributes.Attribute
 import net.minecraft.item.Item
 import net.minecraft.item.crafting.{IRecipe, IRecipeSerializer}
@@ -69,10 +70,11 @@ object VanillaCodecs extends Logging {
   implicit val EMPTYCODEC: MapCodec[util.Unit] = Codec.EMPTY
   implicit val SEMPTYCODEC: MapCodec[Unit] = Codec.EMPTY.xmap(_ => (), _ => util.Unit.INSTANCE)
 
-  // Registries
+  /*_*/ // Registries
   implicit val ITEMCODEC: Codec[Item] = Registry.ITEM : @nowarn
   implicit val ATTRIBUTECODEC: Codec[Attribute] = Registry.ATTRIBUTE : @nowarn
-  //etc...
+  implicit val ENTITYTYPECODEC: Codec[EntityType[_]] = Registry.ENTITY_TYPE : @nowarn
+  /*_*/ //etc...
 
   // Generics
   implicit def LISTCODEC[A: Codec](implicit ca: Codec[A]): Codec[java.util.List[A]] = new ListCodec(ca)
@@ -199,6 +201,13 @@ object VanillaCodecs extends Logging {
         }.toScala
     }
     def writeJson(obj: A): JsonElement = codec.encodeStart(JSONOps, obj).result().get() // we assume that encoding will always be successful
+    def writeIntoMutableJson(obj: A, jsonOut: JsonObject): Unit = {
+      val jsonIn = codec.writeJson(obj)
+      jsonIn.getAsJsonObject.entrySet().forEach { entry =>
+        jsonOut.add(entry.getKey, entry.getValue)
+      }
+    }
+
 
     // Helpers for compressed stream tools
     def mkDataCompound(nbt: INBT): CompoundNBT = {

@@ -1,17 +1,20 @@
 package net.machinemuse.anima
 package campfire
 
+import campfire.CampfirePlusTileEntity.{DustInfo, dustCodec}
 import entity.EntityLightSpirit
 import registration.RegistryHelpers._
+import util.NBTTypeRef
+import util.VanillaCodecs.ConvenientCodec
 
+import com.mojang.serialization.Codec
 import net.minecraft.block.{BlockState, Blocks}
-import net.minecraft.entity.SpawnReason
-import net.minecraft.item.DyeColor
+import net.minecraft.entity.{EntityType, SpawnReason}
+import net.minecraft.item.{DyeColor, ItemStack}
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.{CampfireTileEntity, TileEntityType}
 import net.minecraft.util.math._
 import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.LightType
 import net.minecraft.world.gen.Heightmap
 import net.minecraft.world.server.ServerWorld
@@ -34,6 +37,32 @@ object CampfirePlusTileEntity {
 
   val CAMPFIREPLUS_TE = regTE[CampfirePlusTileEntity]("campfireplus", () => new CampfirePlusTileEntity, () => CampfirePlus.getBlock)
   def getType = CAMPFIREPLUS_TE.get()
+
+  /*_*/
+  import util.VanillaCodecs._
+  private val dustCodec = implicitly[Codec[List[DustInfo]]]
+  /*_*/
+
+  case class DustInfo(outerColour: Int, innerColour: Int, attracts: List[EntityType[_]])
+
+  val defaultOuterColour: Int = DyeColor.RED.getColorValue
+  val defaultInnerColour: Int = DyeColor.YELLOW.getTextColor
+
+  def dustInfoFromItemStack(stack: ItemStack): Option[DustInfo] = {
+    if(stack.hasTag) {
+      val attracts = if(stack.getTag.contains("attracts")) {
+        val listNBT = stack.getTag.getList("attracts", NBTTypeRef.TAG_COMPOUND)
+        val attractsList = implicitly[Codec[List[EntityType[_]]]].parseINBT(listNBT)
+        attractsList.getOrElse(List.empty)
+      } else List.empty
+      val colour1 = if(stack.getTag.contains("colour1")) stack.getTag.getInt("colour1") else defaultOuterColour
+      val colour2 = if(stack.getTag.contains("colour2")) stack.getTag.getInt("colour2") else defaultInnerColour
+
+      DustInfo(colour1, colour2, attracts).some
+    } else {
+      None
+    }
+  }
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
@@ -43,11 +72,10 @@ class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
     this.read(blockstate, oldNBT)
   }
 
-  var colour1: Int = DyeColor.GREEN.getTextColor
-  var colour2: Int = DyeColor.LIME.getTextColor
 
   var dance_enhancement: Double = 0.0F
 
+  var activeDusts: List[DustInfo] = List.empty
   val DANCE_RANGE = 50
 
   @OnlyIn(Dist.CLIENT)
@@ -56,7 +84,7 @@ class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
     bb
   }
 
-  def trySpawnLightSpirit(serverWorld: ServerWorld, tries: Int): Unit = {
+  def trySpawnEntity(serverWorld: ServerWorld, tries: Int, entityType: EntityType[_]): Unit = {
     logger.debug("Trying to spawn a Light Spirit")
     val randDir = Random.between(0.0, Math.PI*2)
     val randLen = Random.between(0.0, 50.0)
@@ -67,10 +95,10 @@ class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
     if(serverWorld.getChunkProvider.isChunkLoaded(new ChunkPos(blockPlace))){
       val deeper = goDeeper(serverWorld, blockPlace, blockPlace)
       if(serverWorld.getLightFor(LightType.BLOCK, deeper) < 8) {
-        checkBlockAndSpawn(serverWorld, deeper, tries)
+        checkBlockAndSpawn(serverWorld, deeper, tries, entityType)
       } else if (tries > 0) {
         logger.trace(s"Light level too high at $deeper; trying a different spot")
-        trySpawnLightSpirit(serverWorld, tries-1)
+        trySpawnEntity(serverWorld, tries-1, entityType)
       } else {
         logger.info(s"Failed attempt to spawn light spirit; couldn't find a good spawn location")
       }
@@ -79,13 +107,13 @@ class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
   }
 
   @tailrec
-  final def checkBlockAndSpawn(world: ServerWorld, blockPlace: BlockPos, tries: Int): Unit = {
+  final def checkBlockAndSpawn(world: ServerWorld, blockPlace: BlockPos, tries: Int, entityType: EntityType[_]): Unit = {
     val blockState = world.getBlockState(blockPlace)
     if(blockState.isAir && blockState.getBlock != Blocks.VOID_AIR : @nowarn) {
-      spawnLightSpirit(world, blockPlace)
+      spawnEntity(world, blockPlace, entityType)
     } else if(tries > 0) {
       logger.trace(s"Spawn location invalid at $blockPlace; trying one higher")
-      checkBlockAndSpawn(world, blockPlace.up(), tries-1)
+      checkBlockAndSpawn(world, blockPlace.up(), tries-1, entityType)
     }
   }
 
@@ -104,11 +132,12 @@ class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
     }
   }
 
-  def spawnLightSpirit(serverWorld: ServerWorld, blockPlace: BlockPos): Unit = {
-    val newEnt = EntityLightSpirit.getType.spawn(serverWorld, null, new TranslationTextComponent("lightspirit"), null, blockPlace, SpawnReason.SPAWNER, true, true)
-    if (newEnt != null) {
-      newEnt.homeblock.set(blockPlace)
-      newEnt.attention.set(Random.between(10.minutesInTicks, 30.minutesInTicks))
+  def spawnEntity(serverWorld: ServerWorld, blockPlace: BlockPos, entityType: EntityType[_]): Unit = {
+    val newEnt = entityType.spawn(serverWorld, null, null, null, blockPlace, SpawnReason.SPAWNER, true, true)
+    newEnt.optionallyDoAs[EntityLightSpirit] { lightspirit =>
+      lightspirit.homeblock.set(blockPlace)
+      lightspirit.attention.set(Random.between(10.minutesInTicks, 30.minutesInTicks))
+
     }
     logger.info("new entity " + newEnt + " created")
   }
@@ -131,9 +160,13 @@ class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
       }
       serverWorld.getChunkProvider().markBlockChanged(this.getPos) // send update to clients
 
-      if(dance_enhancement > 0) {
-        if(Random.nextInt(800 * 10) < dance_enhancement) {
-          trySpawnLightSpirit(serverWorld, 5)
+      if(dance_enhancement > 0 && activeDusts.nonEmpty) {
+        for{dust <- activeDusts
+            entityType <- dust.attracts
+            } {
+          if(Random.nextInt(800 * 10) < dance_enhancement) {
+            trySpawnEntity(serverWorld, 5, entityType)
+          }
         }
       }
     }
@@ -142,13 +175,14 @@ class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
 
   override def getType: TileEntityType[CampfirePlusTileEntity] = CampfirePlusTileEntity.getType
 
+
+
   override def read(blockstate : BlockState, compound : CompoundNBT): Unit = {
     super.read(blockstate, compound)
-    if(compound.contains("colour1")) {
-      colour1 = compound.getInt("colour1")
-    }
-    if(compound.contains("colour2")) {
-      colour2 = compound.getInt("colour2")
+    if(compound.contains("dusts")) {
+      val dustsNBT = compound.getList("dusts", NBTTypeRef.TAG_COMPOUND)
+      val dustsOpt = dustCodec.parseINBT(dustsNBT)
+      dustsOpt.fold[Unit]({activeDusts = List.empty})(dusts => activeDusts = dusts)
     }
     if(compound.contains("dance_enhancement")) {
       dance_enhancement = compound.getFloat("dance_enhancement")
@@ -156,27 +190,26 @@ class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
   }
 
   override def write(compound : CompoundNBT): CompoundNBT = {
-    compound.putInt("colour1", colour1)
-    compound.putInt("colour2", colour2)
     compound.putFloat("dance_enhancement", dance_enhancement.toFloat)
+    val dustsNBT = dustCodec.writeINBT(activeDusts)
+    compound.put("dusts", dustsNBT)
     super.write(compound)
   }
 
   override def getUpdateTag: CompoundNBT = {
     val items = super.getUpdateTag
-    items.putInt("colour1", colour1)
-    items.putInt("colour2", colour2)
+    val dustsNBT = dustCodec.writeINBT(activeDusts)
+    items.put("dusts", dustsNBT)
     items.putFloat("dance_enhancement", dance_enhancement.toFloat)
     items
   }
 
   override def handleUpdateTag(blockstate: BlockState, compound: CompoundNBT): Unit = {
     super.handleUpdateTag(blockstate, compound)
-    if(compound.contains("colour1")) {
-      colour1 = compound.getInt("colour1")
-    }
-    if(compound.contains("colour2")) {
-      colour2 = compound.getInt("colour2")
+    if(compound.contains("dusts")) {
+      val dustsNBT = compound.getList("dusts", NBTTypeRef.TAG_COMPOUND)
+      val dustsOpt = dustCodec.parseINBT(dustsNBT)
+      dustsOpt.fold[Unit]({activeDusts = List.empty})(dusts => activeDusts = dusts)
     }
     if(compound.contains("dance_enhancement")) {
       dance_enhancement = compound.getFloat("dance_enhancement")

@@ -2,12 +2,14 @@ package net.machinemuse.anima
 package registration
 
 import registration.SimpleItems.AnimaCreativeGroup
+import util.VanillaCodecs.ConvenientRecipeSerializer
 
+import com.mojang.serialization.Codec
 import net.minecraft.block.Block
 import net.minecraft.entity._
 import net.minecraft.inventory.container.{Container, ContainerType}
 import net.minecraft.item._
-import net.minecraft.item.crafting.IRecipeSerializer
+import net.minecraft.item.crafting.{IRecipe, IRecipeSerializer}
 import net.minecraft.particles.ParticleType
 import net.minecraft.tileentity.{TileEntity, TileEntityType}
 import net.minecraft.world.World
@@ -38,6 +40,7 @@ object RegistryHelpers extends Logging {
   val RECIPE_SERIALIZERS: DeferredRegister[IRecipeSerializer[_]] = mkRegister(ForgeRegistries.RECIPE_SERIALIZERS)
   val PARTICLES: DeferredRegister[ParticleType[_]] = mkRegister(ForgeRegistries.PARTICLE_TYPES)
 
+  def regRecipeSerializer[R <: IRecipe[_]](name: String, codec: Codec[R], default: R): RegistryObject[IRecipeSerializer[R]] = RECIPE_SERIALIZERS.register(name, () => codec.mkSerializer(default))
 
   def regEntityType[E <: Entity](name: String, initializer: () => Unit, ctor: (EntityType[E], World) => E, classification:EntityClassification): RegistryObject[EntityType[E]] = {
     logger.info(s"Registering EntityType $name")

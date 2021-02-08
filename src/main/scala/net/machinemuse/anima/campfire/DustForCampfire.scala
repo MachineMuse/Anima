@@ -46,6 +46,9 @@ class DustForCampfire extends Item(new Item.Properties().group(AnimaCreativeGrou
       if(oldState.getBlock.isInstanceOf[CampfirePlus]) {
         world.onServer { serverWorld =>
           doSpawnParticles(context, serverWorld)
+          serverWorld.getTileEntity(pos).optionallyDoAs[campfire.CampfirePlusTileEntity]{ te =>
+            te.activeDusts = te.activeDusts ++ CampfirePlusTileEntity.dustInfoFromItemStack(context.getItem).toList
+          }
         }
         ActionResultType.SUCCESS
       } else {
@@ -63,6 +66,7 @@ class DustForCampfire extends Item(new Item.Properties().group(AnimaCreativeGrou
             newTileEntity.copyOldTE(newState, oldte)
           }
           doSpawnParticles(context, serverWorld)
+          newTileEntity.activeDusts = CampfirePlusTileEntity.dustInfoFromItemStack(context.getItem).toList
         }
 
         ActionResultType.SUCCESS
@@ -84,10 +88,12 @@ class DustForCampfire extends Item(new Item.Properties().group(AnimaCreativeGrou
   }
 
   private def doSpawnParticles(context: ItemUseContext, serverWorld: ServerWorld) = {
+    val colour1 = if(context.getItem.hasTag && context.getItem.getTag.contains("colour1")) context.getItem.getTag.getInt("colour1") else DyeColor.WHITE.getColorValue
+    val colour2 = if(context.getItem.hasTag && context.getItem.getTag.contains("colour2")) context.getItem.getTag.getInt("colour2") else DyeColor.WHITE.getColorValue
     val target = Vector3d.copy(context.getPos).add(0.5, 0.2, 0.5)
     val origin = target.add(0, 1.0, 0)// context.getPlayer.getEyePosition(1.0F).subtract(0, 0.1, 0)
     for (i <- 0 to 100) {
-      val colour = Colour.mixColoursByRatio(DyeColor.LIME.getTextColor, Random.nextInt(DyeColor.WHITE.getTextColor), ratio = 2.0f)
+      val colour = Colour.mixColoursByWeight(colour1, colour2, Random.nextFloat(), Random.nextFloat())
       val skew = new Vector3d(Random.nextDouble() - 0.5, Random.nextDouble() - 0.5, Random.nextDouble() - 0.5) //.mul(1.5, 1.5, 1.5)
       val originSkew = new Vector3d(Random.nextDouble() - 0.5, Random.nextDouble() - 0.5, Random.nextDouble() - 0.5).mul(0.2, 0.2, 0.2)
       val skewedOrigin = origin.add(originSkew)
