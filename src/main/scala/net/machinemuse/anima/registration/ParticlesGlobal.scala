@@ -35,7 +35,7 @@ object ParticlesGlobal extends Logging {
                                 lifeticks: Int = 5.secondsInTicks,
                                 doCollision: Boolean = true,
                                 gravity: Float = 0.0f,
-                                spin: Float = 0.0f) extends IParticleData {
+                                spin: Float = 0.0f) extends IParticleData with CodecByName {
 
     override def getType: ParticleType[_] = MOTE.get()
 

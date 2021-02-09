@@ -63,7 +63,7 @@ package object anima {
   }
 
   implicit class AndDoable[T](ret: T) {
-    def andDo(f: T => ()): T = {
+    def andDo(f: T =>  Unit): T = {
       f(ret)
       ret
     }
@@ -130,7 +130,7 @@ package object anima {
     //        List.empty[O]
     //      }
 
-    final def optionallyDoAs[O: Manifest](f: O => ()): Unit =
+    final def optionallyDoAs[O: Manifest](f: O => Unit): Unit =
       if (implicitly[Manifest[O]].runtimeClass.isInstance(x)) {
         f(x.asInstanceOf[O])
       } else {
@@ -169,8 +169,8 @@ package object anima {
 
   object JavaFunctionConverters {
     import java.util.function._
-    implicit def consumer[A] (f: A => ()): Consumer[A] = f(_)
-    implicit def biconsumer[A, B](f: (A, B) => ()): BiConsumer[A, B] = f(_,_)
+    implicit def consumer[A] (f: A => Unit): Consumer[A] = f(_)
+    implicit def biconsumer[A, B](f: (A, B) => Unit): BiConsumer[A, B] = f(_,_)
 
     implicit def function1[A, B](f: A => B): Function[A, B] = f(_)
     implicit def bifunction[A, B, O](f: (A, B) => O): BiFunction[A, B, O] = f(_,_)
@@ -181,7 +181,7 @@ package object anima {
 
     implicit def callable[A] (f: () => A): Callable[A] = () => f()
 
-    implicit def biconsumer1P2Supplier[P,S](f: (P, () => S) => ()): BiConsumer[P, Supplier[S]] = (p, s) => f(p,() => s.get())
+    implicit def biconsumer1P2Supplier[P,S](f: (P, () => S) => Unit): BiConsumer[P, Supplier[S]] = (p, s) => f(p,() => s.get())
   }
 
   implicit class OffThreadEvent(evt: ParallelDispatchEvent) {

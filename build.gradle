@@ -32,7 +32,7 @@ sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = co
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
 tasks.withType(ScalaCompile) {
-    scalaCompileOptions.additionalParameters = ["-deprecation"]
+    scalaCompileOptions.additionalParameters = ["-deprecation", "-Xlog-implicits"]
 }
 
 repositories {
@@ -147,6 +147,18 @@ dependencies {
     compileOnly fg.deobf(mkApi(deps.curios))
 }
 
+
+dependencies{
+    compile deps.scalalib
+    compile deps.scalacompiler
+}
+
+task repl(type:JavaExec) {
+    main = "scala.tools.nsc.MainGenericRunner"
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput System.in
+    args '-usejavacp'
+}
 // Example for how to get properties into the manifest for reading by the runtime..
 jar {
     manifest {

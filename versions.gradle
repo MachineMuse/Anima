@@ -16,7 +16,8 @@ ext {
     deps = [
             curios: [group: "top.theillusivec4.curios", name: "curios-forge", version: "1.16.4-4.0.3.5"],
             forge: [group : 'net.minecraftforge' , name: 'forge', version: '1.16.4-35.1.4'],
-            scalalib: [group: 'org.scala-lang', name: 'scala-library', version: '2.13.2'],
+            scalalib: [group: 'org.scala-lang', name: 'scala-library', version: '2.13.4'],
+            scalacompiler: [group: 'org.scala-lang', name: 'scala-compiler', version: '2.13.4'],
             shapeless: [group: 'com.chuusai', name: 'shapeless_2.13', version: '2.3.3'],
             log4j_scala: [group: 'org.apache.logging.log4j', name: 'log4j-api-scala_2.13', version: '12.0'],
             lift_json: [group: 'net.liftweb', name: 'lift-json_2.13', version: '3.4.3']

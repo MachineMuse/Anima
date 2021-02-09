@@ -4,8 +4,8 @@ package entity
 import entity.EntityLightSpirit.{AirLightBlock, getAirLightBlock}
 import registration.ParticlesGlobal.AnimaParticleData
 import registration.RegistryHelpers._
-import util.BlockStateFlags
 import util.RichDataParameter._
+import util.{BlockStateFlags, Colour}
 
 import net.minecraft.block._
 import net.minecraft.block.material.Material
@@ -47,16 +47,16 @@ class EntityLightSpirit (entityType: EntityType[EntityLightSpirit], world: World
   val homeblock: DataSync[BlockPos] = mkDataSync("homeblock", new BlockPos(0, 62, 0))
   val attention: DataSync[Int] =      mkDataSync("attention", 1000)
 
-  private val colour = Random.nextInt(DyeColor.WHITE.getTextColor)
+  private val colour = Colour.mixColoursByRatio(Random.nextInt(DyeColor.WHITE.getTextColor),DyeColor.WHITE.getTextColor, 0.5f)
 
   private var lasttryticks: Int = 20
 
   override def tick(): Unit = {
     world.onServer{ serverWorld =>
       attention -= 1
-      val homeBlock = homeblock.get()
+      val homeBlock = homeblock.get
       if(Random.nextInt(100) == 0) {
-        serverWorld.spawnParticle(AnimaParticleData(colour = colour), homeBlock.getX + .5, homeBlock.getY + .5, homeBlock.getZ + .5, 1, 0.0D, 0.0D, 0.0D, 0.0)
+        serverWorld.spawnParticle(AnimaParticleData(colour = colour, size = 0.1), homeBlock.getX + .5, homeBlock.getY + .5, homeBlock.getZ + .5, 1, 0.0D, 0.0D, 0.0D, 0.0)
       }
       if(attention.get <= 0){
         val block = serverWorld.getBlockState(homeBlock)

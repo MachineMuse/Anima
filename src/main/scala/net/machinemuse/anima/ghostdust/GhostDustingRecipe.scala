@@ -1,10 +1,10 @@
 package net.machinemuse.anima
 package ghostdust
 
-import ghostdust.GhostDustingRecipe._
+import ghostdust.GhostDustingRecipe.GhostDustingIngredient
 import registration.{RegistryHelpers, SimpleItems}
 import util.VanillaClassEnrichers.{RichItemStack, mkRecipeProvider}
-import util.VanillaCodecs.ConvenientCodec
+import util.VanillaCodecs.{CodecByName, ConvenientCodec}
 
 import com.google.gson.JsonObject
 import com.mojang.serialization.Codec
@@ -37,7 +37,7 @@ object GhostDustingRecipe extends Logging {
   private val SERIALIZER = RegistryHelpers.regRecipeSerializer("ghost_dusting", RecipeCodec, new GhostDustingRecipe(List.empty))
   /*_*/
 
-  case class GhostDustingIngredient(item : Item, transparency: Float, limit: Int, clamp: Boolean)
+  case class GhostDustingIngredient(item : Item, transparency: Float, limit: Int, clamp: Boolean) extends CodecByName
 
 
   @SubscribeEvent
@@ -64,7 +64,8 @@ object GhostDustingRecipe extends Logging {
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-case class GhostDustingRecipe(items: List[GhostDustingIngredient]) extends ICraftingRecipe with IFinishedRecipe with Logging {
+case class GhostDustingRecipe(items: List[GhostDustingIngredient]) extends ICraftingRecipe with CodecByName with IFinishedRecipe with Logging {
+  import ghostdust.GhostDustingRecipe._
   // TODO: Cleaning
   override def matches(inv: CraftingInventory, worldIn: World): Boolean = {
     var armorFound = false

@@ -22,8 +22,7 @@ import net.minecraft.util.{ResourceLocation, SharedConstants}
 import net.minecraftforge.registries.ForgeRegistryEntry
 import org.apache.logging.log4j.scala.Logging
 import shapeless._
-import shapeless.ops.hlist.ToTraversable
-import shapeless.ops.record.Keys
+import shapeless.labelled.{FieldType, field}
 
 import java.io._
 import java.nio.ByteBuffer
@@ -38,6 +37,9 @@ import scala.jdk.OptionConverters.{RichOption, RichOptional}
  */
 object VanillaCodecs extends Logging {
   // Primitives
+  // TODO: see if you can circumvent boxing/unboxing via scala primitive generic handling, or whether it's even worth bothering
+  // in case the compiler optimizes it out anyway
+
   implicit val BYTECODEC: Codec[java.lang.Byte] = Codec.BYTE
   implicit val SBYTECODEC: Codec[Byte] = BYTECODEC.xmap (_.byteValue(), new java.lang.Byte(_))
 
@@ -106,78 +108,212 @@ object VanillaCodecs extends Logging {
   implicit def VECTOR4FCODEC  : Codec[Vector4f] =   MATCHINGQUADCODEC[Float]    .xmap(t => new Vector4f(t._1,t._2,t._3,t._4), v => (v.getW, v.getX, v.getY, v.getZ))
   implicit def QUATERNIONCODEC: Codec[Quaternion] = MATCHINGQUADCODEC[Float]    .xmap(t => new Quaternion(t._1,t._2,t._3,t._4), v => (v.getW, v.getX, v.getY, v.getZ))
 
-  sealed trait Optionalizer[A] {
-    def genField(name: String): MapCodec[A]
+  // Helper trait to generate codecs for optional fields in products and coproducts
+  sealed trait Optionalizer[K, V] {
+    def genField: MapCodec[V]
   }
-  implicit def OptionalOptionalizer[A : Codec] = new Optionalizer[Optional[A]] {
-    def genField(name: String): MapCodec[Optional[A]] = implicitly[Codec[A]].optionalFieldOf(name)
+  implicit def OptionalOptionalizer[K <: Symbol, V : Codec](implicit witness: Witness.Aux[K]) = new Optionalizer[K, Optional[V]] {
+    override def genField: MapCodec[Optional[V]] = implicitly[Codec[V]].optionalFieldOf(witness.value.name)
   }
-  implicit def OptionOptionalizer[A : Codec] = new Optionalizer[Option[A]] {
-    def genField(name: String): MapCodec[Option[A]] = implicitly[Codec[A]].optionalFieldOf(name).xmap(_.toScala, _.toJava)
+  implicit def OptionOptionalizer[K <: Symbol, V : Codec](implicit witness: Witness.Aux[K]) = new Optionalizer[K, Option[V]] {
+    override def genField: MapCodec[Option[V]] = implicitly[Codec[V]].optionalFieldOf(witness.value.name).xmap(_.toScala, _.toJava)
   }
-  implicit def NonOptionOptionalizer[A: Codec] = new Optionalizer[A] {
-    override def genField(name: String): MapCodec[A] = implicitly[Codec[A]].fieldOf(name)
+  implicit def NonOptionOptionalizer[K <: Symbol, V : Codec](implicit witness: Witness.Aux[K]) = new Optionalizer[K, V] {
+    override def genField: MapCodec[V] = implicitly[Codec[V]].fieldOf(witness.value.name)
   }
+
 
   import JavaFunctionConverters._
 
-  trait HListHasMapCodec[Values <: HList] {
+  /// For when we want to explicitly tag stuff
+
+  trait CoproductHasMapCodecWithKeys[Values <: Coproduct] {
     def genMapCodec(keys: List[String]): MapCodec[Values]
   }
+  object CoproductHasMapCodecWithKeys {
+    type Aux[Values <: Coproduct] = CoproductHasMapCodecWithKeys[Values]
 
-  object HListHasMapCodec {
-    type Aux[Values <: HList] = HListHasMapCodec[Values]
-
-    implicit def HNilHasMapCodec = new HListHasMapCodec[HNil] {
-      def genMapCodec(keys: List[String]): MapCodec[HNil] = Codec.EMPTY.xmap(_ => HNil, _ => util.Unit.INSTANCE)
-    }
-
-    implicit def HSingleHasMapCodec[T <: HList](implicit codec: Codec[T]) = new HListHasMapCodec[T] {
-      def genMapCodec(keys: List[String]): MapCodec[T] = codec.fieldOf(keys.head)
-    }
-
-    implicit def HConsHasMapCodec[HeadVal, TailVals <: HList]
-    (implicit
-     tailCodec: HListHasMapCodec.Aux[TailVals],
-     headCodec: Optionalizer[HeadVal]
-    ) = new HListHasMapCodec[HeadVal :: TailVals] {
-      def genMapCodec( keys: List[String]) = {
-        val (key, remainder) = (keys.head, keys.tail)
-        val mapCodecHead = headCodec.genField(key)
-        val mapCodecTail = tailCodec.genMapCodec(remainder)
-        val newCodec = MapCodec.of[HeadVal :: TailVals] (
-          new MapEncoder.Implementation[HeadVal :: TailVals] {
-            override def encode[T](input: HeadVal :: TailVals, ops: DynamicOps[T], prefix: RecordBuilder[T]): RecordBuilder[T] = {
-              mapCodecTail.encode(input.tail, ops, mapCodecHead.encode(input.head, ops, prefix))
-            }
-            override def keys[T](ops: DynamicOps[T]): stream.Stream[T] = Stream.concat(mapCodecHead.keys(ops), mapCodecTail.keys(ops))
-          },
-          new MapDecoder.Implementation[HeadVal :: TailVals] {
-            override def decode[T](ops: DynamicOps[T], input: MapLike[T]): DataResult[HeadVal :: TailVals] = {
-              mapCodecTail.decode(ops, input).flatMap(tailVals => mapCodecHead.decode(ops, input).map(headVal => headVal :: tailVals))
-            }
-            override def keys[T](ops: DynamicOps[T]): stream.Stream[T] = Stream.concat(mapCodecHead.keys(ops), mapCodecTail.keys(ops))
-          }
-        )
-        newCodec
+    implicit def CNilHasMapCodecWithKeys: CoproductHasMapCodecWithKeys[CNil] = (keys: List[String]) => MapCodec.of[CNil](
+      new MapEncoder.Implementation[CNil] {
+        override def encode[T](input: CNil, ops: DynamicOps[T], prefix: RecordBuilder[T]): RecordBuilder[T] = EMPTYCODEC.encode(util.Unit.INSTANCE, ops, prefix)
+        override def keys[T](ops: DynamicOps[T]): Stream[T] = Stream.empty()
+      },
+      new MapDecoder.Implementation[CNil] {
+        override def decode[T](ops: DynamicOps[T], input: MapLike[T]): DataResult[CNil] = DataResult.error("Invalid type tag for sum type: " + input)
+        override def keys[T](ops: DynamicOps[T]): Stream[T] = Stream.empty()
       }
+    )
+
+    implicit def CConsHasMapCodecWithKeys[Current, CurrentAsHList <: HList, Tail <: Coproduct]
+    (implicit
+     labelledGeneric: LabelledGeneric.Aux[Current, CurrentAsHList],
+     headCodec: MapCodec[CurrentAsHList],
+     tailCodec: Lazy[CoproductHasMapCodecWithKeys.Aux[Tail]]
+    ): CoproductHasMapCodecWithKeys[Current :+: Tail] = (keys: List[String]) => {
+      val TYPECODEC = STRINGCODEC.fieldOf("type")
+      val (key, remainder) = (keys.head, keys.tail)
+      val mapCodecTail = tailCodec.value.genMapCodec(remainder)
+      val mapCodecHead = headCodec
+      val newCodec = MapCodec.of[Current :+: Tail](
+        new MapEncoder.Implementation[Current :+: Tail] {
+          override def encode[T](input: Current :+: Tail, ops: DynamicOps[T], prefix: RecordBuilder[T]): RecordBuilder[T] = {
+            logger.trace(s"Trying to encode $input with key $key as $labelledGeneric")
+            TYPECODEC.encode(key, ops, {
+              input match {
+                case Inl(h) => mapCodecHead.encode(labelledGeneric.to(h), ops, prefix)
+                case Inr(t) => mapCodecTail.encode(t, ops, prefix)
+              }
+            })
+          }
+
+          override def keys[T](ops: DynamicOps[T]): Stream[T] = Stream.concat(mapCodecHead.keys(ops), mapCodecTail.keys(ops))
+        },
+        new MapDecoder.Implementation[Current :+: Tail] {
+          override def decode[T](ops: DynamicOps[T], input: MapLike[T]): DataResult[Current :+: Tail] = {
+            TYPECODEC.decode(ops, input).flatMap { typ =>
+              if (typ == key) {
+                mapCodecHead.decode(ops, input).map(curr => Inl(labelledGeneric.from(curr)))
+              } else {
+                mapCodecTail.decode(ops, input).map(tail => Inr(tail))
+              }
+            }
+          }
+
+          override def keys[T](ops: DynamicOps[T]): Stream[T] = Stream.concat(mapCodecHead.keys(ops), mapCodecTail.keys(ops))
+        }
+      )
+      newCodec
+    }
+  }
+
+
+
+  // Implicit codec generators for product and sum types (case classes and sealed traits)
+
+
+  // Trait to tag case classes with so they can have codecs generated implicitly based on their parameter names
+  trait CodecByName
+
+//  object HasMapCodecByName {
+  implicit val HNilHasMapCodecByName: MapCodec[HNil] = Codec.EMPTY.xmap(_ => HNil, _ => util.Unit.INSTANCE)
+
+  implicit def HConsHasMapCodecByName[K <: Symbol, V, TailVals <: HList]
+  (implicit
+    witness: Witness.Aux[K],
+    headCodec: Lazy[Optionalizer[K, V]],
+    tailCodec: MapCodec[TailVals]
+  ): MapCodec[FieldType[K, V] :: TailVals] = {
+    val mapCodecHead = headCodec.value.genField
+    val mapCodecTail = tailCodec
+    val newCodec = MapCodec.of[FieldType[K, V] :: TailVals] (
+      new MapEncoder.Implementation[FieldType[K, V] :: TailVals] {
+        override def encode[T](input: FieldType[K, V] :: TailVals, ops: DynamicOps[T], prefix: RecordBuilder[T]): RecordBuilder[T] = {
+          mapCodecTail.encode(input.tail, ops, mapCodecHead.encode(input.head, ops, prefix))
+        }
+        override def keys[T](ops: DynamicOps[T]): stream.Stream[T] = Stream.concat(mapCodecHead.keys(ops), mapCodecTail.keys(ops))
+      },
+      new MapDecoder.Implementation[FieldType[K, V] :: TailVals] {
+        override def decode[T](ops: DynamicOps[T], input: MapLike[T]): DataResult[FieldType[K, V] :: TailVals] = {
+          mapCodecTail.decode(ops, input).flatMap(tailVals => mapCodecHead.decode(ops, input).map(headVal => field[K](headVal) :: tailVals))
+        }
+        override def keys[T](ops: DynamicOps[T]): stream.Stream[T] = Stream.concat(mapCodecHead.keys(ops), mapCodecTail.keys(ops))
+      }
+    )
+    newCodec
+  }
+
+
+  implicit val CNilHasMapCodecByName: MapCodec[CNil] = MapCodec.of[CNil] (
+      new MapEncoder.Implementation[CNil] {
+        override def encode[T](input: CNil, ops: DynamicOps[T], prefix: RecordBuilder[T]): RecordBuilder[T] = EMPTYCODEC.encode(util.Unit.INSTANCE, ops, prefix)
+        override def keys[T](ops: DynamicOps[T]): Stream[T] = Stream.empty()
+      },
+      new MapDecoder.Implementation[CNil] {
+        override def decode[T](ops: DynamicOps[T], input: MapLike[T]): DataResult[CNil] = DataResult.error("Invalid type tag for sum type: " + input)
+        override def keys[T](ops: DynamicOps[T]): Stream[T] = Stream.empty()
+      }
+    )
+
+  implicit def CConsHasMapCodecByName[K <: Symbol, V, Tail <: Coproduct]
+    (implicit
+     witness: Witness.Aux[K],
+     headCodec: Lazy[MapCodec[V]],
+     tailCodec: MapCodec[Tail]
+    ): MapCodec[FieldType[K, V] :+: Tail] = {
+    val TYPECODEC = STRINGCODEC.fieldOf("type")
+    MapCodec.of[FieldType[K, V] :+: Tail] (
+      new MapEncoder.Implementation[FieldType[K, V] :+: Tail] {
+        override def encode[T](input: FieldType[K, V] :+: Tail, ops: DynamicOps[T], prefix: RecordBuilder[T]): RecordBuilder[T] = {
+          logger.trace(s"Trying to encode $input with key ${witness.value.name} as $headCodec")
+          input match {
+            case Inl(h) =>
+              TYPECODEC.encode(witness.value.name, ops, headCodec.value.encode(h, ops, prefix))
+            case Inr(t) =>
+              tailCodec.encode(t, ops, prefix)
+          }
+        }
+
+        override def keys[T](ops: DynamicOps[T]): Stream[T] = Stream.concat(headCodec.value.keys(ops), tailCodec.keys(ops))
+      },
+      new MapDecoder.Implementation[FieldType[K, V] :+: Tail] {
+        override def decode[T](ops: DynamicOps[T], input: MapLike[T]): DataResult[FieldType[K, V] :+: Tail] = {
+          TYPECODEC.decode(ops, input).flatMap { typ =>
+            if(typ == witness.value.name) {
+              headCodec.value.decode(ops, input).map(curr => Inl(field[K](curr)))
+            } else {
+              tailCodec.decode(ops, input).map(tail => Inr(tail))
+            }
+          }
+        }
+        override def keys[T](ops: DynamicOps[T]): Stream[T] = Stream.concat(headCodec.value.keys(ops), tailCodec.keys(ops))
+      }
+    )
+  }
+
+
+
+  implicit def genMapCodecByName[T <: CodecByName, Repr]
+  (implicit
+   labelledGeneric: LabelledGeneric.Aux[T, Repr],
+   codecGen: Lazy[MapCodec[Repr]]
+  ): MapCodec[T] = {
+    codecGen.value.xmap(repr => labelledGeneric.from(repr), p => labelledGeneric.to(p))
+  }
+
+  implicit def MapCodecHasCodec[T <: CodecByName]
+  (implicit
+   mapCodec: MapCodec[T]
+  ): Codec[T] = {
+    mapCodec.codec()
+  }
+  /*_*/
+  class CodecGen[T] {
+    def genCoproductCodecWithKeys[Repr <: Coproduct](keys: List[String])
+                                                    (implicit
+                                                     generic: Generic.Aux[T, Repr],
+                                                     codecGen: CoproductHasMapCodecWithKeys.Aux[Repr]
+                                                    ): Codec[T] = {
+      codecGen.genMapCodec(keys).xmap(generic.from(_), generic.to(_)).codec
+    }
+
+    def genCoproductCodecByName[Repr <: Coproduct]
+    (implicit
+     labelledGeneric: LabelledGeneric.Aux[T, Repr],
+     codecGen: MapCodec[Repr]
+    ): Codec[T] = {
+      codecGen.codec.xmap(repr => labelledGeneric.from(repr), p => labelledGeneric.to(p))
+    }
+
+    def genProductCodecByName[Repr <: HList]
+    (implicit
+     labelledGeneric: LabelledGeneric.Aux[T, Repr],
+     codecGen: MapCodec[Repr]
+    ): Codec[T] = {
+      codecGen.codec.xmap(repr => labelledGeneric.from(repr), p => labelledGeneric.to(p))
     }
 
   }
-
-  implicit def genCaseCodec[P, Repr <: HList, KeysRepr <: HList, ValuesRepr <: HList]
-  (implicit
-    lgen: LabelledGeneric.Aux[P, Repr],
-    keys: Keys.Aux[Repr, KeysRepr],
-    gen: Generic.Aux[P, ValuesRepr],
-    traversableSymbol: ToTraversable.Aux[KeysRepr, List, Symbol],
-    codecGen: HListHasMapCodec.Aux[ValuesRepr]
-  ): Codec[P] = {
-    val names = keys().toList.map(_.name)
-    codecGen.genMapCodec(names).codec.xmap(repr => gen.from(repr), p => gen.to(p))
-  }
-
-
+  /*_*/
   lazy val NBTOps: DynamicOps[INBT] = NBTDynamicOps.INSTANCE
   lazy val JSONOps: DynamicOps[JsonElement] = JsonOps.INSTANCE
 

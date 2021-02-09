@@ -5,7 +5,7 @@ import campfire.CampfirePlusTileEntity.{DustInfo, dustCodec}
 import entity.EntityLightSpirit
 import registration.RegistryHelpers._
 import util.NBTTypeRef
-import util.VanillaCodecs.ConvenientCodec
+import util.VanillaCodecs.{CodecByName, ConvenientCodec}
 
 import com.mojang.serialization.Codec
 import net.minecraft.block.{BlockState, Blocks}
@@ -43,7 +43,7 @@ object CampfirePlusTileEntity {
   private val dustCodec = implicitly[Codec[List[DustInfo]]]
   /*_*/
 
-  case class DustInfo(outerColour: Int, innerColour: Int, attracts: List[EntityType[_]])
+  case class DustInfo(outerColour: Int, innerColour: Int, attracts: List[EntityType[_]]) extends CodecByName
 
   val defaultOuterColour: Int = DyeColor.RED.getColorValue
   val defaultInnerColour: Int = DyeColor.YELLOW.getTextColor
@@ -66,7 +66,7 @@ object CampfirePlusTileEntity {
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-class CampfirePlusTileEntity extends CampfireTileEntity with Logging {
+class CampfirePlusTileEntity extends CampfireTileEntity with CodecByName with Logging {
   def copyOldTE(blockstate: BlockState, oldTE: CampfireTileEntity): Unit = {
     val oldNBT: CompoundNBT = oldTE.write(new CompoundNBT)
     this.read(blockstate, oldNBT)

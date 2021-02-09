@@ -1,12 +1,12 @@
 package net.machinemuse.anima
 package campfire
 
-import campfire.CampfireDustRecipe._
+import campfire.CampfireDustRecipe.CampfireDustIngredient
 import entity.EntityLightSpirit
 import registration.RegistryHelpers
 import util.Colour
 import util.VanillaClassEnrichers.mkRecipeProvider
-import util.VanillaCodecs.ConvenientCodec
+import util.VanillaCodecs.{CodecByName, ConvenientCodec}
 
 import com.google.gson.JsonObject
 import com.mojang.serialization.Codec
@@ -31,17 +31,24 @@ object CampfireDustRecipe extends Logging {
   @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {}
 
   import util.VanillaCodecs._
-
   private val RecipeCodec = /*_*/ implicitly[Codec[CampfireDustRecipe]] /*_*/
-
   private val SERIALIZER = RegistryHelpers.regRecipeSerializer("campfire_dust", RecipeCodec, new CampfireDustRecipe(List.empty))
 
+  sealed trait CampfireDustEffect extends CodecByName
+  case class InnerColour(innerColour: Int) extends CampfireDustEffect with CodecByName
+  case class OuterColour(outerColour: Int) extends CampfireDustEffect with CodecByName
+  case class Attracts(entityTypes: List[EntityType[_]]) extends CampfireDustEffect with CodecByName
+  /*_*/
+  implicit val CampfireDustEffectCodec = implicitly[Codec[CampfireDustEffect]]
+  /*_*/
+
+//  /*_*/ private val EffectCodec = implicitly[Codec[CampfireDustEffect]] /*_*/
 
   case class CampfireDustIngredient(item: Item,
                                     base: Option[Boolean] = None,
                                     outercolour: Option[Int] = None,
                                     innercolour: Option[Int] = None,
-                                    attracts: Option[EntityType[_]] = None)
+                                    attracts: Option[EntityType[_]] = None) extends CodecByName
 
   @SubscribeEvent
   def gatherData(event: GatherDataEvent): Unit = mkRecipeProvider(event) { consumer =>
@@ -55,7 +62,9 @@ object CampfireDustRecipe extends Logging {
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-case class CampfireDustRecipe(ingredients: List[CampfireDustIngredient]) extends ICraftingRecipe with IFinishedRecipe with Logging {
+case class CampfireDustRecipe(ingredients: List[CampfireDustIngredient]) extends ICraftingRecipe with CodecByName with IFinishedRecipe with Logging {
+
+  import campfire.CampfireDustRecipe._
   override def matches(inv: CraftingInventory, worldIn: World): Boolean = {
     val stacks = (for (i <- 0 until inv.getSizeInventory) yield inv.getStackInSlot(i)).toList.filter(!_.isEmpty)
     var foundBase = false

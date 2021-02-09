@@ -72,20 +72,20 @@ object RichDataParameter extends Logging {
   // Case class for accessing a data parameter.
   case class DataSync[T](param: ParameterInstance[T], dm: EntityDataManager) {
     param.register(dm)
-    final def get(): T = param.get(dm)
+    final def get: T = param.get(dm)
     final def set(value: T): Unit = param.set(value)(dm)
     final def :=(that: T): T = that.andDo(result => set(result))
-    final def apply() = get()
+    final def apply() = get
   }
   implicit class DataSyncNumeric[T](data: DataSync[T])(implicit numeric: Numeric[T]) {
     import numeric._
-    final def +(that: T): T = data.get() + that
+    final def +(that: T): T = data.get + that
     final def +=(that: T): T = (this + that).andDo(result => data.set(result))
-    final def -(that: T): T = data.get() - that
+    final def -(that: T): T = data.get - that
     final def -=(that: T): T = (this - that).andDo(result => data.set(result))
-    final def *(that: T): T = data.get() * that
+    final def *(that: T): T = data.get * that
     final def *=(that: T): T = (this * that).andDo(result => data.set(result))
-    final def unary_- : T = -data.get()
+    final def unary_- : T = -data.get
     final def unary_++ : T = this += numeric.one
     final def unary_-- : T = this -= numeric.one
   }

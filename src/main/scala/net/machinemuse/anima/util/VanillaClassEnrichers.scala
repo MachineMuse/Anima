@@ -64,7 +64,7 @@ object VanillaClassEnrichers extends Logging {
     }
   }
 
-  def mkRecipeProvider(event: GatherDataEvent)(reg: Consumer[IFinishedRecipe] => ()): Unit = {
+  def mkRecipeProvider(event: GatherDataEvent)(reg: Consumer[IFinishedRecipe] => Unit): Unit = {
     if(event.includeServer()) {
       val prov = new RecipeProvider (event.getGenerator) with IConditionBuilder {
         override def registerRecipes (consumer: Consumer[IFinishedRecipe] ): Unit = {
