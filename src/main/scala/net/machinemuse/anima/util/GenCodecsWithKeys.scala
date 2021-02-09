@@ -15,6 +15,7 @@ import scala.jdk.OptionConverters.{RichOption, RichOptional}
 /**
  * Created by MachineMuse on 2/8/2021.
  */
+// For when we want to explicitly tag stuff
 object GenCodecsWithKeys extends Logging {
   private final val TYPENAMECODEC = STRINGCODEC.fieldOf("type")
   trait HasMapCodecWithKeys[Values] {
@@ -44,7 +45,7 @@ object GenCodecsWithKeys extends Logging {
       val (key, remainder) = (keys.head, keys.tail)
       val mapCodecHead = headOptionalizer.genField(key)
       val mapCodecTail = tailCodec.genMapCodec(remainder)
-      val newCodec = MapCodec.of[Head :: TailVals] (
+      MapCodec.of[Head :: TailVals] (
         new MapEncoder.Implementation[Head :: TailVals] {
           override def encode[T](input: Head :: TailVals, ops: DynamicOps[T], prefix: RecordBuilder[T]): RecordBuilder[T] =
             mapCodecTail.encode(input.tail, ops, mapCodecHead.encode(input.head, ops, prefix))
@@ -58,8 +59,8 @@ object GenCodecsWithKeys extends Logging {
             Stream.concat(mapCodecHead.keys(ops), mapCodecTail.keys(ops))
         }
       )
-      newCodec
     }
+
     implicit def CNilHasMapCodecWithKeys: HasMapCodecWithKeys[CNil] = (keys: List[String]) => MapCodec.of[CNil](
       new MapEncoder.Implementation[CNil] {
         override def encode[T](input: CNil, ops: DynamicOps[T], prefix: RecordBuilder[T]): RecordBuilder[T] = EMPTYCODEC.encode(util.Unit.INSTANCE, ops, prefix)
@@ -78,7 +79,7 @@ object GenCodecsWithKeys extends Logging {
     ): HasMapCodecWithKeys[Head :+: Tail] = (keys: List[String]) => {
       val (key, remainder) = (keys.head, keys.tail)
       val mapCodecTail = tailCodec.genMapCodec(remainder)
-      val newCodec = MapCodec.of[Head :+: Tail](
+      MapCodec.of[Head :+: Tail](
         new MapEncoder.Implementation[Head :+: Tail] {
           override def encode[T](input: Head :+: Tail, ops: DynamicOps[T], prefix: RecordBuilder[T]): RecordBuilder[T] =
             input match {
@@ -98,7 +99,6 @@ object GenCodecsWithKeys extends Logging {
           override def keys[T](ops: DynamicOps[T]): Stream[T] = Stream.concat(mapCodecHead.keys(ops), mapCodecTail.keys(ops))
         }
       )
-      newCodec
     }
   }
 

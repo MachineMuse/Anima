@@ -1,7 +1,6 @@
 package net.machinemuse.anima
 package campfire
 
-import campfire.CampfirePlusTileEntity.{DustInfo, dustCodec}
 import entity.EntityLightSpirit
 import registration.RegistryHelpers._
 import util.GenCodecsByName._
@@ -40,7 +39,7 @@ object CampfirePlusTileEntity {
   def getType = CAMPFIREPLUS_TE.get()
 
   /*_*/
-  private val dustCodec = implicitly[Codec[List[DustInfo]]]
+  private val dustsCodec = implicitly[Codec[List[DustInfo]]]
   /*_*/
 
   case class DustInfo(outerColour: Int, innerColour: Int, attracts: List[EntityType[_]]) extends CodecByName
@@ -67,6 +66,7 @@ object CampfirePlusTileEntity {
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
 class CampfirePlusTileEntity extends CampfireTileEntity with CodecByName with Logging {
+  import campfire.CampfirePlusTileEntity._
   def copyOldTE(blockstate: BlockState, oldTE: CampfireTileEntity): Unit = {
     val oldNBT: CompoundNBT = oldTE.write(new CompoundNBT)
     this.read(blockstate, oldNBT)
@@ -164,7 +164,7 @@ class CampfirePlusTileEntity extends CampfireTileEntity with CodecByName with Lo
         for{dust <- activeDusts
             entityType <- dust.attracts
             } {
-          if(Random.nextInt(800 * 10) < dance_enhancement) {
+          if(Random.nextInt(800 * 5) < dance_enhancement) {
             trySpawnEntity(serverWorld, 5, entityType)
           }
         }
@@ -176,43 +176,39 @@ class CampfirePlusTileEntity extends CampfireTileEntity with CodecByName with Lo
   override def getType: TileEntityType[CampfirePlusTileEntity] = CampfirePlusTileEntity.getType
 
 
-
-  override def read(blockstate : BlockState, compound : CompoundNBT): Unit = {
-    super.read(blockstate, compound)
+  def loadDustsAndDance(compound: CompoundNBT): Unit = {
     if(compound.contains("dusts")) {
       val dustsNBT = compound.getList("dusts", NBTTypeRef.TAG_COMPOUND)
-      val dustsOpt = dustCodec.parseINBT(dustsNBT)
+      val dustsOpt = dustsCodec.parseINBT(dustsNBT)
       dustsOpt.fold[Unit]({activeDusts = List.empty})(dusts => activeDusts = dusts)
     }
     if(compound.contains("dance_enhancement")) {
       dance_enhancement = compound.getFloat("dance_enhancement")
     }
   }
+  def saveDustsAndDance(compound: CompoundNBT): CompoundNBT = {
+    compound.putFloat("dance_enhancement", dance_enhancement.toFloat)
+    val dustsNBT = dustsCodec.writeINBT(activeDusts)
+    compound.put("dusts", dustsNBT)
+    compound
+  }
+
+  override def read(blockstate : BlockState, compound : CompoundNBT): Unit = {
+    super.read(blockstate, compound)
+    loadDustsAndDance(compound)
+  }
 
   override def write(compound : CompoundNBT): CompoundNBT = {
-    compound.putFloat("dance_enhancement", dance_enhancement.toFloat)
-    val dustsNBT = dustCodec.writeINBT(activeDusts)
-    compound.put("dusts", dustsNBT)
     super.write(compound)
+    saveDustsAndDance(compound)
   }
 
   override def getUpdateTag: CompoundNBT = {
-    val items = super.getUpdateTag
-    val dustsNBT = dustCodec.writeINBT(activeDusts)
-    items.put("dusts", dustsNBT)
-    items.putFloat("dance_enhancement", dance_enhancement.toFloat)
-    items
+    saveDustsAndDance(super.getUpdateTag)
   }
 
   override def handleUpdateTag(blockstate: BlockState, compound: CompoundNBT): Unit = {
     super.handleUpdateTag(blockstate, compound)
-    if(compound.contains("dusts")) {
-      val dustsNBT = compound.getList("dusts", NBTTypeRef.TAG_COMPOUND)
-      val dustsOpt = dustCodec.parseINBT(dustsNBT)
-      dustsOpt.fold[Unit]({activeDusts = List.empty})(dusts => activeDusts = dusts)
-    }
-    if(compound.contains("dance_enhancement")) {
-      dance_enhancement = compound.getFloat("dance_enhancement")
-    }
+    loadDustsAndDance(compound)
   }
 }

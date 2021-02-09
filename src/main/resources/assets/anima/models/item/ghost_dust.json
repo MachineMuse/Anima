@@ -1,6 +1,6 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "anima:items/ghost_dust"
+    "layer0": "anima:item/ghost_dust"
   }
 }

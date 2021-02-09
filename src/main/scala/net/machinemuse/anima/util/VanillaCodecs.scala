@@ -72,6 +72,9 @@ object VanillaCodecs extends Logging {
   /*_*/ // Registries
   implicit val ITEMCODEC: Codec[Item] = Registry.ITEM : @nowarn
   implicit val ATTRIBUTECODEC: Codec[Attribute] = Registry.ATTRIBUTE : @nowarn
+
+  // Caution: This will fail to generate a codec at the top level, but it works fine if it's an encased type
+  // such as Option[EntityType[_]] or List[EntityType[_]]
   implicit val ENTITYTYPECODEC: Codec[EntityType[_]] = Registry.ENTITY_TYPE : @nowarn
   /*_*/ //etc...
 
@@ -107,38 +110,31 @@ object VanillaCodecs extends Logging {
 
   import JavaFunctionConverters._
 
-  /// For when we want to explicitly tag stuff
-
-  lazy val NBTOps: DynamicOps[INBT] = NBTDynamicOps.INSTANCE
-  lazy val JSONOps: DynamicOps[JsonElement] = JsonOps.INSTANCE
-
-
   implicit class ConvenientCodec[A](codec: Codec[A]) {
     // Basic functionality
     def parseINBT(nbt: INBT): Option[A] = {
-      codec.parse(NBTOps, nbt)
+      codec.parse(NBTDynamicOps.INSTANCE, nbt)
         .resultOrPartial { err =>
           logger.error(s"Error while decoding input from stream: $err")
           logger.error(s" [input: $nbt ]")
         }.toScala
     }
-    def writeINBT(obj: A): INBT = codec.encodeStart(NBTOps, obj).result().get() // we assume that encoding will always be successful
+    def writeINBT(obj: A): INBT = codec.encodeStart(NBTDynamicOps.INSTANCE, obj).result().get() // we assume that encoding will always be successful
 
     def parseJson(json: JsonElement): Option[A] = {
-      codec.parse(JSONOps, json)
+      codec.parse(JsonOps.INSTANCE, json)
         .resultOrPartial { err =>
           logger.error(s"Error while decoding input from stream: $err")
           logger.error(s" [input: $json ]")
         }.toScala
     }
-    def writeJson(obj: A): JsonElement = codec.encodeStart(JSONOps, obj).result().get() // we assume that encoding will always be successful
+    def writeJson(obj: A): JsonElement = codec.encodeStart(JsonOps.INSTANCE, obj).result().get() // we assume that encoding will always be successful
     def writeIntoMutableJson(obj: A, jsonOut: JsonObject): Unit = {
       val jsonIn = codec.writeJson(obj)
       jsonIn.getAsJsonObject.entrySet().forEach { entry =>
         jsonOut.add(entry.getKey, entry.getValue)
       }
     }
-
 
     // Helpers for compressed stream tools
     def mkDataCompound(nbt: INBT): CompoundNBT = {
@@ -167,6 +163,7 @@ object VanillaCodecs extends Logging {
 
   }
 
+  // Helpers for assorted things that will probably use codecs in the future
   implicit class ConvenientParticleDataCodec[A <: IParticleData](codec: Codec[A]) {
     def deserializer = new IParticleData.IDeserializer[A] {
       override def deserialize(particleTypeIn: ParticleType[A], reader: StringReader): A = {
@@ -175,9 +172,9 @@ object VanillaCodecs extends Logging {
         val json = new JsonParser().parse(string)
         codec.parseJson(json).get // Unsafe for command but who knows maybe it handles exceptions gracefully
       }
-
       override def read(particleTypeIn: ParticleType[A], buffer: PacketBuffer): A = codec.readCompressed(buffer).get
     } : @nowarn
+
     def mkParticleType(alwaysShow: Boolean) = new ParticleType[A](alwaysShow, deserializer) {
       override def func_230522_e_(): Codec[A] = codec
     }

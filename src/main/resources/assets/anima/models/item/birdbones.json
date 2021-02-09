@@ -1,6 +1,6 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "anima:items/birdbones"
+    "layer0": "anima:item/birdbones"
   }
 }

@@ -37,6 +37,8 @@ object GenCodecsByName extends Logging {
     override val genField: MapCodec[V] = codec.fieldOf(witness.value.name)
   }
 
+  // And here the magic begins
+
   implicit val HNilHasMapCodecByName: MapCodec[HNil] = Codec.EMPTY.xmap(_ => HNil, _ => util.Unit.INSTANCE)
 
   implicit def HConsHasMapCodecByName[K <: Symbol, V, TailVals <: HList]
@@ -103,6 +105,7 @@ object GenCodecsByName extends Logging {
       }
     )
 
+  // Only convert products/coproducts that have the CodecByName trait
   implicit def genMapCodecByName[T <: CodecByName, Repr] (implicit labelledGeneric: LabelledGeneric.Aux[T, Repr], codecGen: Lazy[MapCodec[Repr]]): MapCodec[T] =
     codecGen.value.xmap(repr => labelledGeneric.from(repr), p => labelledGeneric.to(p))
 
