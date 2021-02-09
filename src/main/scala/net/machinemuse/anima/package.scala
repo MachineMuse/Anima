@@ -1,6 +1,8 @@
 package net.machinemuse
 
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.nbt._
+import net.minecraft.util.math._
 import net.minecraft.world.World
 import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.common.MinecraftForge
@@ -16,9 +18,10 @@ import java.util.function.Consumer
  */
 package object anima {
   implicit class Optionable[A](a: A) {
-    def some = Some(a)
-    def none = None
+    def some: Option[A] = Some(a)
+    def none: Option[A] = None
   }
+  def none[A]: Option[A] = None
 
   trait NBTTagAccessor[T] {
     def getFromCompound(tag: CompoundNBT, name: String): T
@@ -137,7 +140,7 @@ package object anima {
         ()
       }
 
-    final def doAsOrElse[O: Manifest, D](default: D)(f: O => D): D = {
+    final def mapAsOrElse[O: Manifest, D](default: D)(f: O => D): D = {
       if(implicitly[Manifest[O]].runtimeClass.isInstance(x)) {
         f(x.asInstanceOf[O])
       } else {
@@ -165,6 +168,22 @@ package object anima {
         }
       }
     }
+  }
+
+  def rayTrace(worldIn: World, player: PlayerEntity, fluidMode: RayTraceContext.FluidMode): BlockRayTraceResult = {
+    val pitch = player.rotationPitch
+    val yaw = player.rotationYaw
+    val near = player.getEyePosition(1.0F)
+    val yawx = MathHelper.cos(-yaw * (Math.PI.toFloat / 180F) - Math.PI.toFloat)
+    val yawz = MathHelper.sin(-yaw * (Math.PI.toFloat / 180F) - Math.PI.toFloat)
+    val pitchxz = -MathHelper.cos(-pitch * (Math.PI.toFloat / 180F))
+    val looky = MathHelper.sin(-pitch * (Math.PI.toFloat / 180F))
+    val lookx = yawz * pitchxz
+    val lookz = yawx * pitchxz
+    val reach = player.getAttribute(net.minecraftforge.common.ForgeMod.REACH_DISTANCE.get).getValue
+
+    val far = near.add(lookx.toDouble * reach, looky.toDouble * reach, lookz.toDouble * reach)
+    worldIn.rayTraceBlocks(new RayTraceContext(near, far, RayTraceContext.BlockMode.OUTLINE, fluidMode, player))
   }
 
   object JavaFunctionConverters {

@@ -31,7 +31,7 @@ object DustForCampfire {
   @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {} // Ensures the class gets initialized when the mod is constructed
 
   final val instance = regExtendedItem("campfiredust", () => new DustForCampfire)
-  def getInstance = instance.get()
+  def getInstance = instance.get
 }
 
 // counterintuitively, this will autosubscribe all the methods annotated with @SubscribeEvent in the companion object above.

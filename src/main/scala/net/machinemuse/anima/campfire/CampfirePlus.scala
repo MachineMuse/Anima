@@ -50,10 +50,10 @@ object CampfirePlus {
       .setLightLevel((state: BlockState) => if (state.get(BlockStateProperties.LIT)) 15 else 0)
       .notSolid
   ))
-  def getBlock = CAMPFIREPLUS_BLOCK.get()
+  def getBlock = CAMPFIREPLUS_BLOCK.get
 
-  private val CAMPFIREPLUS_ITEM = regSimpleBlockItem(DATA_NAME, CampfirePlus.CAMPFIREPLUS_BLOCK)
-  def getBlockItem = CAMPFIREPLUS_ITEM.get()
+  private val CAMPFIREPLUS_ITEM = regSimpleBlockItem(DATA_NAME, CampfirePlus.CAMPFIREPLUS_BLOCK.registryObject)
+  def getBlockItem = CAMPFIREPLUS_ITEM.get
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)

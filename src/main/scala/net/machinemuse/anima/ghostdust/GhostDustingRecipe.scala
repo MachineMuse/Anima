@@ -46,8 +46,8 @@ object GhostDustingRecipe extends Logging {
     mkRecipeProvider(event) { consumer =>
       val defaultRecipe = GhostDustingRecipe(
         List(
-          GhostDustingIngredient(SimpleItems.GHOSTDUST_REMOVER_ITEM.get(), -1.0F, 1, true),
-          GhostDustingIngredient(SimpleItems.GHOSTDUST_ITEM.get(), 0.125F, 0, false)
+          GhostDustingIngredient(SimpleItems.GHOSTDUST_REMOVER_ITEM.get, -1.0F, 1, true),
+          GhostDustingIngredient(SimpleItems.GHOSTDUST_ITEM.get, 0.125F, 0, false)
         )
       )
       consumer.accept(defaultRecipe)

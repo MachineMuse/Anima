@@ -1,6 +1,7 @@
 package net.machinemuse.anima
 package registration
 
+import bowl.BowlWithContents
 import util.VanillaClassEnrichers.{CampfireRecipeBuilder, FancyShapedRecipeBuilder, FancyShapelessRecipeBuilder, mkRecipeProvider}
 
 import net.minecraft.block.Blocks
@@ -22,7 +23,7 @@ object SimpleItems {
   @SubscribeEvent def onConstructMod(e: FMLConstructModEvent) = {}
 
   val SPIRITFIRE_ITEM = regSimpleItem("spiritfire", ItemProperties(creativeGroup = Some(null)).some)
-  val AnimaCreativeGroup = regCreativeTab(() => SPIRITFIRE_ITEM)
+  val AnimaCreativeGroup = regCreativeTab(() => SPIRITFIRE_ITEM.registryObject)
 
   val KINDLING_ITEM = regSimpleItem("kindling")
 
@@ -45,12 +46,12 @@ object SimpleItems {
         .patternLine("/K/")
         .patternLine("LLL")
         .addKeyAsCriterion('/', Items.STICK)
-        .addKeyAsCriterion('K', SimpleItems.KINDLING_ITEM.get())
+        .addKeyAsCriterion('K', SimpleItems.KINDLING_ITEM.get)
         .addKeyAsCriterion('L', ItemTags.LOGS_THAT_BURN)
         .buildProperly(consumer, "campfire_from_kindling")
 
       ShapedRecipeBuilder
-        .shapedRecipe(SimpleItems.KINDLING_ITEM.get())
+        .shapedRecipe(SimpleItems.KINDLING_ITEM.get)
         .patternLine("///")
         .patternLine("/P/")
         .patternLine("///")
@@ -74,7 +75,7 @@ object SimpleItems {
         .shapelessRecipe(SimpleItems.GHOSTDUST_ITEM.get, 2)
         .addIngredientAsCriterion("gunpowder", Items.GUNPOWDER)
         .addIngredientAsCriterion("bonemeal", Items.BONE_MEAL)
-        .addIngredientAsCriterion("sugar", Items.SUGAR)
+        .addIngredientAsCriterion("bowl_of_salt", BowlWithContents.BOWL_OF_SALT.get)
         .setGroup("ghost_dust")
         .buildProperly(consumer, "ghost_dust_from_bonemeal")
 
@@ -82,7 +83,7 @@ object SimpleItems {
         .shapelessRecipe(SimpleItems.GHOSTDUST_ITEM.get, 2)
         .addIngredientAsCriterion("gunpowder", Items.GUNPOWDER)
         .addIngredientAsCriterion("white_dye", Items.WHITE_DYE)
-        .addIngredientAsCriterion("sugar", Items.SUGAR)
+        .addIngredientAsCriterion("bowl_of_salt", BowlWithContents.BOWL_OF_SALT.get)
         .setGroup("ghost_dust")
         .buildProperly(consumer, "ghost_dust_from_white_dye")
 
@@ -90,7 +91,7 @@ object SimpleItems {
         .shapelessRecipe(SimpleItems.GHOSTDUST_REMOVER_ITEM.get, 1)
         .addIngredientAsCriterion("gunpowder", Items.GUNPOWDER)
         .addIngredientAsCriterion("ink_sac", Items.INK_SAC)
-        .addIngredientAsCriterion("sugar", Items.SUGAR)
+        .addIngredientAsCriterion("bowl_of_salt", BowlWithContents.BOWL_OF_SALT.get)
         .setGroup("ghost_dust_remover")
         .buildProperly(consumer, "ghost_dust_remover_from_ink_sac")
 
@@ -98,7 +99,7 @@ object SimpleItems {
         .shapelessRecipe(SimpleItems.GHOSTDUST_REMOVER_ITEM.get, 1)
         .addIngredientAsCriterion("gunpowder", Items.GUNPOWDER)
         .addIngredientAsCriterion("black_dye", Items.BLACK_DYE)
-        .addIngredientAsCriterion("sugar", Items.SUGAR)
+        .addIngredientAsCriterion("bowl_of_salt", BowlWithContents.BOWL_OF_SALT.get)
         .setGroup("ghost_dust_remover")
         .buildProperly(consumer, "ghost_dust_remover_from_black_dye")
 

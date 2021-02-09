@@ -40,20 +40,20 @@ object RegistryHelpers extends Logging {
   val RECIPE_SERIALIZERS: DeferredRegister[IRecipeSerializer[_]] = mkRegister(ForgeRegistries.RECIPE_SERIALIZERS)
   val PARTICLES: DeferredRegister[ParticleType[_]] = mkRegister(ForgeRegistries.PARTICLE_TYPES)
 
-  def regRecipeSerializer[R <: IRecipe[_]](name: String, codec: Codec[R], default: R): RegistryObject[IRecipeSerializer[R]] = RECIPE_SERIALIZERS.register(name, () => codec.mkSerializer(default))
+  def regRecipeSerializer[R <: IRecipe[_]](name: String, codec: Codec[R], default: R): ConvenientRegistryObject[IRecipeSerializer[R]] = ConvenientRegistryObject(RECIPE_SERIALIZERS.register(name, () => codec.mkSerializer(default)))
 
-  def regEntityType[E <: Entity](name: String, initializer: () => Unit, ctor: (EntityType[E], World) => E, classification:EntityClassification): RegistryObject[EntityType[E]] = {
+  def regEntityType[E <: Entity](name: String, initializer: () => Unit, ctor: (EntityType[E], World) => E, classification:EntityClassification): ConvenientRegistryObject[EntityType[E]] = {
     logger.info(s"Registering EntityType $name")
-    ENTITIES.register(name, () => EntityType.Builder.create(ctor.butFirst(initializer)(_,_), classification).setShouldReceiveVelocityUpdates(false).build(name))
+    ConvenientRegistryObject(ENTITIES.register(name, () => EntityType.Builder.create(ctor.butFirst(initializer)(_,_), classification).setShouldReceiveVelocityUpdates(false).build(name)))
   }
 
-  def regTE[T <: TileEntity](name: String, ctor: Supplier[T], validBlocks: Supplier[Block]*): RegistryObject[TileEntityType[T]] = {
+  def regTE[T <: TileEntity](name: String, ctor: Supplier[T], validBlocks: Supplier[Block]*): ConvenientRegistryObject[TileEntityType[T]] = {
     logger.info(s"Registering TileEntityType $name")
-    TILE_ENTITIES.register(name,
+    ConvenientRegistryObject(TILE_ENTITIES.register(name,
       () => {
         TileEntityType.Builder.create[T](ctor, validBlocks.map(_.get()): _*)
       }.build(null)
-    )
+    ))
   }
 
 
@@ -79,32 +79,38 @@ object RegistryHelpers extends Logging {
 
   }
 
-  def regSimpleItem(name: String, props: Option[ItemProperties] = None): RegistryObject[Item] = {
+  def regSimpleItem(name: String, props: Option[ItemProperties] = None): ConvenientRegistryObject[Item] = {
     val concreteprops = props.map(_.apply).getOrElse(ItemProperties().apply)
-    ITEMS.register(name, () => new Item(concreteprops))
+    ConvenientRegistryObject(ITEMS.register(name, () => new Item(concreteprops)))
   }
 
-  def regSimpleBlockItem[B <: Block](name: String, blockRegister: RegistryObject[B], props: Option[ItemProperties] = None): RegistryObject[BlockItem]= {
+  def regSimpleBlockItem[B <: Block](name: String, blockRegister: RegistryObject[B], props: Option[ItemProperties] = None): ConvenientRegistryObject[BlockItem]= {
     val concreteprops = props.map(_.apply).getOrElse(new Item.Properties)
-    ITEMS.register(name, () => new BlockItem(blockRegister.get(), concreteprops))
+    ConvenientRegistryObject(ITEMS.register(name, () => new BlockItem(blockRegister.get(), concreteprops)))
   }
 
-  def regExtendedItem[I <: Item](name: String, supp: Supplier[I]): RegistryObject[I] = {
-    ITEMS.register(name, supp)
+  def regExtendedItem[I <: Item](name: String, supp: Supplier[I]): ConvenientRegistryObject[I] = {
+    ConvenientRegistryObject(ITEMS.register(name, supp))
   }
 
-  def regBlock[B <: Block](name: String, supp: Supplier[B]): RegistryObject[B] = {
-    BLOCKS.register(name, supp)
+  def regBlock[B <: Block](name: String, supp: Supplier[B]): ConvenientRegistryObject[B] = {
+    ConvenientRegistryObject(BLOCKS.register(name, supp))
   }
 
-  def regContainerType[C <: Container](name: String, fac: IContainerFactory[C]): RegistryObject[ContainerType[C]] = {
-    CONTAINERS.register(name, () => IForgeContainerType.create(fac))
+  def regContainerType[C <: Container](name: String, fac: IContainerFactory[C]): ConvenientRegistryObject[ContainerType[C]] = {
+    ConvenientRegistryObject(CONTAINERS.register(name, () => IForgeContainerType.create(fac)))
   }
 
   def regCreativeTab(item: () => RegistryObject[Item]) = new ItemGroup(Anima.MODID) {
     override def createIcon(): ItemStack = {
       item().get.getDefaultInstance
     }
+  }
+
+  case class ConvenientRegistryObject[T <: IForgeRegistryEntry[_]](registryObject: RegistryObject[T]) {
+    def unapply = registryObject.get
+    def apply() = registryObject.get
+    def get = registryObject.get
   }
 
 }

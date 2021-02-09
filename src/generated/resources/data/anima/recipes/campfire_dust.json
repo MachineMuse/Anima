@@ -1,10 +1,10 @@
 {
   "type": "anima:campfire_dust",
+  "bases": [
+    "minecraft:gunpowder",
+    "anima:bowl_of_salt"
+  ],
   "ingredients": [
-    {
-      "item": "minecraft:gunpowder",
-      "base": true
-    },
     {
       "item": "minecraft:charcoal",
       "attracts": "anima:lightspirit"

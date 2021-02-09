@@ -1,6 +1,7 @@
 package net.machinemuse.anima
 package campfire
 
+import bowl.BowlWithContents
 import campfire.CampfireDustRecipe.CampfireDustIngredient
 import entity.EntityLightSpirit
 import registration.RegistryHelpers
@@ -34,7 +35,7 @@ object CampfireDustRecipe extends Logging {
   import util.GenCodecsByName._
   import util.VanillaCodecs._
   private val RecipeCodec = /*_*/ implicitly[Codec[CampfireDustRecipe]] /*_*/
-  private val SERIALIZER = RegistryHelpers.regRecipeSerializer("campfire_dust", RecipeCodec, new CampfireDustRecipe(List.empty))
+  private val SERIALIZER = RegistryHelpers.regRecipeSerializer("campfire_dust", RecipeCodec, new CampfireDustRecipe(List.empty, List.empty))
 
   sealed trait CampfireDustEffect extends CodecByName
   case class InnerColour(innerColour: Int) extends CampfireDustEffect with CodecByName
@@ -47,7 +48,6 @@ object CampfireDustRecipe extends Logging {
 //  /*_*/ private val EffectCodec = implicitly[Codec[CampfireDustEffect]] /*_*/
 
   case class CampfireDustIngredient(item: Item,
-                                    base: Option[Boolean] = None,
                                     outercolour: Option[Int] = None,
                                     innercolour: Option[Int] = None,
                                     attracts: Option[EntityType[_]] = None) extends CodecByName
@@ -55,8 +55,7 @@ object CampfireDustRecipe extends Logging {
   @SubscribeEvent
   def gatherData(event: GatherDataEvent): Unit = mkRecipeProvider(event) { consumer =>
     val colours = DyeColor.values().map(color => CampfireDustIngredient(DyeItem.getItem(color), outercolour = color.getColorValue.some, innercolour = color.getTextColor.some))
-    val defaultRecipe = CampfireDustRecipe(List(
-      CampfireDustIngredient(Items.GUNPOWDER, base = Some(true)),
+    val defaultRecipe = CampfireDustRecipe(List(Items.GUNPOWDER, BowlWithContents.BOWL_OF_SALT.get), List(
       CampfireDustIngredient(Items.CHARCOAL, attracts = EntityLightSpirit.getType.some)
     ) ++ colours)
     consumer.accept(defaultRecipe)
@@ -64,35 +63,38 @@ object CampfireDustRecipe extends Logging {
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-case class CampfireDustRecipe(ingredients: List[CampfireDustIngredient]) extends ICraftingRecipe with CodecByName with IFinishedRecipe with Logging {
+case class CampfireDustRecipe(bases: List[Item], ingredients: List[CampfireDustIngredient]) extends ICraftingRecipe with CodecByName with IFinishedRecipe with Logging {
 
   import campfire.CampfireDustRecipe._
   override def matches(inv: CraftingInventory, worldIn: World): Boolean = {
     val stacks = (for (i <- 0 until inv.getSizeInventory) yield inv.getStackInSlot(i)).toList.filter(!_.isEmpty)
-    var foundBase = false
+    var missingBases = bases
     var fail = false
     for (stack <- stacks) {
       val matchingIngredients = ingredients.filter(_.item == stack.getItem)
-      if (matchingIngredients.isEmpty) fail = true
-      if (matchingIngredients.exists(_.base.getOrElse(false))) foundBase = true
+      val matchingBases = bases.filter(_ == stack.getItem)
+      missingBases = missingBases.diff(matchingBases)
+      if (matchingIngredients.isEmpty && matchingBases.isEmpty) fail = true
+
     }
-    foundBase && !fail
+    missingBases.isEmpty && !fail
   }
 
   override def getCraftingResult(inv: CraftingInventory): ItemStack = {
-    val output = new ItemStack(DustForCampfire.instance.get())
+    val output = new ItemStack(DustForCampfire.instance.get)
     val stacks = (for (i <- 0 until inv.getSizeInventory) yield inv.getStackInSlot(i)).toList.filter(!_.isEmpty)
     var innerColour = 0
     var innerColoursFound = 0
     var outerColour = 0
     var outerColoursFound = 0
-    var foundBase = false
+    var missingBases = bases
     var fail = false
     var attracts = List.empty[EntityType[_]]
     for (stack <- stacks) {
       val matchingIngredients = ingredients.filter(_.item == stack.getItem)
-      if (matchingIngredients.isEmpty) fail = true
-      if (matchingIngredients.exists(_.base.getOrElse(false))) foundBase = true
+      val matchingBases = bases.filter(_ == stack.getItem)
+      missingBases = missingBases.diff(matchingBases)
+      if (matchingIngredients.isEmpty && matchingBases.isEmpty) fail = true
       matchingIngredients.flatMap(_.outercolour).foreach { foundcolour =>
         outerColour = Colour.mixColoursByWeight(outerColour, foundcolour, outerColoursFound.toFloat, 1.0f)
         outerColoursFound += 1

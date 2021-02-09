@@ -42,8 +42,8 @@ object Basket extends Logging {
   def onEntityItemPickup(event: EntityItemPickupEvent): Unit = {
     // Iterate through the player's inventory slots for baskets
     for { slotStack <- event.getPlayer.inventory.mainInventory.asScala ++ event.getPlayer.inventory.offHandInventory.asScala} {
-      if(slotStack.getItem == getInstance) {
-        val remainder = getInstance.insertItem(slotStack, event.getItem.getItem)
+      if(slotStack.getItem == Basket.getInstance) {
+        val remainder = Basket.getInstance.insertItem(slotStack, event.getItem.getItem)
         event.getItem.setItem(remainder)
       }
     }
@@ -52,12 +52,12 @@ object Basket extends Logging {
     }
   }
 
-  val instance = regExtendedItem("basket", () => new Basket)
-  def getInstance = instance.get()
+  private val instance = regExtendedItem("basket", () => new Basket)
+  def getInstance = instance.get
 
   @SubscribeEvent
   def gatherData(event: GatherDataEvent): Unit = {
-    logger.debug("BasketDatagen.gatherData called")
+    logger.trace("BasketDatagen.gatherData called")
     mkRecipeProvider(event) { consumer =>
       ShapedRecipeBuilder.shapedRecipe(getInstance)
         .patternLine(" / ")

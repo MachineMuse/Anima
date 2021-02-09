@@ -36,16 +36,18 @@ object CampfirePlusTileEntity {
   @SubscribeEvent def onConstructMod(e: FMLConstructModEvent) = {}
 
   val CAMPFIREPLUS_TE = regTE[CampfirePlusTileEntity]("campfireplus", () => new CampfirePlusTileEntity, () => CampfirePlus.getBlock)
-  def getType = CAMPFIREPLUS_TE.get()
+  def getType = CAMPFIREPLUS_TE.get
 
   /*_*/
   private val dustsCodec = implicitly[Codec[List[DustInfo]]]
   /*_*/
 
-  case class DustInfo(outerColour: Int, innerColour: Int, attracts: List[EntityType[_]]) extends CodecByName
+  case class DustInfo(outerColour: Int, innerColour: Int, attracts: List[EntityType[_]], remainingTicks: Int) extends CodecByName
 
   val defaultOuterColour: Int = DyeColor.RED.getColorValue
   val defaultInnerColour: Int = DyeColor.YELLOW.getTextColor
+
+  val defaultDuration: Int = 5.minutesInTicks
 
   def dustInfoFromItemStack(stack: ItemStack): Option[DustInfo] = {
     if(stack.hasTag) {
@@ -56,8 +58,9 @@ object CampfirePlusTileEntity {
       } else List.empty
       val colour1 = if(stack.getTag.contains("colour1")) stack.getTag.getInt("colour1") else defaultOuterColour
       val colour2 = if(stack.getTag.contains("colour2")) stack.getTag.getInt("colour2") else defaultInnerColour
+      val duration = if(stack.getTag.contains("duration")) stack.getTag.getInt("duration") else defaultDuration
 
-      DustInfo(colour1, colour2, attracts).some
+      DustInfo(colour1, colour2, attracts, duration).some
     } else {
       None
     }
@@ -72,8 +75,8 @@ class CampfirePlusTileEntity extends CampfireTileEntity with CodecByName with Lo
     this.read(blockstate, oldNBT)
   }
 
-
   var dance_enhancement: Double = 0.0F
+  var last_dance_enhancement: Double = 0.0F
 
   var activeDusts: List[DustInfo] = List.empty
   val DANCE_RANGE = 50
@@ -158,18 +161,28 @@ class CampfirePlusTileEntity extends CampfireTileEntity with CodecByName with Lo
 //        world.setBlockState(this.getPos, this.getBlockState, BlockStateFlags.STANDARD_CLIENT_UPDATE)
         //        this.markDirty()
       }
-      serverWorld.getChunkProvider().markBlockChanged(this.getPos) // send update to clients
+      if(dance_enhancement != last_dance_enhancement) {
+        serverWorld.getChunkProvider().markBlockChanged(this.getPos) // send update to clients
+        this.markDirty()
+        last_dance_enhancement = dance_enhancement
+      }
+
 
       if(dance_enhancement > 0 && activeDusts.nonEmpty) {
-        for{dust <- activeDusts
-            entityType <- dust.attracts
-            } {
-          if(Random.nextInt(800 * 5) < dance_enhancement) {
-            trySpawnEntity(serverWorld, 5, entityType)
+        activeDusts = activeDusts.flatMap {dust =>
+          for{entityType <- dust.attracts} {
+            if(Random.nextInt(800 * 5) < dance_enhancement)
+              trySpawnEntity(serverWorld, 5, entityType)
           }
+          // reduce ticks and remove from list if done
+          if(dust.remainingTicks > 0)
+            dust.copy(remainingTicks = dust.remainingTicks - 1).some
+          else
+            none
         }
       }
-    }
+
+    } // onServer end
     super.tick()
   }
 

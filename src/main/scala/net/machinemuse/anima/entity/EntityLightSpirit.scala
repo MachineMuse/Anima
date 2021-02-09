@@ -29,10 +29,10 @@ object EntityLightSpirit extends ParameterRegistrar(classOf[EntityLightSpirit]) 
   @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {}
 
   private val ENTITY_LIGHT_SPIRIT = regEntityType[EntityLightSpirit]("lightspirit", () => EntityLightSpirit, new EntityLightSpirit(_,_), EntityClassification.MISC)
-  def getType = ENTITY_LIGHT_SPIRIT.get()
+  def getType = ENTITY_LIGHT_SPIRIT.get
 
   private val AIRLIGHT_BLOCK = regBlock("airlight", () => new AirLightBlock)
-  def getAirLightBlock = AIRLIGHT_BLOCK.get()
+  def getAirLightBlock = AIRLIGHT_BLOCK.get
 
   class AirLightBlock extends Block(AbstractBlock.Properties.create(Material.AIR).doesNotBlockMovement.noDrops.setLightLevel(_ => 15)) {
     override def getRenderType(state: BlockState): BlockRenderType = BlockRenderType.INVISIBLE

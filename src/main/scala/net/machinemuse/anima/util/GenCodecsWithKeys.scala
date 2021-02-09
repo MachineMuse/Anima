@@ -2,8 +2,6 @@ package net.machinemuse.anima
 package util
 
 import com.mojang.datafixers.util
-import util.VanillaCodecs.{EMPTYCODEC, STRINGCODEC}
-
 import com.mojang.serialization._
 import org.apache.logging.log4j.scala.Logging
 import shapeless.{:+:, ::, CNil, Coproduct, HList, HNil, Inl, Inr}
@@ -17,6 +15,7 @@ import scala.jdk.OptionConverters.{RichOption, RichOptional}
  */
 // For when we want to explicitly tag stuff
 object GenCodecsWithKeys extends Logging {
+  import VanillaCodecs._
   private final val TYPENAMECODEC = STRINGCODEC.fieldOf("type")
   trait HasMapCodecWithKeys[Values] {
     def genMapCodec(keys: List[String]): MapCodec[Values]
