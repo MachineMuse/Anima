@@ -3,8 +3,9 @@ package ghostdust
 
 import ghostdust.GhostDustingRecipe.GhostDustingIngredient
 import registration.{RegistryHelpers, SimpleItems}
+import util.GenCodecsByName._
 import util.VanillaClassEnrichers.{RichItemStack, mkRecipeProvider}
-import util.VanillaCodecs.{CodecByName, ConvenientCodec}
+import util.VanillaCodecs.ConvenientCodec
 
 import com.google.gson.JsonObject
 import com.mojang.serialization.Codec

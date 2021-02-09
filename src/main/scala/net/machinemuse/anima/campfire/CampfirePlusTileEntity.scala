@@ -4,8 +4,9 @@ package campfire
 import campfire.CampfirePlusTileEntity.{DustInfo, dustCodec}
 import entity.EntityLightSpirit
 import registration.RegistryHelpers._
+import util.GenCodecsByName._
 import util.NBTTypeRef
-import util.VanillaCodecs.{CodecByName, ConvenientCodec}
+import util.VanillaCodecs.{ConvenientCodec, _}
 
 import com.mojang.serialization.Codec
 import net.minecraft.block.{BlockState, Blocks}
@@ -39,7 +40,6 @@ object CampfirePlusTileEntity {
   def getType = CAMPFIREPLUS_TE.get()
 
   /*_*/
-  import util.VanillaCodecs._
   private val dustCodec = implicitly[Codec[List[DustInfo]]]
   /*_*/
 

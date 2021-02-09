@@ -2,6 +2,7 @@ package net.machinemuse.anima
 package registration
 
 import registration.RegistryHelpers.PARTICLES
+import util.GenCodecsByName._
 import util.VanillaCodecs._
 
 import com.mojang.serialization.Codec
@@ -24,7 +25,6 @@ object ParticlesGlobal extends Logging {
   @SubscribeEvent def onConstructMod(e: FMLConstructModEvent) = {}
 
   /*_*/ // Disable type-aware highlighting for this val 'cause IDEA can't find all the implicits
-  import util.VanillaCodecs._
   val CODEC: Codec[AnimaParticleData] = implicitly[Codec[AnimaParticleData]]
 
   val MOTE: RegistryObject[ParticleType[AnimaParticleData]] = PARTICLES.register("mote", () => CODEC.mkParticleType(true))

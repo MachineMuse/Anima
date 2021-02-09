@@ -5,8 +5,9 @@ import campfire.CampfireDustRecipe.CampfireDustIngredient
 import entity.EntityLightSpirit
 import registration.RegistryHelpers
 import util.Colour
+import util.GenCodecsByName.CodecByName
 import util.VanillaClassEnrichers.mkRecipeProvider
-import util.VanillaCodecs.{CodecByName, ConvenientCodec}
+import util.VanillaCodecs.ConvenientCodec
 
 import com.google.gson.JsonObject
 import com.mojang.serialization.Codec
@@ -30,6 +31,7 @@ import org.apache.logging.log4j.scala.Logging
 object CampfireDustRecipe extends Logging {
   @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {}
 
+  import util.GenCodecsByName._
   import util.VanillaCodecs._
   private val RecipeCodec = /*_*/ implicitly[Codec[CampfireDustRecipe]] /*_*/
   private val SERIALIZER = RegistryHelpers.regRecipeSerializer("campfire_dust", RecipeCodec, new CampfireDustRecipe(List.empty))
@@ -128,19 +130,13 @@ case class CampfireDustRecipe(ingredients: List[CampfireDustIngredient]) extends
   override def getRecipeOutput: ItemStack = ItemStack.EMPTY
 
   override def getID: ResourceLocation = getId
-
   override def getId: ResourceLocation = new ResourceLocation(Anima.MODID, "campfire_dust")
 
   override def getSerializer: IRecipeSerializer[_] = SERIALIZER.get
+  override def serialize(jsonOut: JsonObject): Unit =
+    RecipeCodec.writeIntoMutableJson(this, jsonOut).andDo(_ => if (getGroup.nonEmpty) jsonOut.addProperty("group", getGroup))
 
-  override def serialize(jsonOut: JsonObject): Unit = {
-    RecipeCodec.writeIntoMutableJson(this, jsonOut)
-    if (getGroup.nonEmpty) {
-      jsonOut.addProperty("group", getGroup)
-    }
-  }
-
+  // No advancements associated with 'unlocking' this recipe
   override def getAdvancementJson: JsonObject = null
-
   override def getAdvancementID: ResourceLocation = null
 }
