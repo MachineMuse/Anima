@@ -1,0 +1,17 @@
+{
+  "block.anima.campfireplus": "Enhanced Campfire",
+  "block.anima.clay_pot": "Clay Pot",
+  "item.anima.animalbones": "Animal Bones",
+  "item.anima.basket": "Basket",
+  "item.anima.birdbones": "Bird Bones",
+  "item.anima.bowl_of_salt": "Bowl of Salt",
+  "item.anima.bowl_of_water": "Bowl of Water",
+  "item.anima.campfire_ash": "Campfire Ash",
+  "item.anima.campfiredust": "Campfire Dust",
+  "item.anima.ghost_dust": "Ghost Dust",
+  "item.anima.ghost_dust_remover": "Ghost Dust Remover",
+  "item.anima.kindling": "Kindling",
+  "itemGroup.anima": "Anima",
+  "screen.anima.basket": "Basket",
+  "tooltip.anima.transparency": "Transparency: %s%%"
+}

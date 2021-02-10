@@ -16,7 +16,7 @@ import org.apache.logging.log4j.scala.Logging
 @EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Bus.MOD)
 object CampfireDustColour extends IItemColor with Logging {
   @SubscribeEvent def onItemColorEvent(event: ColorHandlerEvent.Item) = {
-    event.getItemColors.register(this, DustForCampfire.instance.get)
+    event.getItemColors.register(this, DustForCampfire.CAMPFIRE_DUST_ITEM.get)
   }
 
   val defaultColour = DyeColor.GREEN.getTextColor

@@ -2,7 +2,7 @@ package net.machinemuse.anima
 package registration
 
 import bowl.BowlWithContents
-import util.VanillaClassEnrichers.{CampfireRecipeBuilder, FancyShapedRecipeBuilder, FancyShapelessRecipeBuilder, mkRecipeProvider}
+import util.DatagenHelpers._
 
 import net.minecraft.block.Blocks
 import net.minecraft.data.{ShapedRecipeBuilder, ShapelessRecipeBuilder}
@@ -35,10 +35,11 @@ object SimpleItems {
 
   val GHOSTDUST_REMOVER_ITEM = regSimpleItem("ghost_dust_remover")
 
+  val CAMPFIRE_ASH = regSimpleItem("campfire_ash")
 
   @SubscribeEvent
-  def gatherData(event: GatherDataEvent): Unit = {
-    mkRecipeProvider(event) { consumer =>
+  def gatherData(implicit event: GatherDataEvent): Unit = {
+    mkRecipeProvider { consumer =>
 
       ShapedRecipeBuilder
         .shapedRecipe(Blocks.CAMPFIRE.asItem())
@@ -105,7 +106,29 @@ object SimpleItems {
 
       CampfireRecipeBuilder.campfireRecipe(ItemTags.LOGS_THAT_BURN, Items.CHARCOAL, 0.35F)
         .buildProperly(consumer, "charcoal_on_campfire")
-    }
 
+      CampfireRecipeBuilder.campfireRecipe(ItemTags.COALS, CAMPFIRE_ASH.get, 0.35F)
+        .buildProperly(consumer, "ash_on_campfire")
+    }
+    mkLanguageProvider("en_us") { lang =>
+      lang.addItem(KINDLING_ITEM.supplier, "Kindling")
+      lang.addItem(BIRDBONES_ITEM.supplier, "Bird Bones")
+      lang.addItem(ANIMALBONES_ITEM.supplier, "Animal Bones")
+      lang.addItem(GHOSTDUST_ITEM.supplier, "Ghost Dust")
+      lang.addItem(GHOSTDUST_REMOVER_ITEM.supplier, "Ghost Dust Remover")
+      lang.addItem(CAMPFIRE_ASH.supplier, "Campfire Ash")
+
+      lang.addCreativeGroup("Anima")
+    }
+    mkLanguageProvider("fr_fr") { lang =>
+      lang.addItem(KINDLING_ITEM.supplier, "Petit Bois d'Allumage")
+      lang.addItem(BIRDBONES_ITEM.supplier, "Os d'Oiseau")
+      lang.addItem(ANIMALBONES_ITEM.supplier, "Os d'Animal")
+      lang.addItem(GHOSTDUST_ITEM.supplier, "Poussière de Fantôme")
+      lang.addItem(GHOSTDUST_REMOVER_ITEM.supplier, "Détachant de Fantôme")
+      lang.addItem(CAMPFIRE_ASH.supplier, "Cendres de Feu de Camp")
+
+      lang.addCreativeGroup("Anima")
+    }
   }
 }

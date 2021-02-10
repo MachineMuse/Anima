@@ -6,9 +6,9 @@ import campfire.CampfireDustRecipe.CampfireDustIngredient
 import entity.EntityLightSpirit
 import registration.RegistryHelpers
 import util.Colour
-import util.GenCodecsByName.CodecByName
-import util.VanillaClassEnrichers.mkRecipeProvider
-import util.VanillaCodecs.ConvenientCodec
+import util.DatagenHelpers._
+import util.GenCodecsByName._
+import util.VanillaCodecs._
 
 import com.google.gson.JsonObject
 import com.mojang.serialization.Codec
@@ -32,8 +32,6 @@ import org.apache.logging.log4j.scala.Logging
 object CampfireDustRecipe extends Logging {
   @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {}
 
-  import util.GenCodecsByName._
-  import util.VanillaCodecs._
   private val RecipeCodec = /*_*/ implicitly[Codec[CampfireDustRecipe]] /*_*/
   private val SERIALIZER = RegistryHelpers.regRecipeSerializer("campfire_dust", RecipeCodec, new CampfireDustRecipe(List.empty, List.empty))
 
@@ -53,13 +51,16 @@ object CampfireDustRecipe extends Logging {
                                     attracts: Option[EntityType[_]] = None) extends CodecByName
 
   @SubscribeEvent
-  def gatherData(event: GatherDataEvent): Unit = mkRecipeProvider(event) { consumer =>
-    val colours = DyeColor.values().map(color => CampfireDustIngredient(DyeItem.getItem(color), outercolour = color.getColorValue.some, innercolour = color.getTextColor.some))
-    val defaultRecipe = CampfireDustRecipe(List(Items.GUNPOWDER, BowlWithContents.BOWL_OF_SALT.get), List(
-      CampfireDustIngredient(Items.CHARCOAL, attracts = EntityLightSpirit.getType.some)
-    ) ++ colours)
-    consumer.accept(defaultRecipe)
+  def gatherData(implicit event: GatherDataEvent): Unit = {
+    mkRecipeProvider { consumer =>
+      val colours = DyeColor.values().map(color => CampfireDustIngredient(DyeItem.getItem(color), outercolour = color.getColorValue.some, innercolour = color.getTextColor.some))
+      val defaultRecipe = CampfireDustRecipe(List(Items.GUNPOWDER, BowlWithContents.BOWL_OF_SALT.get), List(
+        CampfireDustIngredient(Items.CHARCOAL, attracts = EntityLightSpirit.getType.some)
+      ) ++ colours)
+      consumer.accept(defaultRecipe)
+    }
   }
+
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
@@ -81,7 +82,7 @@ case class CampfireDustRecipe(bases: List[Item], ingredients: List[CampfireDustI
   }
 
   override def getCraftingResult(inv: CraftingInventory): ItemStack = {
-    val output = new ItemStack(DustForCampfire.instance.get)
+    val output = new ItemStack(DustForCampfire.CAMPFIRE_DUST_ITEM.get)
     val stacks = (for (i <- 0 until inv.getSizeInventory) yield inv.getStackInSlot(i)).toList.filter(!_.isEmpty)
     var innerColour = 0
     var innerColoursFound = 0
@@ -132,7 +133,7 @@ case class CampfireDustRecipe(bases: List[Item], ingredients: List[CampfireDustI
   override def getRecipeOutput: ItemStack = ItemStack.EMPTY
 
   override def getID: ResourceLocation = getId
-  override def getId: ResourceLocation = new ResourceLocation(Anima.MODID, "campfire_dust")
+  override def getId: ResourceLocation = new ResourceLocation(implicitly[MODID], "campfire_dust")
 
   override def getSerializer: IRecipeSerializer[_] = SERIALIZER.get
   override def serialize(jsonOut: JsonObject): Unit =

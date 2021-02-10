@@ -1,7 +1,7 @@
 package net.machinemuse.anima
 package basket
 
-import basket.BasketContainer.getType
+import basket.BasketContainer.BASKET_CONTAINER
 import gui.HeldItemContainer
 import registration.RegistryHelpers._
 
@@ -20,12 +20,11 @@ import org.apache.logging.log4j.scala.Logging
 object BasketContainer {
 
   @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {}
-  val typeInstance = regContainerType("basket", (id, inv, buf) => new BasketContainer(id, inv, buf))
-  def getType = typeInstance.get
+  val BASKET_CONTAINER = regContainerType("basket", (id, inv, buf) => new BasketContainer(id, inv, buf))
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-class BasketContainer(windowID: Int, playerInventory: PlayerInventory, hand: Hand) extends HeldItemContainer(playerInventory, hand, Basket.getInstance, getType, windowID) with Logging {
+class BasketContainer(windowID: Int, playerInventory: PlayerInventory, hand: Hand) extends HeldItemContainer(playerInventory, hand, Basket.BASKET_ITEM.get, BASKET_CONTAINER.get, windowID) with Logging {
   for (x <- 0 until 3) {
     for (y <- 0 until 3) {
       this.addSlot(mkInnerSlot(y + x * 3, 62 + y * 18, 17 + x * 18))

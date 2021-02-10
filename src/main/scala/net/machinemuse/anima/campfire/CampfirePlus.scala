@@ -2,10 +2,10 @@ package net.machinemuse.anima
 package campfire
 
 import registration.RegistryHelpers._
+import util.DatagenHelpers.{mkBlockTagsProvider, mkLanguageProvider}
 
 import net.minecraft.block._
 import net.minecraft.block.material.{Material, MaterialColor}
-import net.minecraft.data.BlockTagsProvider
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.state.Property
 import net.minecraft.state.properties.BlockStateProperties
@@ -30,14 +30,16 @@ object CampfirePlus {
   @SubscribeEvent def onConstructMod(e: FMLConstructModEvent) = {}
 
   // Add CampfirePlus to the list of valid Campfires so e.g. flint & steel can light them if doused
-  @SubscribeEvent def gatherData(event: GatherDataEvent): Unit = {
-    event.getGenerator.addProvider(
-      new BlockTagsProvider(event.getGenerator, Anima.MODID, null) {
-        override def registerTags(): Unit = {
-          this.getOrCreateBuilder(BlockTags.CAMPFIRES).add(CampfirePlus.getBlock)
-        }
-      }
-    )
+  @SubscribeEvent def gatherData(implicit event: GatherDataEvent): Unit = {
+    mkBlockTagsProvider(BlockTags.CAMPFIRES){ builder =>
+      builder.add(CampfirePlus.getBlock)
+    }
+    mkLanguageProvider("en_us"){ lang =>
+      lang.addBlock(CAMPFIREPLUS_BLOCK.registryObject, "Enhanced Campfire")
+    }
+    mkLanguageProvider("fr_fr"){ lang =>
+      lang.addBlock(CAMPFIREPLUS_BLOCK.registryObject, "Feu de Camp Amélioré")
+    }
   }
 
   private val DATA_NAME = "campfireplus"

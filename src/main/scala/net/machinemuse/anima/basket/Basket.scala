@@ -4,6 +4,7 @@ package basket
 import item.InventoriedItem
 import registration.RegistryHelpers._
 import registration.SimpleItems.AnimaCreativeGroup
+import util.DatagenHelpers._
 import util.VanillaClassEnrichers._
 
 import net.minecraft.client.util.ITooltipFlag
@@ -42,8 +43,8 @@ object Basket extends Logging {
   def onEntityItemPickup(event: EntityItemPickupEvent): Unit = {
     // Iterate through the player's inventory slots for baskets
     for { slotStack <- event.getPlayer.inventory.mainInventory.asScala ++ event.getPlayer.inventory.offHandInventory.asScala} {
-      if(slotStack.getItem == Basket.getInstance) {
-        val remainder = Basket.getInstance.insertItem(slotStack, event.getItem.getItem)
+      if(slotStack.getItem == Basket.BASKET_ITEM.get) {
+        val remainder = Basket.BASKET_ITEM.get.insertItem(slotStack, event.getItem.getItem)
         event.getItem.setItem(remainder)
       }
     }
@@ -52,31 +53,39 @@ object Basket extends Logging {
     }
   }
 
-  private val instance = regExtendedItem("basket", () => new Basket)
-  def getInstance = instance.get
+  val BASKET_ITEM = regExtendedItem("basket", () => new Basket)
 
   @SubscribeEvent
-  def gatherData(event: GatherDataEvent): Unit = {
+  def gatherData(implicit event: GatherDataEvent): Unit = {
     logger.trace("BasketDatagen.gatherData called")
-    mkRecipeProvider(event) { consumer =>
-      ShapedRecipeBuilder.shapedRecipe(getInstance)
-        .patternLine(" / ")
-        .patternLine("# #")
-        .patternLine("###")
-        .addKeyAsCriterion('/', Items.STICK)
-        .addKeyAsCriterion('#', Items.SUGAR_CANE)
-        .setGroup("basket")
-        .buildProperly(consumer, "basket_from_sugar_cane")
+    mkRecipeProvider({ consumer =>
+          ShapedRecipeBuilder.shapedRecipe(BASKET_ITEM.get)
+            .patternLine(" / ")
+            .patternLine("# #")
+            .patternLine("###")
+            .addKeyAsCriterion('/', Items.STICK)
+            .addKeyAsCriterion('#', Items.SUGAR_CANE)
+            .setGroup("basket")
+            .buildProperly(consumer, "basket_from_sugar_cane")
 
-      ShapedRecipeBuilder.shapedRecipe(getInstance)
-        .patternLine(" / ")
-        .patternLine("# #")
-        .patternLine("###")
-        .addKeyAsCriterion('/', Items.STICK)
-        .addKeyAsCriterion('#', Items.BAMBOO)
-        .setGroup("basket")
-        .buildProperly(consumer, "basket_from_bamboo")
-    }
+          ShapedRecipeBuilder.shapedRecipe(BASKET_ITEM.get)
+            .patternLine(" / ")
+            .patternLine("# #")
+            .patternLine("###")
+            .addKeyAsCriterion('/', Items.STICK)
+            .addKeyAsCriterion('#', Items.BAMBOO)
+            .setGroup("basket")
+            .buildProperly(consumer, "basket_from_bamboo")
+        })
+
+    mkLanguageProvider("en_us")({ lang =>
+          lang.addItem(BASKET_ITEM.supplier, "Basket")
+          lang.addScreen("basket", "Basket")
+        })
+    mkLanguageProvider("fr_fr")({ lang =>
+          lang.addItem(BASKET_ITEM.supplier, "Panier")
+          lang.add("basket", "Panier")
+        })
   }
 
   val properties = new Item.Properties().maxStackSize(1).group(AnimaCreativeGroup).setISTER(() => BasketISTER.mkISTER)

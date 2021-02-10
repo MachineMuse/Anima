@@ -29,7 +29,7 @@ import java.util.function.Supplier
 object RegistryHelpers extends Logging {
 
   def mkRegister[T <: IForgeRegistryEntry[T], RT <: IForgeRegistry[T]](registry: RT): DeferredRegister[T] = {
-    DeferredRegister.create[T](registry, Anima.MODID).andDo(_.register(FMLJavaModLoadingContext.get.getModEventBus))
+    DeferredRegister.create[T](registry, implicitly[MODID]).andDo(_.register(FMLJavaModLoadingContext.get.getModEventBus))
   }
 
   val ITEMS: DeferredRegister[Item] = mkRegister(ForgeRegistries.ITEMS)
@@ -80,12 +80,12 @@ object RegistryHelpers extends Logging {
   }
 
   def regSimpleItem(name: String, props: Option[ItemProperties] = None): ConvenientRegistryObject[Item] = {
-    val concreteprops = props.map(_.apply).getOrElse(ItemProperties().apply)
+    val concreteprops = props.getOrElse(ItemProperties()).apply
     ConvenientRegistryObject(ITEMS.register(name, () => new Item(concreteprops)))
   }
 
   def regSimpleBlockItem[B <: Block](name: String, blockRegister: RegistryObject[B], props: Option[ItemProperties] = None): ConvenientRegistryObject[BlockItem]= {
-    val concreteprops = props.map(_.apply).getOrElse(new Item.Properties)
+    val concreteprops = props.getOrElse(ItemProperties()).apply
     ConvenientRegistryObject(ITEMS.register(name, () => new BlockItem(blockRegister.get(), concreteprops)))
   }
 
@@ -101,7 +101,7 @@ object RegistryHelpers extends Logging {
     ConvenientRegistryObject(CONTAINERS.register(name, () => IForgeContainerType.create(fac)))
   }
 
-  def regCreativeTab(item: () => RegistryObject[Item]) = new ItemGroup(Anima.MODID) {
+  def regCreativeTab(item: () => RegistryObject[Item]) = new ItemGroup(implicitly[MODID]) {
     override def createIcon(): ItemStack = {
       item().get.getDefaultInstance
     }
@@ -111,6 +111,7 @@ object RegistryHelpers extends Logging {
     def unapply = registryObject.get
     def apply() = registryObject.get
     def get = registryObject.get
+    def supplier: Supplier[T] = () => registryObject.get
   }
 
 }

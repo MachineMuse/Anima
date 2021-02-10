@@ -13,6 +13,6 @@ import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
  */
 @OnlyIn(Dist.CLIENT)
 class LightSpiritRenderer(manager: EntityRendererManager) extends EntityRenderer[EntityLightSpirit](manager) {
-  private val TEXTURE = new ResourceLocation(Anima.MODID, "textures/entity/sparkle.png")
+  private val TEXTURE = new ResourceLocation(implicitly[MODID], "textures/entity/sparkle.png")
   @Nullable def getEntityTexture(entity: EntityLightSpirit): ResourceLocation = TEXTURE
 }

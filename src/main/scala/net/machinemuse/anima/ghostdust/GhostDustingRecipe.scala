@@ -3,8 +3,9 @@ package ghostdust
 
 import ghostdust.GhostDustingRecipe.GhostDustingIngredient
 import registration.{RegistryHelpers, SimpleItems}
+import util.DatagenHelpers.{mkLanguageProvider, mkRecipeProvider}
 import util.GenCodecsByName._
-import util.VanillaClassEnrichers.{RichItemStack, mkRecipeProvider}
+import util.VanillaClassEnrichers.RichItemStack
 import util.VanillaCodecs.ConvenientCodec
 
 import com.google.gson.JsonObject
@@ -43,22 +44,28 @@ object GhostDustingRecipe extends Logging {
 
   @SubscribeEvent
   def gatherData(event: GatherDataEvent): Unit = {
-    mkRecipeProvider(event) { consumer =>
-      val defaultRecipe = GhostDustingRecipe(
-        List(
-          GhostDustingIngredient(SimpleItems.GHOSTDUST_REMOVER_ITEM.get, -1.0F, 1, true),
-          GhostDustingIngredient(SimpleItems.GHOSTDUST_ITEM.get, 0.125F, 0, false)
-        )
-      )
-      consumer.accept(defaultRecipe)
-    }
+    mkRecipeProvider({ consumer =>
+          val defaultRecipe = GhostDustingRecipe(
+            List(
+              GhostDustingIngredient(SimpleItems.GHOSTDUST_REMOVER_ITEM.get, -1.0F, 1, true),
+              GhostDustingIngredient(SimpleItems.GHOSTDUST_ITEM.get, 0.125F, 0, false)
+            )
+          )
+          consumer.accept(defaultRecipe)
+        })(event)
+    mkLanguageProvider("en_us")({lang =>
+          lang.addTooltip("transparency", "Transparency: %s%%")
+        })(event)
+    mkLanguageProvider("fr_fr")({lang =>
+          lang.addTooltip("transparency", "Transparence: %s%%")
+        })(event)
   }
   @OnlyIn(Dist.CLIENT) @SubscribeEvent def onClientSetup(event: FMLClientSetupEvent) = addForgeListeners(onItemTooltip)
 
   @OnlyIn(Dist.CLIENT) def onItemTooltip(event: ItemTooltipEvent): Unit = {
     if(event.getItemStack.hasTransparency)
       event.getToolTip.add(
-        new TranslationTextComponent(s"tooltip.${Anima.MODID}.transparency", (event.getItemStack.getTransparency * 100).toString)
+        new TranslationTextComponent(s"tooltip.${implicitly[MODID]}.transparency", (event.getItemStack.getTransparency * 100).toString)
           .mergeStyle(TextFormatting.GRAY, TextFormatting.ITALIC)
       )
   }
@@ -161,7 +168,7 @@ case class GhostDustingRecipe(items: List[GhostDustingIngredient]) extends ICraf
   override def getRecipeOutput: ItemStack = ItemStack.EMPTY
 
   override def getID: ResourceLocation = getId
-  override def getId: ResourceLocation = new ResourceLocation(Anima.MODID, "ghost_dusting")
+  override def getId: ResourceLocation = new ResourceLocation(implicitly[MODID], "ghost_dusting")
 
   override def getSerializer: IRecipeSerializer[_] = SERIALIZER.get
 }

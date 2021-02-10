@@ -4,7 +4,7 @@ package bowl
 import registration.RegistryHelpers.regExtendedItem
 import registration.SimpleItems
 import util.BlockStateFlags
-import util.VanillaClassEnrichers.{CampfireRecipeBuilder, mkRecipeProvider}
+import util.DatagenHelpers._
 
 import net.minecraft.block.{Blocks, FlowingFluidBlock}
 import net.minecraft.fluid.Fluids
@@ -43,7 +43,7 @@ object BowlWithContents extends Logging {
                 val result = DrinkHelper.fill(itemInUse, player, bowlOfWater, false)
                 event.setCanceled(true)
                 player.setHeldItem(event.getHand, result)
-
+              case _ =>
           }
           case RayTraceResult.Type.ENTITY =>
           case RayTraceResult.Type.MISS =>
@@ -69,7 +69,7 @@ object BowlWithContents extends Logging {
           case RayTraceResult.Type.ENTITY =>
           case RayTraceResult.Type.MISS =>
         }
-
+      case _ =>
 
     }
   }
@@ -81,11 +81,19 @@ object BowlWithContents extends Logging {
   val BOWL_OF_WATER = regExtendedItem("bowl_of_water", () => new BowlWithContents(properties, Fluids.WATER.getAttributes.getColor))
   val BOWL_OF_SALT = regExtendedItem("bowl_of_salt", () => new BowlWithContents(properties, 0xFFFFFFFF))
 
-  @SubscribeEvent def onGatherData(event: GatherDataEvent): Unit = {
-    mkRecipeProvider(event) { consumer =>
-      CampfireRecipeBuilder.campfireRecipe(BOWL_OF_WATER.get, BOWL_OF_SALT.get, 0.1F)
-        .buildProperly(consumer, "salt_from_water_campfire")
-    }
+  @SubscribeEvent def onGatherData(implicit event: GatherDataEvent): Unit = {
+    mkRecipeProvider({ consumer =>
+          CampfireRecipeBuilder.campfireRecipe(BOWL_OF_WATER.get, BOWL_OF_SALT.get, 0.1F)
+            .buildProperly(consumer, "salt_from_water_campfire")
+        })
+    mkLanguageProvider("en_us")({ lang =>
+          lang.addItem(BOWL_OF_WATER.registryObject, "Bowl of Water")
+          lang.addItem(BOWL_OF_SALT.registryObject, "Bowl of Salt")
+        })
+    mkLanguageProvider("fr_fr")({ lang =>
+          lang.addItem(BOWL_OF_WATER.registryObject, "Bol d'Eau")
+          lang.addItem(BOWL_OF_SALT.registryObject, "Bol de Sel")
+        })
   }
 }
 

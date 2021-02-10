@@ -2,6 +2,7 @@ package net.machinemuse
 
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.nbt._
+import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math._
 import net.minecraft.world.World
 import net.minecraft.world.server.ServerWorld
@@ -17,6 +18,15 @@ import java.util.function.Consumer
  * Created by MachineMuse on 1/29/2021.
  */
 package object anima {
+
+  case class MODID(name: String) {
+    override def toString = name
+  }
+  implicit def modidToString(m: MODID) = m.name
+  implicit final val ANIMA_MODID = MODID(Anima.MODID)
+
+  def modLoc(path: String) = new ResourceLocation(implicitly[MODID], path)
+
   implicit class Optionable[A](a: A) {
     def some: Option[A] = Some(a)
     def none: Option[A] = None
@@ -202,6 +212,9 @@ package object anima {
 
     implicit def biconsumer1P2Supplier[P,S](f: (P, () => S) => Unit): BiConsumer[P, Supplier[S]] = (p, s) => f(p,() => s.get())
   }
+
+  implicit def MCUnitToScalaUnit(unit : Unit): net.minecraft.util.Unit = net.minecraft.util.Unit.INSTANCE
+  implicit def ScalaUnitToMCUnit(unit: net.minecraft.util.Unit): Unit = ()
 
   implicit class OffThreadEvent(evt: ParallelDispatchEvent) {
     def doOnMainThread(f: () => Unit) = evt.enqueueWork(new Runnable() {def run() = f()})

@@ -66,7 +66,7 @@ object ClientSetup extends Logging {
   def onClientSetup(event: FMLClientSetupEvent) : Unit = {
     val minecraft = event.getMinecraftSupplier.get()
     logger.debug("setting up client, event triggered")
-    ScreenManager.registerFactory[BasketContainer, BasketGui](BasketContainer.getType, new BasketGui(_, _, _)) // type annotations added for IntelliJ's sake
+    ScreenManager.registerFactory[BasketContainer, BasketGui](BasketContainer.BASKET_CONTAINER.get, new BasketGui(_, _, _)) // type annotations added for IntelliJ's sake
 
     RenderingRegistry.registerEntityRenderingHandler(EntityLightSpirit.getType, new LightSpiritRenderer(_))
     for( key <- KeyBindings.keybinds) {

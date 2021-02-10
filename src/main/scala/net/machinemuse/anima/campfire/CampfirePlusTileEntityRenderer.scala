@@ -1,7 +1,6 @@
 package net.machinemuse.anima
 package campfire
 
-import campfire.CampfirePlusTileEntityRenderer.{FLAMES_MODEL_LOCATION, campfireTER}
 import client.ClientSetup
 import util.Colour
 import util.RenderingShorthand.withPushedMatrix
@@ -33,7 +32,7 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
  * Created by MachineMuse on 1/24/2021.
  */
 object CampfirePlusTileEntityRenderer extends Logging {
-  val FLAMES_MODEL_LOCATION = new ResourceLocation(Anima.MODID, "block/campfireplus_flames")
+  val FLAMES_MODEL_LOCATION = new ResourceLocation(implicitly[MODID], "block/campfireplus_flames")
 
   @SubscribeEvent def onClientSetup(event: FMLClientSetupEvent) = {
     RenderTypeLookup.setRenderLayer(CampfirePlus.getBlock, RenderType.getCutout)
@@ -42,7 +41,7 @@ object CampfirePlusTileEntityRenderer extends Logging {
 
   @SubscribeEvent def setupModels(event: ModelRegistryEvent): Unit = ModelLoader.addSpecialModel(FLAMES_MODEL_LOCATION)
 
-  @SubscribeEvent def gatherData(event: GatherDataEvent): Unit = {
+  @SubscribeEvent def gatherData(implicit event: GatherDataEvent): Unit = {
 
   }
 
@@ -50,6 +49,7 @@ object CampfirePlusTileEntityRenderer extends Logging {
 }
 @EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Bus.MOD)
 class CampfirePlusTileEntityRenderer(dispatcher: TileEntityRendererDispatcher) extends TileEntityRenderer[CampfirePlusTileEntity](dispatcher) {
+  import campfire.CampfirePlusTileEntityRenderer._
 
   // Can't extend CampfireTileEntityRenderer because it locks in the type argument
   override def render (tileEntity: CampfirePlusTileEntity, partialTicks: Float, matrixStack: MatrixStack, buffer: IRenderTypeBuffer, combinedLight: Int, combinedOverlay: Int): Unit = {

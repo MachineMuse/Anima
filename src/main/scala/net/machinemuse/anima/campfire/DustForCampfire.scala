@@ -5,6 +5,7 @@ import entity.EntityLightSpirit
 import registration.ParticlesGlobal.AnimaParticleData
 import registration.RegistryHelpers._
 import registration.SimpleItems._
+import util.DatagenHelpers.mkLanguageProvider
 import util.{BlockStateFlags, Colour}
 
 import net.minecraft.block.CampfireBlock
@@ -18,7 +19,7 @@ import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
-import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
+import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataEvent}
 import org.apache.logging.log4j.scala.Logging
 
 import scala.util.Random
@@ -30,8 +31,18 @@ import scala.util.Random
 object DustForCampfire {
   @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {} // Ensures the class gets initialized when the mod is constructed
 
-  final val instance = regExtendedItem("campfiredust", () => new DustForCampfire)
-  def getInstance = instance.get
+  final val CAMPFIRE_DUST_ITEM = regExtendedItem("campfiredust", () => new DustForCampfire)
+  def getInstance = CAMPFIRE_DUST_ITEM.get
+
+
+  @SubscribeEvent def gatherData(implicit event: GatherDataEvent): Unit = {
+    mkLanguageProvider("en_us") { lang =>
+      lang.addItem(CAMPFIRE_DUST_ITEM.registryObject, "Campfire Dust")
+    }
+    mkLanguageProvider("fr_fr") { lang =>
+      lang.addItem(CAMPFIRE_DUST_ITEM.registryObject, "Poussière pour Feu de Camp")
+    }
+  }
 }
 
 // counterintuitively, this will autosubscribe all the methods annotated with @SubscribeEvent in the companion object above.

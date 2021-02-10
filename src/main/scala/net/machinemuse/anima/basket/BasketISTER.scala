@@ -33,7 +33,7 @@ object BasketISTER extends Logging {
     ModelLoader.addSpecialModel(MODEL_LOCATION)
   }
 
-  private val MODEL_LOCATION = new ResourceLocation(Anima.MODID, "item/basket_underlay")
+  private val MODEL_LOCATION = new ResourceLocation(implicitly[MODID], "item/basket_underlay")
 
   def mkISTER: Callable[ItemStackTileEntityRenderer] = () => new BasketISTER
 }
@@ -52,7 +52,7 @@ class BasketISTER extends ItemStackTileEntityRenderer with Logging {
                              ): Unit = {
     transformType match {
       case TransformType.GUI =>
-        val selectedInBasket = Basket.getInstance.getSelectedStack(bag)
+        val selectedInBasket = Basket.BASKET_ITEM.get.getSelectedStack(bag)
         doRenderModel(bag, transformType, matrixStack, buffer, combinedLight, combinedOverlay)
 
         if(!selectedInBasket.isEmpty) {

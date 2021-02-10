@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:campfire_cooking",
+  "ingredient": {
+    "tag": "minecraft:coals"
+  },
+  "result": "anima:campfire_ash",
+  "experience": 0.35,
+  "cookingtime": 600
+}

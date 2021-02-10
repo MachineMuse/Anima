@@ -1,0 +1,17 @@
+{
+  "basket": "Panier",
+  "block.anima.campfireplus": "Feu de Camp Am\u00E9lior\u00E9",
+  "block.anima.clay_pot": "Pot en Argile",
+  "item.anima.animalbones": "Os d'Animal",
+  "item.anima.basket": "Panier",
+  "item.anima.birdbones": "Os d'Oiseau",
+  "item.anima.bowl_of_salt": "Bol de Sel",
+  "item.anima.bowl_of_water": "Bol d'Eau",
+  "item.anima.campfire_ash": "Cendres de Feu de Camp",
+  "item.anima.campfiredust": "Poussi\u00E8re pour Feu de Camp",
+  "item.anima.ghost_dust": "Poussi\u00E8re de Fant\u00F4me",
+  "item.anima.ghost_dust_remover": "D\u00E9tachant de Fant\u00F4me",
+  "item.anima.kindling": "Petit Bois d'Allumage",
+  "itemGroup.anima": "Anima",
+  "tooltip.anima.transparency": "Transparence: %s%%"
+}
