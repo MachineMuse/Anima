@@ -13,7 +13,6 @@ import net.minecraft.item.crafting.{IRecipe, IRecipeSerializer}
 import net.minecraft.particles.ParticleType
 import net.minecraft.tileentity.{TileEntity, TileEntityType}
 import net.minecraft.world.World
-import net.minecraftforge.common.ToolType
 import net.minecraftforge.common.extensions.IForgeContainerType
 import net.minecraftforge.fml.RegistryObject
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
@@ -60,33 +59,18 @@ object RegistryHelpers extends Logging {
   case class Damageable(maxDamage: Int, defaultMaxDamage: Int)
   case class Stackable(maxStackSize: Int)
 
-  case class ItemProperties(creativeGroup: Option[ItemGroup] = None, food: Option[Food] = None,
-                            stackOrDamage: Either[Damageable, Stackable] = Right(Stackable(64)),
-                            fireImmune: Boolean = false, noRepair: Boolean = false,
-                            toolTypes: Set[(ToolType, Int)] = Set.empty, rarity: Rarity = Rarity.COMMON) {
-    def apply: Item.Properties = {
-      val applyProps =
-        creativeGroup.fold[Item.Properties => Item.Properties](_.group(AnimaCreativeGroup))(g => it => it.group(g)) andThen
-          food.foldId[Item.Properties](_.food(_)) andThen
-          (firstip => toolTypes.foldLeft(firstip) { case (ip, (typ, level)) => ip.addToolType(typ, level) }) andThen
-          stackOrDamage.fold(m => { i: Item.Properties => i.maxDamage(m.maxDamage).defaultMaxDamage(m.defaultMaxDamage) }, s => { i: Item.Properties => i.maxStackSize(s.maxStackSize) }) andThen
-          (if (fireImmune) _.isImmuneToFire else identity[Item.Properties]) andThen
-          (if (noRepair) _.setNoRepair else identity[Item.Properties]) andThen
-          (_.rarity(rarity))
+  def DEFAULT_ITEM_PROPERTIES = new Item.Properties().group(AnimaCreativeGroup).maxStackSize(64)
 
-      applyProps(new Item.Properties)
-    }
-
+  def regSimpleItem(name: String, props: Item.Properties = DEFAULT_ITEM_PROPERTIES): ConvenientRegistryObject[Item] = {
+    ConvenientRegistryObject(ITEMS.register(name, () => new Item(props)))
   }
 
-  def regSimpleItem(name: String, props: Option[ItemProperties] = None): ConvenientRegistryObject[Item] = {
-    val concreteprops = props.getOrElse(ItemProperties()).apply
-    ConvenientRegistryObject(ITEMS.register(name, () => new Item(concreteprops)))
+  def regSimpleBlockItem[B <: Block](name: String, blockRegister: RegistryObject[B], props: Item.Properties = DEFAULT_ITEM_PROPERTIES): ConvenientRegistryObject[BlockItem]= {
+    ConvenientRegistryObject(ITEMS.register(name, () => new BlockItem(blockRegister.get(), props)))
   }
 
-  def regSimpleBlockItem[B <: Block](name: String, blockRegister: RegistryObject[B], props: Option[ItemProperties] = None): ConvenientRegistryObject[BlockItem]= {
-    val concreteprops = props.getOrElse(ItemProperties()).apply
-    ConvenientRegistryObject(ITEMS.register(name, () => new BlockItem(blockRegister.get(), concreteprops)))
+  def regNamedBlockItem[B <: Block](name: String, blockRegister: RegistryObject[B], props: Item.Properties = DEFAULT_ITEM_PROPERTIES): ConvenientRegistryObject[BlockItem]= {
+    ConvenientRegistryObject(ITEMS.register(name, () => new BlockNamedItem(blockRegister.get(), props)))
   }
 
   def regExtendedItem[I <: Item](name: String, supp: Supplier[I]): ConvenientRegistryObject[I] = {

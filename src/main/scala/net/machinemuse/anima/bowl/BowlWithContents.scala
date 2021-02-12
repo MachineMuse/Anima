@@ -1,8 +1,9 @@
 package net.machinemuse.anima
 package bowl
 
-import registration.RegistryHelpers.regExtendedItem
+import registration.RegistryHelpers.{regExtendedItem, regNamedBlockItem}
 import registration.SimpleItems
+import salt.SaltLine
 import util.BlockStateFlags
 import util.DatagenHelpers._
 
@@ -36,14 +37,13 @@ object BowlWithContents extends Logging {
         raytraceresult.getType match {
           case RayTraceResult.Type.BLOCK =>
             val fluidState = event.getWorld.getBlockState(raytraceresult.getPos).getFluidState
-            if(!fluidState.isEmpty)
-             fluidState.getFluid match {
+            fluidState.getFluid match {
               case Fluids.WATER | Fluids.FLOWING_WATER =>
                 val bowlOfWater = new ItemStack(BOWL_OF_WATER.get)
                 val result = DrinkHelper.fill(itemInUse, player, bowlOfWater, false)
                 event.setCanceled(true)
                 player.setHeldItem(event.getHand, result)
-              case _ =>
+            case _ =>
           }
           case RayTraceResult.Type.ENTITY =>
           case RayTraceResult.Type.MISS =>
@@ -69,6 +69,8 @@ object BowlWithContents extends Logging {
           case RayTraceResult.Type.ENTITY =>
           case RayTraceResult.Type.MISS =>
         }
+//      case BOWL_OF_SALT =>
+//        val raytraceresult = rayTrace(event.getWorld, player, RayTraceContext.FluidMode.ANY)
       case _ =>
 
     }
@@ -79,7 +81,7 @@ object BowlWithContents extends Logging {
 
   val properties = new Item.Properties().maxStackSize(16).group(SimpleItems.AnimaCreativeGroup).containerItem(Items.BOWL)
   val BOWL_OF_WATER = regExtendedItem("bowl_of_water", () => new BowlWithContents(properties, Fluids.WATER.getAttributes.getColor))
-  val BOWL_OF_SALT = regExtendedItem("bowl_of_salt", () => new BowlWithContents(properties, 0xFFFFFFFF))
+  val BOWL_OF_SALT = regNamedBlockItem("bowl_of_salt", SaltLine.SALT_LINE_BLOCK.registryObject)
 
   @SubscribeEvent def onGatherData(implicit event: GatherDataEvent): Unit = {
     mkRecipeProvider({ consumer =>

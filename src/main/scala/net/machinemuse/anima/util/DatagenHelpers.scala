@@ -21,6 +21,7 @@ import org.apache.logging.log4j.scala.Logging
 
 import java.util.function.Consumer
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 /**
  * Created by MachineMuse on 2/9/2021.
@@ -81,6 +82,20 @@ object DatagenHelpers extends Logging {
         }
       }
     )
+  }
+  implicit class PartBuilderWorkaround(builder: MultiPartBlockStateBuilder#PartBuilder) {
+    // added this because it compiles to Object[] instead of Comparable[] for some reason
+    def saferCondition[T <: Comparable[T]](property: Property[T], values: T*): MultiPartBlockStateBuilder#PartBuilder = {
+      // TODO: safecheck this somehow
+//      Preconditions.checkNotNull(property, "Property must not be null")
+//      Preconditions.checkNotNull(values, "Value list must not be null")
+//      Preconditions.checkArgument(values.length > 0, "Value list must not be empty")
+//      Preconditions.checkArgument(!builder.conditions.containsKey(property), "Cannot set condition for property \"%s\" more than once", prop.getName)
+//      Preconditions.checkArgument(builder.canApplyTo(owner), "IProperty %s is not valid for the block %s", prop, owner)
+      builder.conditions.putAll(property.asInstanceOf[Property[_]], values.map(_.asInstanceOf[Comparable[_]]).toList.asJava)
+
+      builder
+    }
   }
 
   def mkSimpleBlockItemModel(block: Block, file: ModelFile)(implicit event: GatherDataEvent): Unit = {

@@ -6,7 +6,7 @@ import util.DatagenHelpers._
 
 import net.minecraft.block.Blocks
 import net.minecraft.data.{ShapedRecipeBuilder, ShapelessRecipeBuilder}
-import net.minecraft.item.Items
+import net.minecraft.item.{Item, Items}
 import net.minecraft.tags.ItemTags
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
@@ -22,7 +22,7 @@ object SimpleItems {
 
   @SubscribeEvent def onConstructMod(e: FMLConstructModEvent) = {}
 
-  val SPIRITFIRE_ITEM = regSimpleItem("spiritfire", ItemProperties(creativeGroup = Some(null)).some)
+  val SPIRITFIRE_ITEM = regSimpleItem("spiritfire", new Item.Properties())
   val AnimaCreativeGroup = regCreativeTab(() => SPIRITFIRE_ITEM.registryObject)
 
   val KINDLING_ITEM = regSimpleItem("kindling")
