@@ -1,0 +1,10 @@
+{
+  "homepage": "https://github.com/MachineMuse/Anima",
+  "1.16.4": {
+    "0.0.1": "WIP"
+  },
+  "promos": {
+    "1.16.4-latest": "0.0.1",
+    "1.16.4-recommended": "0.0.1"
+  }
+}
