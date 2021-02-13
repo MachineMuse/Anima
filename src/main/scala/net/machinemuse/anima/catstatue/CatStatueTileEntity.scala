@@ -42,7 +42,7 @@ class CatStatueTileEntity extends TileEntity(CatStatueTileEntity.TYPE.get) with 
 
   def addFuel(burnTime: Int) = {
     BURNTIME += burnTime
-    world.setBlockState(pos, getBlockState.updated(CatStatueBlock.LIT, Boolean.box(true)))
+    world.setBlockState(pos, getBlockState.updated(CatStatueBlock.LIT, true))
   }
 
   override def tick(): Unit = {
@@ -61,7 +61,7 @@ class CatStatueTileEntity extends TileEntity(CatStatueTileEntity.TYPE.get) with 
           BOILTIME += 1
           if (BOILTIME > BOILAWAY_EVERY) {
             val newWaterLevel = getBlockState.get(CatStatueBlock.WATERLEVEL) - 1
-            world.setBlockState(pos, getBlockState.updated(CatStatueBlock.WATERLEVEL, Int.box(newWaterLevel)))
+            world.setBlockState(pos, getBlockState.updated(CatStatueBlock.WATERLEVEL, newWaterLevel))
             BOILTIME = 0
             if(newWaterLevel <= 0) {
               myCap.removeCatStatue(pos)
@@ -74,7 +74,7 @@ class CatStatueTileEntity extends TileEntity(CatStatueTileEntity.TYPE.get) with 
         }
         this.markDirty()
       } else {
-        world.setBlockState(pos, getBlockState.updated(CatStatueBlock.LIT, Boolean.box(false)))
+        world.setBlockState(pos, getBlockState.updated(CatStatueBlock.LIT, false))
         this.markDirty()
       }
 

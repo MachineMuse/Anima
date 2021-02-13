@@ -77,7 +77,7 @@ object CatStatueBlock extends Logging {
         for(i <- 1 to 3) {
           builder.part.modelFile(waterModels(i-1)).rotationY(index * 90).addModel()
             .saferCondition(FACING, HORIZONTAL_DIRECTIONS(index))
-            .saferCondition(WATERLEVEL, Int.box(i))
+            .saferCondition(WATERLEVEL, i)
         }
         builder.part.modelFile(catModel).rotationY(index * 90).addModel()
           .saferCondition(FACING, HORIZONTAL_DIRECTIONS(index))
@@ -92,7 +92,7 @@ object CatStatueBlock extends Logging {
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
 class CatStatueBlock(properties: AbstractBlock.Properties) extends Block(properties) with Logging {
   import CatStatueBlock._
-  setDefaultState(this.stateContainer.getBaseState.updated(WATERLEVEL, Int.box(0)).updated(FACING, Direction.NORTH))
+  setDefaultState(this.stateContainer.getBaseState.updated(WATERLEVEL,0).updated(FACING, Direction.NORTH))
 
   override def getShape(state: BlockState, worldIn: IBlockReader, pos: BlockPos, context: ISelectionContext): VoxelShape = {
     state.get(FACING) match {
@@ -113,7 +113,7 @@ class CatStatueBlock(properties: AbstractBlock.Properties) extends Block(propert
         val emptyBowl = new ItemStack(Items.BOWL)
         val result = DrinkHelper.fill(itemInUse, player, emptyBowl, false)
         player.setHeldItem(hand, result)
-        world.setBlockState(pos, state.updated(WATERLEVEL, Int.box(waterLevel + 1)))
+        world.setBlockState(pos, state.updated(WATERLEVEL, waterLevel + 1))
         ActionResultType.SUCCESS
       } else {
         ActionResultType.PASS

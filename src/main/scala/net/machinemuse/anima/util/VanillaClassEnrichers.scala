@@ -7,7 +7,7 @@ import net.minecraft.block.BlockState
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
-import net.minecraft.state.Property
+import net.minecraft.state._
 import net.minecraft.util.{Unit => _, _}
 import org.apache.logging.log4j.scala.Logging
 import shapeless._
@@ -74,6 +74,8 @@ object VanillaClassEnrichers extends Logging {
   type PropertyValuePair[T <: Comparable[T]] = (Property[T], T)
   implicit class RichBlockState(blockState: BlockState) {
     def updated[T <: Comparable[T]](property: Property[T], value: T) = blockState.`with`(property, value)
+    def updated(property: IntegerProperty, value: Int) = blockState.`with`(property, Int.box(value))
+    def updated(property: BooleanProperty, value: Boolean) = blockState.`with`(property, Boolean.box(value))
     def updated[L <: HList](properties: L)(implicit updater: HListHasBlockstateUpdate[L]) =
       updater.updated(properties, blockState)
   }

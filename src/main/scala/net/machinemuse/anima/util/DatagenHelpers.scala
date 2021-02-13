@@ -8,7 +8,7 @@ import net.minecraft.entity.player.{PlayerEntity, PlayerInventory}
 import net.minecraft.inventory.container.{Container, INamedContainerProvider}
 import net.minecraft.item.Item
 import net.minecraft.item.crafting.{IRecipeSerializer, Ingredient}
-import net.minecraft.state.Property
+import net.minecraft.state._
 import net.minecraft.tags.ITag
 import net.minecraft.util.text.{ITextComponent, TranslationTextComponent}
 import net.minecraft.util.{IItemProvider, ResourceLocation}
@@ -85,7 +85,13 @@ object DatagenHelpers extends Logging {
   }
   implicit class PartBuilderWorkaround(builder: MultiPartBlockStateBuilder#PartBuilder) {
     // added this because it compiles to Object[] instead of Comparable[] for some reason
-    def saferCondition[T <: Comparable[T]](property: Property[T], values: T*): MultiPartBlockStateBuilder#PartBuilder = {
+    def saferCondition(property: IntegerProperty, values: Int*): MultiPartBlockStateBuilder#PartBuilder = {
+      saferCondition[Integer](property, values.map(Int.box):_*)
+    }
+    def saferCondition(property: BooleanProperty, values: Boolean*): MultiPartBlockStateBuilder#PartBuilder = {
+      saferCondition[java.lang.Boolean](property, values.map(Boolean.box):_*)
+    }
+    def saferCondition[T  <: AnyRef with Comparable[T]](property: Property[T], values: T*): MultiPartBlockStateBuilder#PartBuilder = {
       // TODO: safecheck this somehow
 //      Preconditions.checkNotNull(property, "Property must not be null")
 //      Preconditions.checkNotNull(values, "Value list must not be null")
