@@ -15,9 +15,9 @@ import net.minecraft.entity.item.ItemEntity
 import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.fluid.Fluids
 import net.minecraft.item._
+import net.minecraft.util._
 import net.minecraft.util.math.shapes.ISelectionContext
 import net.minecraft.util.math.{RayTraceContext, RayTraceResult}
-import net.minecraft.util._
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import net.minecraftforge.client.event.ColorHandlerEvent
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
@@ -86,17 +86,20 @@ object BowlWithContents extends Logging {
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
 class BowlWithContents(properties: Item.Properties, val contentsColour: Int) extends Item(properties) with Logging {
 
-  override def onItemUse(context: ItemUseContext): ActionResultType = {
-    if(this == BOWL_OF_WATER.get) {
-      val blockstate = Blocks.WATER.getDefaultState.updated(FlowingFluidBlock.LEVEL, 1)
-      this.tryPlace(new BlockItemUseContext(context), blockstate)
-    } else if(this == BOWL_OF_SALT.get) {
-      val blockstate = SaltLine.SALT_LINE_BLOCK.get.getDefaultState
-      this.tryPlace(new BlockItemUseContext(context), blockstate)
-    } else {
-      ActionResultType.PASS
+  override def onItemUse(context: ItemUseContext): ActionResultType =
+    this match {
+      case BOWL_OF_WATER(item) =>
+        val bcontext = new BlockItemUseContext(context)
+        val blockstate = Blocks.WATER.getStateForPlacement(bcontext).updated(FlowingFluidBlock.LEVEL, 1)
+        item.tryPlace(bcontext, blockstate)
+      case BOWL_OF_SALT(item) =>
+        val bcontext = new BlockItemUseContext(context)
+        val blockstate = SaltLine.SALT_LINE_BLOCK.get.getStateForPlacement(bcontext)
+        item.tryPlace(bcontext, blockstate)
+      case _ =>
+        ActionResultType.PASS
     }
-  }
+
 
   def tryPlace(context: BlockItemUseContext, blockstate: BlockState): ActionResultType = {
     if (!context.canPlace || context == null || blockstate == null || !this.canPlace(context, blockstate)) {
@@ -114,7 +117,7 @@ class BowlWithContents(properties: Item.Properties, val contentsColour: Int) ext
         val soundtype = blockstate.getSoundType(world, blockpos, context.getPlayer)
         world.playSound(player, blockpos, blockstate.getSoundType(world, blockpos, player).getPlaceSound,
           SoundCategory.BLOCKS, (soundtype.getVolume + 1.0F) / 2.0F, soundtype.getPitch * 0.8F)
-        if (player == null) {
+        if (player == null) { // a dispenser or something
           itemstack.shrink(1)
           world.onServer {serverWorld =>
             val replacement = new ItemStack(Items.BOWL)
@@ -122,7 +125,7 @@ class BowlWithContents(properties: Item.Properties, val contentsColour: Int) ext
             itementity.setDefaultPickupDelay()
             serverWorld.addEntity(itementity)
           }
-        } else {
+        } else if(!player.isCreative){
           val replacement = new ItemStack(Items.BOWL)
           val result = DrinkHelper.fill(itemstack, player, replacement, false)
           player.setHeldItem(context.getHand, result)

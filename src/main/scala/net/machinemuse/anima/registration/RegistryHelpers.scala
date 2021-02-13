@@ -92,9 +92,9 @@ object RegistryHelpers extends Logging {
   }
 
   case class ConvenientRegistryObject[T <: IForgeRegistryEntry[_]](registryObject: RegistryObject[T]) extends Supplier[T] {
-    final def unapply = registryObject.get
-    final def apply() = registryObject.get
-    final def get = registryObject.get
+    final def unapply(obj: T): Option[T] = if(obj == registryObject.get) obj.some else none[T]
+    final def apply(): T = registryObject.get
+    final def get: T = registryObject.get
     final def supplier: Supplier[T] = () => registryObject.get
   }
 

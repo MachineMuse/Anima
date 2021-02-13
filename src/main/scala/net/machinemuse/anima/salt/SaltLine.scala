@@ -51,8 +51,8 @@ object SaltLine extends Logging {
     case _ => ??? // we aren't supposed to use this this way...
   }
 
-  private val HORIZONTAL_DIRECTIONS = List(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST)
-  private val VERTICAL_DIRECTIONS = List(Direction.UP, Direction.DOWN)
+  private val HORIZONTAL_DIRECTIONS = Seq(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST)
+  private val VERTICAL_DIRECTIONS = Seq(Direction.UP, Direction.DOWN)
 
   private val SHAPE_FOR_UNDEAD: VoxelShape = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 128.0D, 16.0D)
 
@@ -87,9 +87,9 @@ object SaltLine extends Logging {
       val sidealtmodel0 = existingVanillaModelFile("block/redstone_dust_side_alt0")
       val sidealtmodel1 = existingVanillaModelFile("block/redstone_dust_side_alt1")
       val upmodel = existingVanillaModelFile("block/redstone_dust_up")
-      val sides = List(NORTH, EAST, SOUTH, WEST)
-      val sidemodels = List(sidemodel0, sidealtmodel1, sidealtmodel0, sidemodel1)
-      val siderotations = List(0, 270, 0, 270)
+      val sides = Seq(NORTH, EAST, SOUTH, WEST)
+      val sidemodels = Seq(sidemodel0, sidealtmodel1, sidealtmodel0, sidemodel1)
+      val siderotations = Seq(0, 270, 0, 270)
       for(sidenumber <- sides.indices) {
         builder.part.modelFile(upmodel).rotationY(sidenumber * 90).addModel()
           .saferCondition(sides(sidenumber), RedstoneSide.UP)
@@ -120,11 +120,6 @@ class SaltLine(properties: AbstractBlock.Properties) extends Block(properties) w
                                         SOUTH  -> RedstoneSide.NONE ::
                                         WEST  ->  RedstoneSide.NONE :: HNil))
   private val stateToShapeMap: java.util.Map[BlockState, VoxelShape] = Maps.newHashMap
-  private val sideBaseState = this.getDefaultState.updated(
-                                        NORTH -> RedstoneSide.SIDE ::
-                                        EAST -> RedstoneSide.SIDE ::
-                                        SOUTH -> RedstoneSide.SIDE ::
-                                        WEST -> RedstoneSide.SIDE :: HNil)
 
   { // stuff that's only used in the constructor
     val SIDE_TO_SHAPE: Map[Direction, VoxelShape] = Map(
@@ -199,20 +194,20 @@ class SaltLine(properties: AbstractBlock.Properties) extends Block(properties) w
     }
 
   override def getStateForPlacement(context: BlockItemUseContext): BlockState = {
-    getUpdatedState(context.getWorld, sideBaseState, context.getPos)
+    recalculateState(context.getWorld, context.getPos)
   }
 
-  override def updatePostPlacement(state: BlockState, directionChanged: Direction, facingState: BlockState, worldIn: IWorld, currentPos: BlockPos, facingPos: BlockPos): BlockState = {
+  override def updatePostPlacement(state: BlockState, directionChanged: Direction, facingState: BlockState, world: IWorld, pos: BlockPos, facingPos: BlockPos): BlockState = {
     if (directionChanged == Direction.DOWN) {
       state
     } else if (directionChanged == Direction.UP) {
-      this.getUpdatedState(worldIn, state, currentPos)
+      this.recalculateState(world, pos)
     } else {
-      val redstoneside = this.getSide(worldIn, currentPos, directionChanged)
+      val redstoneside = this.recalculateSide(world, pos, directionChanged, !world.getBlockState(pos.up).isNormalCube(world, pos))
       if (redstoneside.notNone == state.get(propertyOfDirection(directionChanged)).notNone && !areAllSidesNotNone(state)) {
         state.updated(propertyOfDirection(directionChanged), redstoneside)
       } else {
-        this.getUpdatedState(worldIn, this.sideBaseState.updated(propertyOfDirection(directionChanged), redstoneside), currentPos)
+        this.recalculateState(world, pos)
       }
     }
   }
@@ -237,12 +232,12 @@ class SaltLine(properties: AbstractBlock.Properties) extends Block(properties) w
     this.canPlaceOnTopOf(world, pos.down, world.getBlockState(pos.down))
   }
 
-  override def onBlockAdded(state: BlockState, worldIn: World, pos: BlockPos, oldState: BlockState, isMoving: Boolean): Unit = {
-    if (!oldState.isIn(state.getBlock) && !worldIn.isRemote) {
+  override def onBlockAdded(state: BlockState, world: World, pos: BlockPos, oldState: BlockState, isMoving: Boolean): Unit = {
+    if (!oldState.isIn(state.getBlock) && !world.isRemote) {
       for (direction <- VERTICAL_DIRECTIONS) {
-        worldIn.notifyNeighborsOfStateChange(pos.offset(direction), this)
+        world.notifyNeighborsOfStateChange(pos.offset(direction), this)
       }
-      this.updateNeighboursStateChange(worldIn, pos)
+      this.updateNeighboursStateChange(world, pos)
     }
   }
 
@@ -271,15 +266,24 @@ class SaltLine(properties: AbstractBlock.Properties) extends Block(properties) w
     builder.add(NORTH, EAST, SOUTH, WEST)
   }
 
-  private def recalculateFacingState(reader: IBlockReader, state: BlockState, pos: BlockPos) = {
-    val notNormalCube = !reader.getBlockState(pos.up).isNormalCube(reader, pos)
-    HORIZONTAL_DIRECTIONS.foldLeft(state) { (newstate, direction) =>
-      val facing = propertyOfDirection(direction)
-      if (!newstate.get(facing).notNone) {
-        newstate.updated(facing, this.recalculateSide(reader, pos, direction, notNormalCube))
-      } else {
-        newstate
-      }
+  private def recalculateState(reader: IBlockReader, pos: BlockPos) = {
+    val newstate = this.recalculateSides(reader, pos)
+    val sideStates = getAllSides(newstate)
+    val numUnconnected = sideStates.count(_ == RedstoneSide.NONE)
+    numUnconnected match {
+      case 3 =>
+        val sides = Seq(NORTH, EAST, SOUTH, WEST)
+        val index = sideStates.indexWhere(_ != RedstoneSide.NONE)
+        newstate.updated(sides((index + 2)%4), RedstoneSide.SIDE)
+      case _ => newstate
+    }
+  }
+
+  private def recalculateSides(reader: IBlockReader, pos: BlockPos) = {
+    val notNormalCubeAbove = !reader.getBlockState(pos.up).isNormalCube(reader, pos)
+    HORIZONTAL_DIRECTIONS.foldLeft(getDefaultState) { (newstate, direction) =>
+      val directionProperty = propertyOfDirection(direction)
+      newstate.updated(directionProperty, this.recalculateSide(reader, pos, direction, notNormalCubeAbove))
     }
   }
 
@@ -290,49 +294,24 @@ class SaltLine(properties: AbstractBlock.Properties) extends Block(properties) w
       state.get(WEST) != RedstoneSide.NONE
   }
 
-  private def getUpdatedState(reader: IBlockReader, oldState: BlockState, pos: BlockPos) = {
-    val newstate = this.recalculateFacingState(reader, this.getDefaultState, pos)
-    if (areAllSidesNone(oldState) && areAllSidesNone(newstate)) {
-      newstate
-    } else {
-      // This is so if it's only connected on one side, then it continues straight to the opposite side
-      val sides = List(NORTH, EAST, SOUTH, WEST)
-      val unconnectedSides = sides.map(side => newstate.get(side) == RedstoneSide.NONE)
-      sides.indices.foldLeft(newstate) { (state, index) =>
-        if(unconnectedSides(index) && unconnectedSides((index + 1) % 4) && unconnectedSides((index + 3) % 4)) {
-          state.updated(sides(index), RedstoneSide.SIDE)
-        } else {
-          state
-        }
-      }
-    }
+  private def getAllSides(state: BlockState) = {
+    Seq(state.get(NORTH), state.get(EAST), state.get(SOUTH), state.get(WEST))
   }
 
-  private def areAllSidesNone(state: BlockState) = {
-    state.get(NORTH) == RedstoneSide.NONE &&
-      state.get(SOUTH) == RedstoneSide.NONE &&
-      state.get(EAST) == RedstoneSide.NONE &&
-      state.get(WEST) == RedstoneSide.NONE
-  }
-
-  private def getSide(world: IBlockReader, pos: BlockPos, face: Direction) = {
-    this.recalculateSide(world, pos, face, !world.getBlockState(pos.up).isNormalCube(world, pos))
-  }
-
-  private def recalculateSide(reader: IBlockReader, pos: BlockPos, direction: Direction, nonNormalCubeAbove: Boolean): RedstoneSide = {
-    val blockpos = pos.offset(direction)
-    val blockstate = reader.getBlockState(blockpos)
+  private def recalculateSide(world: IBlockReader, pos: BlockPos, direction: Direction, nonNormalCubeAbove: Boolean): RedstoneSide = {
+    val sidepos = pos.offset(direction)
+    val sidestate = world.getBlockState(sidepos)
     if (nonNormalCubeAbove &&
-      this.canPlaceOnTopOf(reader, blockpos, blockstate) &&
-      canConnectTo(reader.getBlockState(blockpos.up), reader, blockpos.up, null)
+      canPlaceOnTopOf(world, sidepos, sidestate) &&
+      canConnectTo(world.getBlockState(sidepos.up), world, sidepos.up, null)
     ) {
-      if (blockstate.isSolidSide(reader, blockpos, direction.getOpposite))
+      if (sidestate.isSolidSide(world, sidepos, direction.getOpposite))
         RedstoneSide.UP
       else
         RedstoneSide.SIDE
     } else {
-      if (!canConnectTo(blockstate, reader, blockpos, direction) &&
-        (blockstate.isNormalCube(reader, blockpos) || !canConnectTo(reader.getBlockState(blockpos.down), reader, blockpos.down, null))
+      if (!canConnectTo(sidestate, world, sidepos, direction) &&
+        (sidestate.isNormalCube(world, sidepos) || !canConnectTo(world.getBlockState(sidepos.down), world, sidepos.down, null))
       )
         RedstoneSide.NONE
       else
