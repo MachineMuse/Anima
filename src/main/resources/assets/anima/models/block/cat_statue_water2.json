@@ -1,0 +1,17 @@
+{
+  "textures": {
+    "particle": "anima:block/terracatta",
+    "1": "minecraft:block/water_still"
+  },
+  "elements": [
+      {
+        "name": "water",
+        "from": [6.5, 15, 1],
+        "to": [9.5, 15.5, 4],
+        "rotation": {"angle": 0, "axis": "y", "origin": [16, 23, 8]},
+        "faces": {
+          "up": {"uv": [0, 0, 3, 3], "texture": "#1", "tintindex": 1}
+        }
+      }
+    ]
+}

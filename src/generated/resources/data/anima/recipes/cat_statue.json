@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "cat_statue",
+  "pattern": [
+    "#  ",
+    " ##",
+    "# #"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:clay_ball"
+    }
+  },
+  "result": {
+    "item": "anima:cat_statue"
+  }
+}

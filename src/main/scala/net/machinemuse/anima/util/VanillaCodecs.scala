@@ -16,6 +16,7 @@ import net.minecraft.item.crafting.{IRecipe, IRecipeSerializer}
 import net.minecraft.nbt._
 import net.minecraft.network.PacketBuffer
 import net.minecraft.particles.{IParticleData, ParticleType}
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.vector._
 import net.minecraft.util.registry.Registry
 import net.minecraft.util.{ResourceLocation, SharedConstants}
@@ -107,6 +108,8 @@ object VanillaCodecs extends Logging {
   implicit def VECTOR3FCODEC  : Codec[Vector3f] =   MATCHINGTRIPLETCODEC[Float] .xmap(t => new Vector3f(t._1,t._2,t._3), v => (v.getX, v.getY, v.getZ))
   implicit def VECTOR4FCODEC  : Codec[Vector4f] =   MATCHINGQUADCODEC[Float]    .xmap(t => new Vector4f(t._1,t._2,t._3,t._4), v => (v.getW, v.getX, v.getY, v.getZ))
   implicit def QUATERNIONCODEC: Codec[Quaternion] = MATCHINGQUADCODEC[Float]    .xmap(t => new Quaternion(t._1,t._2,t._3,t._4), v => (v.getW, v.getX, v.getY, v.getZ))
+
+  implicit def BLOCKPOSCODEC : Codec[BlockPos] = MATCHINGTRIPLETCODEC[Int].xmap(t => new BlockPos(t._1, t._2, t._3), b => (b.getX, b.getY, b.getZ))
 
   import JavaFunctionConverters._
 

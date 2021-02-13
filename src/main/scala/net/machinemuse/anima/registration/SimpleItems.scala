@@ -23,7 +23,7 @@ object SimpleItems {
   @SubscribeEvent def onConstructMod(e: FMLConstructModEvent) = {}
 
   val SPIRITFIRE_ITEM = regSimpleItem("spiritfire", new Item.Properties())
-  val AnimaCreativeGroup = regCreativeTab(() => SPIRITFIRE_ITEM.registryObject)
+  val AnimaCreativeGroup = regCreativeTab(() => SPIRITFIRE_ITEM)
 
   val KINDLING_ITEM = regSimpleItem("kindling")
 

@@ -68,10 +68,12 @@ object VanillaClassEnrichers extends Logging {
     }
   }
 
+
+//  implicit def optionalOf[T](opt: LazyOptional[T]) = if(opt.isPresent) Some(opt.resolve.get()) else None
+
   type PropertyValuePair[T <: Comparable[T]] = (Property[T], T)
   implicit class RichBlockState(blockState: BlockState) {
     def updated[T <: Comparable[T]](property: Property[T], value: T) = blockState.`with`(property, value)
-    def updatedVal[T <: AnyVal with Comparable[T]](property: Property[T], value: T) = blockState.`with`(property, value)
     def updated[L <: HList](properties: L)(implicit updater: HListHasBlockstateUpdate[L]) =
       updater.updated(properties, blockState)
   }

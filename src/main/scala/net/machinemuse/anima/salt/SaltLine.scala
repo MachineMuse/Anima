@@ -23,7 +23,7 @@ import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
-import net.minecraftforge.fml.event.lifecycle.{FMLClientSetupEvent, GatherDataEvent}
+import net.minecraftforge.fml.event.lifecycle._
 import org.apache.logging.log4j.scala.Logging
 import shapeless.HNil
 
@@ -34,6 +34,8 @@ import scala.jdk.CollectionConverters.ListHasAsScala
  * Created by MachineMuse on 2/10/2021.
  */
 object SaltLine extends Logging {
+
+  @SubscribeEvent def onConstructMod(e: FMLConstructModEvent) = {}
   private val NORTH = BlockStateProperties.REDSTONE_NORTH
   private val EAST = BlockStateProperties.REDSTONE_EAST
   private val SOUTH = BlockStateProperties.REDSTONE_SOUTH
@@ -46,6 +48,7 @@ object SaltLine extends Logging {
     case Direction.EAST  => EAST
     case Direction.SOUTH => SOUTH
     case Direction.WEST  => WEST
+    case _ => ??? // we aren't supposed to use this this way...
   }
 
   private val HORIZONTAL_DIRECTIONS = List(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST)
@@ -70,10 +73,10 @@ object SaltLine extends Logging {
   @SubscribeEvent def onGatherData(implicit event: GatherDataEvent): Unit = {
     mkLanguageProvider("en_us"){ lang =>
       // adds as a block i guess because it's an ItemBlock
-      lang.addBlock(SALT_LINE_BLOCK.registryObject, "Salt")
+      lang.addBlock(SALT_LINE_BLOCK, "Salt")
     }
     mkLanguageProvider("fr_fr"){ lang =>
-      lang.addBlock(SALT_LINE_BLOCK.registryObject, "Sel")
+      lang.addBlock(SALT_LINE_BLOCK, "Sel")
     }
     mkMultipartBlockStates(SALT_LINE_BLOCK.get){ builder =>
       val dotmodel = existingVanillaModelFile("block/redstone_dust_dot")
@@ -152,8 +155,10 @@ class SaltLine(properties: AbstractBlock.Properties) extends Block(properties) w
   // TODO: Come back to this when PR is approved https://github.com/MinecraftForge/MinecraftForge/pull/7655
   override def getAiPathNodeType(state: BlockState, world: IBlockReader, pos: BlockPos, entity: MobEntity): PathNodeType =
     if(entity != null && entity.isEntityUndead) {
+      // never actually happens because of #7655
       PathNodeType.BLOCKED
     } else {
+      // a compromise for now
       PathNodeType.RAIL
     }
 

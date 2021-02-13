@@ -33,17 +33,17 @@ object ClayPotBlock extends Logging {
   @SubscribeEvent def onConstructMod(e: FMLConstructModEvent) = {}
   private val properties = AbstractBlock.Properties.create(Material.CLAY, MaterialColor.CLAY)
     .hardnessAndResistance(2.0F).sound(SoundType.BONE).notSolid
-  val CLAYPOTBLOCK = regBlock("clay_pot", () => new ClayPotBlock(properties))
-  val CLAYPOTITEM = regSimpleBlockItem("clay_pot", CLAYPOTBLOCK.registryObject)
+  val BLOCK = regBlock("clay_pot", () => new ClayPotBlock(properties))
+  val ITEM = regSimpleBlockItem("clay_pot", BLOCK)
 
-  val OPEN: BooleanProperty = BlockStateProperties.OPEN
-  val FACING: DirectionProperty = BlockStateProperties.HORIZONTAL_FACING
+  private val OPEN: BooleanProperty = BlockStateProperties.OPEN
+  private val FACING: DirectionProperty = BlockStateProperties.HORIZONTAL_FACING
 
   protected val SHAPE = Block.makeCuboidShape(1.0D, 0.0D, 1.0D, 15.0D, 12.0D, 15.0D)
 
   @SubscribeEvent def onGatherData(implicit event: GatherDataEvent): Unit = {
     mkRecipeProvider{ consumer =>
-          ShapedRecipeBuilder.shapedRecipe(CLAYPOTITEM.get)
+          ShapedRecipeBuilder.shapedRecipe(ITEM.get)
             .patternLine(" / ")
             .patternLine("# #")
             .patternLine("###")
@@ -54,12 +54,12 @@ object ClayPotBlock extends Logging {
         }
     mkLanguageProvider("en_us"){ lang =>
       // adds as a block i guess because it's an ItemBlock
-      lang.addItem(CLAYPOTITEM.registryObject, "Clay Pot")
+      lang.addItem(ITEM, "Clay Pot")
     }
     mkLanguageProvider("fr_fr"){ lang =>
-      lang.addItem(CLAYPOTITEM.registryObject, "Pot en Argile")
+      lang.addItem(ITEM, "Pot en Argile")
     }
-    mkAllVariantBlockStates(CLAYPOTBLOCK.get){ state =>
+    mkAllVariantBlockStates(BLOCK.get){ state =>
       if(state.get(OPEN)) {
         ConfiguredModel.builder()
           .modelFile(existingModModelFile("block/clay_pot_open"))
@@ -72,7 +72,7 @@ object ClayPotBlock extends Logging {
           .build()
       }
     }
-    mkSimpleBlockItemModel(CLAYPOTBLOCK.get, existingModModelFile("block/clay_pot"))
+    mkSimpleBlockItemModel(BLOCK.get, existingModModelFile("block/clay_pot"))
 
   }
 }

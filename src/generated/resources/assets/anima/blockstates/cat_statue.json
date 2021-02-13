@@ -1,0 +1,156 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "level": "1",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "anima:block/cat_statue_water1"
+      }
+    },
+    {
+      "when": {
+        "level": "2",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "anima:block/cat_statue_water2"
+      }
+    },
+    {
+      "when": {
+        "level": "3",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "anima:block/cat_statue_water3"
+      }
+    },
+    {
+      "when": {
+        "facing": "north"
+      },
+      "apply": {
+        "model": "anima:block/cat_statue_base"
+      }
+    },
+    {
+      "when": {
+        "level": "1",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "anima:block/cat_statue_water1",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "level": "2",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "anima:block/cat_statue_water2",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "level": "3",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "anima:block/cat_statue_water3",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east"
+      },
+      "apply": {
+        "model": "anima:block/cat_statue_base",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "level": "1",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "anima:block/cat_statue_water1",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "level": "2",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "anima:block/cat_statue_water2",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "level": "3",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "anima:block/cat_statue_water3",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south"
+      },
+      "apply": {
+        "model": "anima:block/cat_statue_base",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "level": "1",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "anima:block/cat_statue_water1",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "level": "2",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "anima:block/cat_statue_water2",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "level": "3",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "anima:block/cat_statue_water3",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west"
+      },
+      "apply": {
+        "model": "anima:block/cat_statue_base",
+        "y": 270
+      }
+    }
+  ]
+}

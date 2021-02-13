@@ -46,7 +46,7 @@ object RegistryHelpers extends Logging {
     ConvenientRegistryObject(ENTITIES.register(name, () => EntityType.Builder.create(ctor.butFirst(initializer)(_,_), classification).setShouldReceiveVelocityUpdates(false).build(name)))
   }
 
-  def regTE[T <: TileEntity](name: String, ctor: Supplier[T], validBlocks: Supplier[Block]*): ConvenientRegistryObject[TileEntityType[T]] = {
+  def regTE[T <: TileEntity](name: String, ctor: Supplier[T], validBlocks: Supplier[_ <: Block]*): ConvenientRegistryObject[TileEntityType[T]] = {
     logger.info(s"Registering TileEntityType $name")
     ConvenientRegistryObject(TILE_ENTITIES.register(name,
       () => {
@@ -65,11 +65,11 @@ object RegistryHelpers extends Logging {
     ConvenientRegistryObject(ITEMS.register(name, () => new Item(props)))
   }
 
-  def regSimpleBlockItem[B <: Block](name: String, blockRegister: RegistryObject[B], props: Item.Properties = DEFAULT_ITEM_PROPERTIES): ConvenientRegistryObject[BlockItem]= {
+  def regSimpleBlockItem[B <: Block](name: String, blockRegister: Supplier[B], props: Item.Properties = DEFAULT_ITEM_PROPERTIES): ConvenientRegistryObject[BlockItem]= {
     ConvenientRegistryObject(ITEMS.register(name, () => new BlockItem(blockRegister.get(), props)))
   }
 
-  def regNamedBlockItem[B <: Block](name: String, blockRegister: RegistryObject[B], props: Item.Properties = DEFAULT_ITEM_PROPERTIES): ConvenientRegistryObject[BlockItem]= {
+  def regNamedBlockItem[B <: Block](name: String, blockRegister: Supplier[B], props: Item.Properties = DEFAULT_ITEM_PROPERTIES): ConvenientRegistryObject[BlockItem]= {
     ConvenientRegistryObject(ITEMS.register(name, () => new BlockNamedItem(blockRegister.get(), props)))
   }
 
@@ -85,17 +85,17 @@ object RegistryHelpers extends Logging {
     ConvenientRegistryObject(CONTAINERS.register(name, () => IForgeContainerType.create(fac)))
   }
 
-  def regCreativeTab(item: () => RegistryObject[Item]) = new ItemGroup(implicitly[MODID]) {
+  def regCreativeTab(item: () => Supplier[Item]) = new ItemGroup(implicitly[MODID]) {
     override def createIcon(): ItemStack = {
       item().get.getDefaultInstance
     }
   }
 
-  case class ConvenientRegistryObject[T <: IForgeRegistryEntry[_]](registryObject: RegistryObject[T]) {
-    def unapply = registryObject.get
-    def apply() = registryObject.get
-    def get = registryObject.get
-    def supplier: Supplier[T] = () => registryObject.get
+  case class ConvenientRegistryObject[T <: IForgeRegistryEntry[_]](registryObject: RegistryObject[T]) extends Supplier[T] {
+    final def unapply = registryObject.get
+    final def apply() = registryObject.get
+    final def get = registryObject.get
+    final def supplier: Supplier[T] = () => registryObject.get
   }
 
 }

@@ -23,9 +23,9 @@ issueTrackerURL="https://github.com/MachineMuse/Anima/issues" #optional
      # A display name for the mod
     displayName="Anima" #mandatory
     # A URL to query for updates for this mod. See the JSON update specification <here>
-    updateJSONURL="http://myurl.me/" #optional
+    updateJSONURL="https://raw.githubusercontent.com/MachineMuse/Anima/trunk/update_check.json" #optional
     # A URL for the "homepage" for this mod, displayed in the mod UI
-    displayURL="http://example.com/" #optional
+    displayURL="https://github.com/MachineMuse/Anima" #optional
     # A file name (in the root of the mod JAR) containing a logo for display
     logoFile="examplemod.png" #optional
     # A text field displayed in the mod UI

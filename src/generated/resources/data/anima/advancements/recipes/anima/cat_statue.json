@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "anima:cat_statue"
+    ]
+  },
+  "criteria": {
+    "has_#": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:clay_ball"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "anima:cat_statue"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_#",
+      "has_the_recipe"
+    ]
+  ]
+}

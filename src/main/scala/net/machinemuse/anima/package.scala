@@ -1,5 +1,6 @@
 package net.machinemuse
 
+import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.nbt._
 import net.minecraft.util.ResourceLocation
@@ -7,6 +8,7 @@ import net.minecraft.util.math._
 import net.minecraft.world.World
 import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.common.util.NonNullSupplier
 import net.minecraftforge.eventbus.api.Event
 import net.minecraftforge.fml.event.lifecycle.ParallelDispatchEvent
 import org.apache.logging.log4j.scala.Logger
@@ -178,6 +180,13 @@ package object anima {
         }
       }
     }
+    def onClient(f: ClientWorld => Unit): Unit = {
+      if(world.isRemote) {
+        world.optionallyDoAs[ClientWorld] {cw =>
+          f(cw)
+        }
+      }
+    }
   }
 
   def rayTrace(worldIn: World, player: PlayerEntity, fluidMode: RayTraceContext.FluidMode): BlockRayTraceResult = {
@@ -205,6 +214,8 @@ package object anima {
     implicit def bifunction[A, B, O](f: (A, B) => O): BiFunction[A, B, O] = f(_,_)
 
     implicit def supplier[A] (f: () => A): Supplier[A] = () => f()
+
+    implicit def nonNullSupplier[A] (f: () => A): NonNullSupplier[A] = () => f()
 
     implicit def suppliercallable[A] (f: () => () => A): Supplier[Callable[A]] = () => () => f()()
 

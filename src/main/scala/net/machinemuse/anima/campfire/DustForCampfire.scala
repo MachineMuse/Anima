@@ -32,15 +32,14 @@ object DustForCampfire {
   @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {} // Ensures the class gets initialized when the mod is constructed
 
   final val CAMPFIRE_DUST_ITEM = regExtendedItem("campfiredust", () => new DustForCampfire)
-  def getInstance = CAMPFIRE_DUST_ITEM.get
 
 
   @SubscribeEvent def gatherData(implicit event: GatherDataEvent): Unit = {
     mkLanguageProvider("en_us") { lang =>
-      lang.addItem(CAMPFIRE_DUST_ITEM.registryObject, "Campfire Dust")
+      lang.addItem(CAMPFIRE_DUST_ITEM, "Campfire Dust")
     }
     mkLanguageProvider("fr_fr") { lang =>
-      lang.addItem(CAMPFIRE_DUST_ITEM.registryObject, "Poussière pour Feu de Camp")
+      lang.addItem(CAMPFIRE_DUST_ITEM, "Poussière pour Feu de Camp")
     }
   }
 }

@@ -34,10 +34,10 @@ object CampfirePlus {
       builder.add(CampfirePlus.getBlock)
     }
     mkLanguageProvider("en_us"){ lang =>
-      lang.addBlock(CAMPFIREPLUS_BLOCK.registryObject, "Enhanced Campfire")
+      lang.addBlock(CAMPFIREPLUS_BLOCK, "Enhanced Campfire")
     }
     mkLanguageProvider("fr_fr"){ lang =>
-      lang.addBlock(CAMPFIREPLUS_BLOCK.registryObject, "Feu de Camp Amélioré")
+      lang.addBlock(CAMPFIREPLUS_BLOCK, "Feu de Camp Amélioré")
     }
   }
 
@@ -54,7 +54,7 @@ object CampfirePlus {
   // Block and BlockItem registration
   private val CAMPFIREPLUS_BLOCK = regBlock(DATA_NAME, () => new CampfirePlus(false, 1, BLOCKPROPERTIES))
   def getBlock = CAMPFIREPLUS_BLOCK.get
-  private val CAMPFIREPLUS_ITEM = regSimpleBlockItem(DATA_NAME, CampfirePlus.CAMPFIREPLUS_BLOCK.registryObject)
+  private val CAMPFIREPLUS_ITEM = regSimpleBlockItem(DATA_NAME, CampfirePlus.CAMPFIREPLUS_BLOCK)
   def getBlockItem = CAMPFIREPLUS_ITEM.get
 }
 
