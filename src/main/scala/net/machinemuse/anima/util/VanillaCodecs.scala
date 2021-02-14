@@ -19,7 +19,7 @@ import net.minecraft.particles.{IParticleData, ParticleType}
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.vector._
 import net.minecraft.util.registry.Registry
-import net.minecraft.util._
+import net.minecraft.util.{Unit => _, _}
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.registries.ForgeRegistryEntry
 import org.apache.logging.log4j.scala.Logging
