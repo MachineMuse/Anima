@@ -2,10 +2,10 @@ package net.machinemuse.anima
 package bowl
 
 import bowl.BowlWithContents.{BOWL_OF_SALT, BOWL_OF_WATER}
+import constants.BlockStateFlags
 import registration.RegistryHelpers.regExtendedItem
 import registration.SimpleItems
 import salt.SaltLine
-import util.BlockStateFlags
 import util.DatagenHelpers._
 import util.VanillaClassEnrichers.RichBlockState
 
@@ -48,6 +48,7 @@ object BowlWithContents extends Logging {
               case Fluids.WATER | Fluids.FLOWING_WATER =>
                 val bowlOfWater = new ItemStack(BOWL_OF_WATER.get)
                 val result = DrinkHelper.fill(itemInUse, player, bowlOfWater, false)
+                event.getPlayer.swing(event.getHand, true)
                 event.setCanceled(true)
                 player.setHeldItem(event.getHand, result)
             case _ =>

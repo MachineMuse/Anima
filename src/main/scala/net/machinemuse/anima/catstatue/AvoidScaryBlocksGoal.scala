@@ -61,9 +61,8 @@ class AvoidScaryBlocksGoal(val entity: CreatureEntity,
       chunkZ <- lowerzbound to upperzbound
     } yield {
       val chunk = entity.world.getChunk(chunkX, chunkZ)
-      val capMediator = CatStatueTrackingCapability.CAT_STATUE_TRACKING_CAPABILITY.get
-      val cap = chunk.getCapability(capMediator).resolve().get()
-      val cats = cap.getCatStatues.filter(pos =>
+      val cap = chunk.getCapability(CatStatueTrackingCapability.getCapability).resolve().get()
+      val cats = cap.getData.filter(pos =>
         entity.getDistanceSq(pos.getX, pos.getY, pos.getZ) < avoidDistancesq
       )
       cats

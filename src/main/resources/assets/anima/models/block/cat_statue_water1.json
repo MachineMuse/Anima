@@ -1,4 +1,5 @@
 {
+  "parent": "anima:block/cat_statue_base",
   "textures": {
     "particle": "anima:block/terracatta",
     "1": "minecraft:block/water_still"

@@ -10,6 +10,7 @@ import net.minecraft.inventory.IClearable
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.particles.ParticleTypes
 import net.minecraft.tileentity._
+import net.minecraft.util.{SoundCategory, SoundEvents}
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
@@ -23,7 +24,7 @@ import scala.util.Random
  */
 object CatStatueTileEntity extends Logging {
 
-  private val BOILAWAY_EVERY = 5.minutesInTicks
+  private val BOILAWAY_EVERY = 5.minutesInTicks // TODO: Configurable
 
   @SubscribeEvent def onConstructMod(e: FMLConstructModEvent) = {}
 
@@ -34,6 +35,8 @@ object CatStatueTileEntity extends Logging {
 class CatStatueTileEntity extends TileEntity(CatStatueTileEntity.TYPE.get) with IClearable with ITickableTileEntity with Logging {
   private var BURNTIME = 0
   private var BOILTIME = 0
+
+  private var DRIPPING = 0
 
   override def clear(): Unit = {
     BURNTIME = 0
@@ -50,10 +53,7 @@ class CatStatueTileEntity extends TileEntity(CatStatueTileEntity.TYPE.get) with 
       if(BURNTIME > 0) {
         BURNTIME -= 1
         val myChunk = world.getChunkAt(pos)
-        val capability = CatStatueTrackingCapability.CAT_STATUE_TRACKING_CAPABILITY.getOrElse {
-          logger.error("Cat statue capability injection failed")
-          ???
-        }
+        val capability = CatStatueTrackingCapability.getCapability
         if(getBlockState.get(CatStatueBlock.WATERLEVEL) > 0) {
           val myCap = myChunk.getCapability(capability).resolve().get()
           myCap.putCatStatue(pos)
@@ -81,23 +81,52 @@ class CatStatueTileEntity extends TileEntity(CatStatueTileEntity.TYPE.get) with 
     }
     world.onClient {clientworld =>
       val state = world.getBlockState(pos)
-      if(state.get(CatStatueBlock.LIT)) {
-        val direction = state.get(CatStatueBlock.FACING).getDirectionVec
-        val x = pos.getX + 0.5 + direction.getX * 0.5
-        val y = pos.getY + 1.0 + direction.getY * 0.5
-        val z = pos.getZ + 0.5 + direction.getZ * 0.5
-        clientworld.addParticle(ParticleTypes.BUBBLE, x, y, z, Random.nextDouble()*0.2 - 0.1, Random.nextDouble()*0.2 - 0.1, Random.nextDouble()*0.2 - 0.1)
+      val direction = state.get(CatStatueBlock.FACING).getDirectionVec
+      val lit = state.get(CatStatueBlock.LIT)
+      val hasWater = state.get(CatStatueBlock.WATERLEVEL) > 0
+      if(lit && Random.nextInt(20) == 0) {
+        val x = pos.getX + 0.5 + direction.getX * 6.0/16.0
+        val y = pos.getY + (0.25/16.0) + direction.getY * 0.5
+        val z = pos.getZ + 0.5 + direction.getZ * 6.0/16.0
+        val vx = Random.nextDouble()*0.02 - 0.01
+        val vy = Random.nextDouble()*0.02
+        val vz = Random.nextDouble()*0.02 - 0.01
+        clientworld.addParticle(ParticleTypes.FLAME, x, y, z, vx, vy, vz)
       }
+      if(DRIPPING != 0) {
+        DRIPPING -= 1
+        if(DRIPPING == 0){
+          val x = pos.getX + 0.5 + direction.getX * 6.0/16.0
+          val y = pos.getY + (0.25/16.0) + direction.getY * 0.5
+          val z = pos.getZ + 0.5 + direction.getZ * 6.0/16.0
+
+          val soundEvent = SoundEvents.BLOCK_LAVA_EXTINGUISH
+          val category = SoundCategory.BLOCKS
+          clientworld.playSound(x, y, z, soundEvent, category, 0.5F, 2.0F, false)
+
+          val vx = Random.nextDouble()*0.02 - 0.01
+          val vy = Random.nextDouble()*0.02
+          val vz = Random.nextDouble()*0.02 - 0.01
+          clientworld.addParticle(ParticleTypes.SMOKE, x, y, z, vx, vy, vz)
+        }
+      }
+      if(hasWater && lit && DRIPPING == 0 && Random.nextInt(50) == 0) {
+        val x = pos.getX + 0.5 + direction.getX * 5.5/16.0
+        val y = pos.getY + 9.0/16.0
+        val z = pos.getZ + 0.5 + direction.getZ * 5.5/16.0
+        val vx = Random.nextDouble()*0.02 - 0.01
+        val vy = -0.01
+        val vz = Random.nextDouble()*0.02 - 0.01
+        clientworld.addParticle(ParticleTypes.DRIPPING_WATER, x, y, z, vx, vy, vz)
+        DRIPPING = 50
+      }
+
     }
   }
 
-
   override def remove(): Unit = {
     val myChunk = world.getChunkAt(pos)
-    val capability = CatStatueTrackingCapability.CAT_STATUE_TRACKING_CAPABILITY.getOrElse {
-      logger.error("Cat statue capability injection failed")
-      ???
-    }
+    val capability = CatStatueTrackingCapability.getCapability
     val myCap = myChunk.getCapability(capability).resolve().get()
     myCap.removeCatStatue(pos)
     super.remove()

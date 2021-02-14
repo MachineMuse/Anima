@@ -1,10 +1,10 @@
 package net.machinemuse.anima
 package campfire
 
+import constants.NBTTypeRef
 import entity.EntityLightSpirit
 import registration.RegistryHelpers._
 import util.GenCodecsByName._
-import util.NBTTypeRef
 import util.VanillaCodecs.{ConvenientCodec, _}
 
 import com.mojang.serialization.Codec
@@ -168,17 +168,21 @@ class CampfirePlusTileEntity extends CampfireTileEntity with CodecByName with Lo
       }
 
 
-      if(dance_enhancement > 0 && activeDusts.nonEmpty) {
+      if(activeDusts.nonEmpty) {
         activeDusts = activeDusts.flatMap {dust =>
           for{entityType <- dust.attracts} {
             if(Random.nextInt(800 * 5) < dance_enhancement)
               trySpawnEntity(serverWorld, 5, entityType)
           }
           // reduce ticks and remove from list if done
-          if(dust.remainingTicks > 0)
+          if(dust.remainingTicks > 0) {
+            this.markDirty()
             dust.copy(remainingTicks = dust.remainingTicks - 1).some
-          else
+          }
+          else {
+            this.markDirty()
             none
+          }
         }
       }
 

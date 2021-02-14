@@ -1,7 +1,7 @@
 package net.machinemuse.anima
 package item
 
-import util.NBTTypeRef
+import constants.NBTTypeRef
 
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.IInventory

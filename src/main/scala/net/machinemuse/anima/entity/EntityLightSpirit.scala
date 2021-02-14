@@ -1,11 +1,12 @@
 package net.machinemuse.anima
 package entity
 
+import constants.BlockStateFlags
 import entity.EntityLightSpirit.{AirLightBlock, getAirLightBlock}
 import registration.ParticlesGlobal.AnimaParticleData
 import registration.RegistryHelpers._
+import util.Colour
 import util.RichDataParameter._
-import util.{BlockStateFlags, Colour}
 
 import net.minecraft.block._
 import net.minecraft.block.material.Material

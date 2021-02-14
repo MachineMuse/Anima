@@ -34,7 +34,7 @@ import scala.annotation.nowarn
 object CatStatueBlock extends Logging {
   @SubscribeEvent def onConstructMod(e: FMLConstructModEvent) = {}
 
-  private val properties = AbstractBlock.Properties.create(Material.CLAY, MaterialColor.CLAY)
+  private val properties = AbstractBlock.Properties.create(Material.CLAY, MaterialColor.RED)
     .hardnessAndResistance(2.0F).sound(SoundType.BONE).notSolid
 
   val CAT_STATUE_BLOCK = regBlock("cat_statue", () => new CatStatueBlock(properties))
@@ -47,8 +47,8 @@ object CatStatueBlock extends Logging {
   val WATERLEVEL = BlockStateProperties.LEVEL_0_3
   val LIT = BlockStateProperties.LIT
 
-  protected val SHAPENORMAL = Block.makeCuboidShape(5.0D, 0.0D, 0.0D, 11.0D, 16.0D, 16.0D)
-  protected val SHAPESIDE = Block.makeCuboidShape(5.0D, 0.0D, 5.0D, 16.0D, 16.0D, 11.0D)
+  protected val SHAPENORMAL = Block.makeCuboidShape(5.0D, 0.0D, 3.0D, 11.0D, 16.0D, 13.0D)
+  protected val SHAPESIDE = Block.makeCuboidShape(3.0D, 0.0D, 5.0D, 13.0D, 16.0D, 11.0D)
 
 
   @SubscribeEvent def onGatherData(implicit event: GatherDataEvent): Unit = {
@@ -105,10 +105,8 @@ class CatStatueBlock(properties: AbstractBlock.Properties) extends Block(propert
   override def onBlockActivated(state: BlockState, world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, hit: BlockRayTraceResult): ActionResultType = {
 //    hit.getFace match {
     val itemInUse = player.getHeldItem(hand)
-    logger.info("Cat statue right clicked")
     if(itemInUse.getItem == BowlWithContents.BOWL_OF_WATER.get) {
       val waterLevel = state.get(WATERLEVEL)
-      logger.info(s"with bowl of water, level is $waterLevel")
       if (waterLevel < 3) {
         val emptyBowl = new ItemStack(Items.BOWL)
         val result = DrinkHelper.fill(itemInUse, player, emptyBowl, false)
@@ -120,9 +118,10 @@ class CatStatueBlock(properties: AbstractBlock.Properties) extends Block(propert
       }
     } else if (ForgeHooks.getBurnTime(itemInUse) > 0) {
       world.getTileEntity(pos).mapAsOrElse[CatStatueTileEntity, ActionResultType](ActionResultType.PASS) { tileEntity =>
-        itemInUse.shrink(1)
-        player.setHeldItem(hand, itemInUse)
         tileEntity.addFuel(ForgeHooks.getBurnTime(itemInUse))
+        val container = itemInUse.getContainerItem
+        val result = DrinkHelper.fill(itemInUse, player, container, false)
+        player.setHeldItem(hand, result)
         ActionResultType.SUCCESS
       }
     } else {

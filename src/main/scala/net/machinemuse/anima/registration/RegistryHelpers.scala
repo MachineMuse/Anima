@@ -2,7 +2,7 @@ package net.machinemuse.anima
 package registration
 
 import registration.SimpleItems.AnimaCreativeGroup
-import util.VanillaCodecs.ConvenientRecipeSerializer
+import util.VanillaCodecs.{ConvenientRecipeSerializer, SavedData, mkCapStorage}
 
 import com.mojang.serialization.Codec
 import net.minecraft.block.Block
@@ -10,17 +10,23 @@ import net.minecraft.entity._
 import net.minecraft.inventory.container.{Container, ContainerType}
 import net.minecraft.item._
 import net.minecraft.item.crafting.{IRecipe, IRecipeSerializer}
+import net.minecraft.nbt.{CompoundNBT, INBT}
 import net.minecraft.particles.ParticleType
 import net.minecraft.tileentity.{TileEntity, TileEntityType}
+import net.minecraft.util.Direction
 import net.minecraft.world.World
+import net.minecraftforge.common.capabilities._
 import net.minecraftforge.common.extensions.IForgeContainerType
+import net.minecraftforge.common.util.{INBTSerializable, LazyOptional}
 import net.minecraftforge.fml.RegistryObject
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
 import net.minecraftforge.fml.network.IContainerFactory
 import net.minecraftforge.registries._
 import org.apache.logging.log4j.scala.Logging
 
+import java.util.concurrent.Callable
 import java.util.function.Supplier
+import scala.reflect.ClassTag
 
 /**
  * Created by MachineMuse on 1/28/2021.
@@ -55,6 +61,33 @@ object RegistryHelpers extends Logging {
     ))
   }
 
+  def regCapWithStorage[D, T <: SavedData[D]](ctor: Callable[T])(implicit tag: ClassTag[T], codec: Codec[D]) = {
+    CapabilityManager.INSTANCE.register[T](tag.runtimeClass.asInstanceOf[Class[T]], mkCapStorage[D, T], ctor)
+  }
+
+  def mkCapabilityProviderWithSaveData[I <: SavedData[_]](capability: Capability[I], interface: () => I) =
+    new ICapabilityProvider with INBTSerializable[INBT] {
+      private val localCapInst = interface()
+
+      override def getCapability[T](cap: Capability[T], side: Direction): LazyOptional[T] =
+        capability.orEmpty[T](cap, LazyOptional.of[I](() => localCapInst))
+
+      override def serializeNBT(): INBT = capability.writeNBT(localCapInst, Direction.DOWN)
+
+      override def deserializeNBT(nbt: INBT): Unit = capability.readNBT(localCapInst, Direction.DOWN, nbt)
+    }
+
+  def mkUnsavedCapabilityProvider[I](capability: Capability[I], interface: () => I) =
+    new ICapabilityProvider with INBTSerializable[INBT] {
+      private val localCapInst = interface()
+
+      override def getCapability[T](cap: Capability[T], side: Direction): LazyOptional[T] =
+        capability.orEmpty[T](cap, LazyOptional.of[I](() => localCapInst))
+
+      override def serializeNBT(): INBT = new CompoundNBT()
+
+      override def deserializeNBT(nbt: INBT): Unit = ()
+    }
 
   case class Damageable(maxDamage: Int, defaultMaxDamage: Int)
   case class Stackable(maxStackSize: Int)

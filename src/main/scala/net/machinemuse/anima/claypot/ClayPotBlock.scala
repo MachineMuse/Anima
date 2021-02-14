@@ -1,8 +1,8 @@
 package net.machinemuse.anima
 package claypot
 
+import constants.BlockStateFlags
 import registration.RegistryHelpers.{regBlock, regSimpleBlockItem}
-import util.BlockStateFlags
 import util.DatagenHelpers.{FancyShapedRecipeBuilder, existingModModelFile, mkAllVariantBlockStates, mkLanguageProvider, mkRecipeProvider, mkSimpleBlockItemModel}
 
 import net.minecraft.block._

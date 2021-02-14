@@ -1,12 +1,13 @@
 package net.machinemuse.anima
 package campfire
 
+import constants.BlockStateFlags
 import entity.EntityLightSpirit
 import registration.ParticlesGlobal.AnimaParticleData
 import registration.RegistryHelpers._
 import registration.SimpleItems._
+import util.Colour
 import util.DatagenHelpers.mkLanguageProvider
-import util.{BlockStateFlags, Colour}
 
 import net.minecraft.block.CampfireBlock
 import net.minecraft.entity.SpawnReason

@@ -1,5 +1,5 @@
 package net.machinemuse.anima
-package util
+package constants
 
 import org.apache.logging.log4j.scala.Logging
 

@@ -19,13 +19,14 @@ import net.minecraft.particles.{IParticleData, ParticleType}
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.vector._
 import net.minecraft.util.registry.Registry
-import net.minecraft.util.{ResourceLocation, SharedConstants}
+import net.minecraft.util._
+import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.registries.ForgeRegistryEntry
 import org.apache.logging.log4j.scala.Logging
 
 import java.io._
 import java.nio.ByteBuffer
-import java.util.stream.{IntStream, LongStream}
+import java.{util => ju}
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters.RichOptional
@@ -63,9 +64,9 @@ object VanillaCodecs extends Logging {
 
   // Special
   implicit val PASSTHROUGHCODEC: Codec[serialization.Dynamic[_]] = Codec.PASSTHROUGH
-  implicit val INT_STREAMCODEC: Codec[IntStream] = Codec.INT_STREAM
+  implicit val INT_STREAMCODEC: Codec[ju.stream.IntStream] = Codec.INT_STREAM
   implicit val BYTE_BUFFERCODEC: Codec[ByteBuffer] = Codec.BYTE_BUFFER
-  implicit val LONG_STREAMCODEC: Codec[LongStream] = Codec.LONG_STREAM
+  implicit val LONG_STREAMCODEC: Codec[ju.stream.LongStream] = Codec.LONG_STREAM
 
   implicit val EMPTYCODEC: MapCodec[util.Unit] = Codec.EMPTY
   implicit val SEMPTYCODEC: MapCodec[Unit] = Codec.EMPTY.xmap(_ => (), _ => util.Unit.INSTANCE)
@@ -82,6 +83,7 @@ object VanillaCodecs extends Logging {
   // Generics
   implicit def LISTCODEC[A: Codec](implicit ca: Codec[A]): Codec[java.util.List[A]] = new ListCodec(ca)
   implicit def SLISTCODEC[A: Codec](implicit ca: Codec[A]): Codec[List[A]] = new ListCodec(ca).xmap (_.asScala.toList, _.asJava)
+  implicit def SETCODEC[A: Codec](implicit ca: Codec[A]): Codec[Set[A]] = new ListCodec(ca).xmap (_.asScala.toSet, set => new ju.ArrayList[A](set.asJava))
 
   implicit def PAIRCODEC[A: Codec, B: Codec]: Codec[Pair[A, B]] = new PairCodec(implicitly[Codec[A]], implicitly[Codec[B]])
   implicit def SPAIRCODEC[A: Codec, B: Codec]: Codec[(A, B)] = PAIRCODEC[A,B].xmap (p => (p.getFirst, p.getSecond), t => Pair.of(t._1, t._2))
@@ -164,6 +166,23 @@ object VanillaCodecs extends Logging {
     def writeUncompressed(output: ByteBuf, obj: A): Unit = writeUncompressed(new ByteBufOutputStream(output), obj)
     def readUncompressed(input: ByteBuf): Option[A] = readUncompressed(new ByteBufInputStream(input))
 
+  }
+
+  trait SavedData[D] {
+    def getData: D
+    def getCodec(implicit codec: Codec[D]): Codec[D] = codec
+    def putData(data: D): Unit
+  }
+
+  def mkCapStorage[D, I <: SavedData[D]](implicit codec: Codec[D]) = new Capability.IStorage[I] {
+    override def writeNBT(capability: Capability[I], instance: I, side: Direction): INBT = {
+      instance.getCodec.writeINBT(instance.getData)
+    }
+
+    override def readNBT(capability: Capability[I], instance: I, side: Direction, nbt: INBT): Unit = {
+      val maybeData = instance.getCodec.parseINBT(nbt)
+      maybeData.foreach(data => instance.putData(data))
+    }
   }
 
   // Helpers for assorted things that will probably use codecs in the future

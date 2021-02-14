@@ -27,8 +27,10 @@ object CatStatueBlockColours extends IBlockColor with Logging {
   override def getColor(state : BlockState, world : IBlockDisplayReader, pos : BlockPos, tintIndex : Int): Int = {
     if(tintIndex == 1 && world != null && pos != null) {
       BiomeColors.getWaterColor(world, pos)
-    } else {
+    } else if(tintIndex == 1) {
       MaterialColor.WATER.colorValue
+    } else {
+      -1
     }
   }
 }
