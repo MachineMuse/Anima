@@ -1,10 +1,6 @@
 package net.machinemuse.anima
 package catstatue
 
-import catstatue.CatStatueTrackingCapability.TrackingInterface
-import registration.RegistryHelpers._
-import util.VanillaCodecs._
-
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraft.world.chunk.Chunk
@@ -16,6 +12,10 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import org.apache.logging.log4j.scala.Logging
 
 import scala.collection.mutable
+
+import catstatue.CatStatueTrackingCapability.TrackingInterface
+import registration.RegistryHelpers._
+import util.VanillaCodecs._
 
 /**
  * Created by MachineMuse on 2/12/2021.

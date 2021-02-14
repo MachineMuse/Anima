@@ -1,10 +1,6 @@
 package net.machinemuse.anima
 package basket
 
-import basket.BasketContainer.BASKET_CONTAINER
-import gui.HeldItemContainer
-import registration.RegistryHelpers._
-
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.network.PacketBuffer
 import net.minecraft.util.Hand
@@ -13,6 +9,10 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 import org.apache.logging.log4j.scala.Logging
+
+import basket.BasketContainer.BASKET_CONTAINER
+import gui.HeldItemContainer
+import registration.RegistryHelpers._
 
 /**
  * Created by MachineMuse on 1/22/2021.

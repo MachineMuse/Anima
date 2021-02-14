@@ -1,9 +1,6 @@
 package net.machinemuse.anima
 package client
 
-import util.Colour
-import util.VanillaClassEnrichers.RichItemStack
-
 import com.mojang.blaze3d.matrix.MatrixStack
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity
 import net.minecraft.client.renderer.entity.IEntityRenderer
@@ -22,6 +19,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import org.apache.logging.log4j.scala.Logging
+
+import util.Colour
+import util.VanillaClassEnrichers.RichItemStack
 
 
 /**

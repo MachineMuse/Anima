@@ -1,8 +1,6 @@
 package net.machinemuse.anima
 package gui
 
-import item.InventoriedItem
-
 import net.minecraft.entity.player.{PlayerEntity, PlayerInventory}
 import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.container._
@@ -12,6 +10,8 @@ import org.apache.logging.log4j.scala.Logging
 
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.ListHasAsScala
+
+import item.InventoriedItem
 
 /**
  * Created by MachineMuse on 1/29/2021.

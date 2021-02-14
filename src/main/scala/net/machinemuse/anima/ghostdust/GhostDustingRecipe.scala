@@ -1,13 +1,6 @@
 package net.machinemuse.anima
 package ghostdust
 
-import ghostdust.GhostDustingRecipe.GhostDustingIngredient
-import registration.{RegistryHelpers, SimpleItems}
-import util.DatagenHelpers.{mkLanguageProvider, mkRecipeProvider}
-import util.GenCodecsByName._
-import util.VanillaClassEnrichers.RichItemStack
-import util.VanillaCodecs.ConvenientCodec
-
 import com.google.gson.JsonObject
 import com.mojang.serialization.Codec
 import net.minecraft.data.IFinishedRecipe
@@ -25,6 +18,13 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle._
 import org.apache.logging.log4j.scala.Logging
+
+import ghostdust.GhostDustingRecipe.GhostDustingIngredient
+import registration.{RegistryHelpers, SimpleItems}
+import util.DatagenHelpers.{mkLanguageProvider, mkRecipeProvider}
+import util.GenCodecsByName._
+import util.VanillaClassEnrichers.RichItemStack
+import util.VanillaCodecs.ConvenientCodec
 
 /**
  * Created by MachineMuse on 2/2/2021.

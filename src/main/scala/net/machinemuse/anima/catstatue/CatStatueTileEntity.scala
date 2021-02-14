@@ -1,10 +1,6 @@
 package net.machinemuse.anima
 package catstatue
 
-import catstatue.CatStatueTileEntity.BOILAWAY_EVERY
-import registration.RegistryHelpers.regTE
-import util.VanillaClassEnrichers.RichBlockState
-
 import net.minecraft.block.BlockState
 import net.minecraft.inventory.IClearable
 import net.minecraft.nbt.CompoundNBT
@@ -18,6 +14,10 @@ import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 import org.apache.logging.log4j.scala.Logging
 
 import scala.util.Random
+
+import catstatue.CatStatueTileEntity.BOILAWAY_EVERY
+import registration.RegistryHelpers.regTE
+import util.VanillaClassEnrichers.RichBlockState
 
 /**
  * Created by MachineMuse on 2/11/2021.

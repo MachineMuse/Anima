@@ -1,9 +1,6 @@
 package net.machinemuse.anima
 package registration
 
-import bowl.BowlWithContents
-import util.DatagenHelpers._
-
 import net.minecraft.block.Blocks
 import net.minecraft.data.{ShapedRecipeBuilder, ShapelessRecipeBuilder}
 import net.minecraft.item.{Item, Items}
@@ -12,6 +9,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataEvent}
+
+import bowl.BowlWithContents
+import util.DatagenHelpers._
 
 /**
  * Created by MachineMuse on 1/21/2021.

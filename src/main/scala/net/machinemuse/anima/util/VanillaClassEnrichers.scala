@@ -1,8 +1,6 @@
 package net.machinemuse.anima
 package util
 
-import util.VanillaCodecs.ConvenientCodec
-
 import net.minecraft.block.BlockState
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType
 import net.minecraft.entity.player.PlayerEntity
@@ -11,6 +9,8 @@ import net.minecraft.state._
 import net.minecraft.util.{Unit => _, _}
 import org.apache.logging.log4j.scala.Logging
 import shapeless._
+
+import util.VanillaCodecs.ConvenientCodec
 
 /**
  * Created by MachineMuse on 1/27/2021.

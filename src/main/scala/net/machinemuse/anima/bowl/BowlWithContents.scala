@@ -1,14 +1,6 @@
 package net.machinemuse.anima
 package bowl
 
-import bowl.BowlWithContents.{BOWL_OF_SALT, BOWL_OF_WATER}
-import constants.BlockStateFlags
-import registration.RegistryHelpers.regExtendedItem
-import registration.SimpleItems
-import salt.SaltLine
-import util.DatagenHelpers._
-import util.VanillaClassEnrichers.RichBlockState
-
 import net.minecraft.advancements.CriteriaTriggers
 import net.minecraft.block._
 import net.minecraft.entity.item.ItemEntity
@@ -26,6 +18,14 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataEvent}
 import org.apache.logging.log4j.scala.Logging
+
+import bowl.BowlWithContents.{BOWL_OF_SALT, BOWL_OF_WATER}
+import constants.BlockStateFlags
+import registration.RegistryHelpers.regExtendedItem
+import registration.SimpleItems
+import salt.SaltLine
+import util.DatagenHelpers._
+import util.VanillaClassEnrichers.RichBlockState
 
 
 /**

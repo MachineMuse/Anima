@@ -1,9 +1,6 @@
 package net.machinemuse.anima
 package registration
 
-import registration.ParticlesGlobal.{AnimaParticleData, MOTE}
-import util.Colour
-
 import net.minecraft.client.Minecraft
 import net.minecraft.client.particle._
 import net.minecraft.client.world.ClientWorld
@@ -15,6 +12,9 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import org.apache.logging.log4j.scala.Logging
+
+import registration.ParticlesGlobal.{AnimaParticleData, MOTE}
+import util.Colour
 
 
 /**

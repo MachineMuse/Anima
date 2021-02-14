@@ -1,12 +1,11 @@
 package net.machinemuse.anima
 package client
 
-import basket.{BasketContainer, BasketGui}
-import entity.EntityLightSpirit
-import registration.KeyBindings
-
 import net.minecraft.client.gui.ScreenManager
 import net.minecraft.client.renderer.RenderType.makeType
+
+import basket.{BasketContainer, BasketGui}
+import entity.EntityLightSpirit
 import net.minecraft.client.renderer._
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.util.ResourceLocation
@@ -18,6 +17,8 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import org.apache.logging.log4j.scala.Logging
 import org.lwjgl.opengl.GL11
+
+import registration.KeyBindings
 
 /**
  * Created by MachineMuse on 1/22/2021.

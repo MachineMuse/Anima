@@ -1,9 +1,6 @@
 package net.machinemuse.anima
 package registration
 
-import registration.SimpleItems.AnimaCreativeGroup
-import util.VanillaCodecs.{ConvenientRecipeSerializer, SavedData, mkCapStorage}
-
 import com.mojang.serialization.Codec
 import net.minecraft.block.Block
 import net.minecraft.entity._
@@ -27,6 +24,9 @@ import org.apache.logging.log4j.scala.Logging
 import java.util.concurrent.Callable
 import java.util.function.Supplier
 import scala.reflect.ClassTag
+
+import registration.SimpleItems.AnimaCreativeGroup
+import util.VanillaCodecs.{ConvenientRecipeSerializer, SavedData, mkCapStorage}
 
 /**
  * Created by MachineMuse on 1/28/2021.

@@ -1,9 +1,6 @@
 package net.machinemuse.anima
 package basket
 
-import client.ClientSetup
-import util.RenderingShorthand.withPushedMatrix
-
 import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.Minecraft
@@ -21,6 +18,9 @@ import org.apache.logging.log4j.scala.Logging
 
 import java.util.concurrent.Callable
 import scala.annotation.nowarn
+
+import client.ClientSetup
+import util.RenderingShorthand.withPushedMatrix
 
 /**
  * Created by MachineMuse on 1/21/2021.

@@ -1,8 +1,6 @@
 package net.machinemuse.anima
 package gui
 
-import item.ModeChangingItem
-
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.player.PlayerEntity
@@ -16,6 +14,8 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import org.apache.logging.log4j.scala.Logging
 
 import scala.annotation.nowarn
+
+import item.ModeChangingItem
 
 /**
  * Created by MachineMuse on 1/31/2021.

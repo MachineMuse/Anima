@@ -1,8 +1,6 @@
 package net.machinemuse.anima
 package item
 
-import Network._
-
 import net.minecraft.item.ItemStack
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
@@ -10,6 +8,8 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 import net.minecraftforge.fml.network.NetworkEvent
 import org.apache.logging.log4j.scala.Logging
+
+import Network._
 
 /**
  * Created by MachineMuse on 1/31/2021.

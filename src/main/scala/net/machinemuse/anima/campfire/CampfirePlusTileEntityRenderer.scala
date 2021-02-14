@@ -1,10 +1,6 @@
 package net.machinemuse.anima
 package campfire
 
-import client.ClientSetup
-import util.Colour
-import util.RenderingShorthand.withPushedMatrix
-
 import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.vertex.IVertexBuilder
 import net.minecraft.block.CampfireBlock
@@ -27,6 +23,10 @@ import org.apache.logging.log4j.scala.Logging
 
 import java.util.Random
 import scala.jdk.CollectionConverters.CollectionHasAsScala
+
+import client.ClientSetup
+import util.Colour
+import util.RenderingShorthand.withPushedMatrix
 
 /**
  * Created by MachineMuse on 1/24/2021.

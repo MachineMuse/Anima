@@ -1,10 +1,6 @@
 package net.machinemuse.anima
 package claypot
 
-import constants.BlockStateFlags
-import registration.RegistryHelpers.{regBlock, regSimpleBlockItem}
-import util.DatagenHelpers.{FancyShapedRecipeBuilder, existingModModelFile, mkAllVariantBlockStates, mkLanguageProvider, mkRecipeProvider, mkSimpleBlockItemModel}
-
 import net.minecraft.block._
 import net.minecraft.block.material.{Material, MaterialColor}
 import net.minecraft.data.ShapedRecipeBuilder
@@ -24,6 +20,10 @@ import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataE
 import org.apache.logging.log4j.scala.Logging
 
 import scala.annotation.nowarn
+
+import constants.BlockStateFlags
+import registration.RegistryHelpers.{regBlock, regSimpleBlockItem}
+import util.DatagenHelpers.{FancyShapedRecipeBuilder, existingModModelFile, mkAllVariantBlockStates, mkLanguageProvider, mkRecipeProvider, mkSimpleBlockItemModel}
 
 /**
  * Created by MachineMuse on 2/9/2021.

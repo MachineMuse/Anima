@@ -1,8 +1,6 @@
 package net.machinemuse.anima
 package util
 
-import util.RichDataParameter.ParameterTypes.ParameterType
-
 import net.minecraft.block.BlockState
 import net.minecraft.entity._
 import net.minecraft.entity.merchant.villager.VillagerData
@@ -19,6 +17,8 @@ import org.apache.logging.log4j.scala.Logging
 
 import java.util._
 import scala.collection.mutable
+
+import util.RichDataParameter.ParameterTypes.ParameterType
 
 /**
  * Created by MachineMuse on 1/26/2021.

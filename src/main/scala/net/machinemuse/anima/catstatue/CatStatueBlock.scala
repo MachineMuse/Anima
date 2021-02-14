@@ -1,11 +1,6 @@
 package net.machinemuse.anima
 package catstatue
 
-import bowl.BowlWithContents
-import registration.RegistryHelpers.{regBlock, regSimpleBlockItem}
-import util.DatagenHelpers.{FancyShapedRecipeBuilder, PartBuilderWorkaround, existingModModelFile, mkLanguageProvider, mkMultipartBlockStates, mkRecipeProvider, mkSimpleBlockItemModel}
-import util.VanillaClassEnrichers.RichBlockState
-
 import net.minecraft.block._
 import net.minecraft.block.material.{Material, MaterialColor}
 import net.minecraft.data.ShapedRecipeBuilder
@@ -26,6 +21,11 @@ import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataE
 import org.apache.logging.log4j.scala.Logging
 
 import scala.annotation.nowarn
+
+import bowl.BowlWithContents
+import registration.RegistryHelpers.{regBlock, regSimpleBlockItem}
+import util.DatagenHelpers.{FancyShapedRecipeBuilder, PartBuilderWorkaround, existingModModelFile, mkLanguageProvider, mkMultipartBlockStates, mkRecipeProvider, mkSimpleBlockItemModel}
+import util.VanillaClassEnrichers.RichBlockState
 
 
 /**

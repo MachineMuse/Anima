@@ -1,10 +1,6 @@
 package net.machinemuse.anima
 package campfire
 
-import registration.RegistryHelpers._
-import util.DatagenHelpers.{mkBlockTagsProvider, mkLanguageProvider}
-import util.VanillaClassEnrichers.RichBlockState
-
 import net.minecraft.block._
 import net.minecraft.block.material.{Material, MaterialColor}
 import net.minecraft.entity.player.PlayerEntity
@@ -18,6 +14,10 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataEvent}
 import shapeless.HNil
+
+import registration.RegistryHelpers._
+import util.DatagenHelpers.{mkBlockTagsProvider, mkLanguageProvider}
+import util.VanillaClassEnrichers.RichBlockState
 
 /**
  * Created by MachineMuse on 1/24/2021.

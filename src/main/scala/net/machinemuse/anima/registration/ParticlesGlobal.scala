@@ -1,10 +1,6 @@
 package net.machinemuse.anima
 package registration
 
-import registration.RegistryHelpers.PARTICLES
-import util.GenCodecsByName._
-import util.VanillaCodecs._
-
 import com.mojang.serialization.Codec
 import net.minecraft.item.DyeColor
 import net.minecraft.network.PacketBuffer
@@ -15,6 +11,10 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 import org.apache.logging.log4j.scala.Logging
+
+import registration.RegistryHelpers.PARTICLES
+import util.GenCodecsByName._
+import util.VanillaCodecs._
 
 /**
  * Created by MachineMuse on 2/5/2021.

@@ -1,12 +1,6 @@
 package net.machinemuse.anima
 package campfire
 
-import constants.NBTTypeRef
-import entity.EntityLightSpirit
-import registration.RegistryHelpers._
-import util.GenCodecsByName._
-import util.VanillaCodecs.{ConvenientCodec, _}
-
 import com.mojang.serialization.Codec
 import net.minecraft.block.{BlockState, Blocks}
 import net.minecraft.entity.{EntityType, SpawnReason}
@@ -28,6 +22,12 @@ import org.apache.logging.log4j.scala.Logging
 import scala.annotation.{nowarn, tailrec}
 import scala.jdk.CollectionConverters.ListHasAsScala
 import scala.util.Random
+
+import constants.NBTTypeRef
+import entity.EntityLightSpirit
+import registration.RegistryHelpers._
+import util.GenCodecsByName._
+import util.VanillaCodecs.{ConvenientCodec, _}
 
 /**
  * Created by MachineMuse on 1/24/2021.

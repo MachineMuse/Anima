@@ -3,8 +3,8 @@ package util
 
 import com.google.gson._
 import com.mojang.brigadier.StringReader
-import com.mojang.datafixers.util
 import com.mojang.datafixers.util.Pair
+import com.mojang.datafixers.{util => du}
 import com.mojang.serialization
 import com.mojang.serialization._
 import com.mojang.serialization.codecs._
@@ -19,7 +19,7 @@ import net.minecraft.particles.{IParticleData, ParticleType}
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.vector._
 import net.minecraft.util.registry.Registry
-import net.minecraft.util.{Unit => _, _}
+import net.minecraft.{util => mu}
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.registries.ForgeRegistryEntry
 import org.apache.logging.log4j.scala.Logging
@@ -68,8 +68,8 @@ object VanillaCodecs extends Logging {
   implicit val BYTE_BUFFERCODEC: Codec[ByteBuffer] = Codec.BYTE_BUFFER
   implicit val LONG_STREAMCODEC: Codec[ju.stream.LongStream] = Codec.LONG_STREAM
 
-  implicit val EMPTYCODEC: MapCodec[util.Unit] = Codec.EMPTY
-  implicit val SEMPTYCODEC: MapCodec[Unit] = Codec.EMPTY.xmap(_ => (), _ => util.Unit.INSTANCE)
+  implicit val EMPTYCODEC: MapCodec[du.Unit] = Codec.EMPTY
+  implicit val SEMPTYCODEC: MapCodec[Unit] = Codec.EMPTY.xmap(_ => (), _ => du.Unit.INSTANCE)
 
   /*_*/ // Registries
   implicit val ITEMCODEC: Codec[Item] = Registry.ITEM : @nowarn
@@ -145,7 +145,7 @@ object VanillaCodecs extends Logging {
     def mkDataCompound(nbt: INBT): CompoundNBT = {
       val data = new CompoundNBT
       data.put("data", nbt)
-      data.putInt("DataVersion", SharedConstants.getVersion.getWorldVersion)
+      data.putInt("DataVersion", mu.SharedConstants.getVersion.getWorldVersion)
       data
     }
     def mkDataCompound(obj: A): CompoundNBT = mkDataCompound(writeINBT(obj))
@@ -175,11 +175,11 @@ object VanillaCodecs extends Logging {
   }
 
   def mkCapStorage[D, I <: SavedData[D]](implicit codec: Codec[D]) = new Capability.IStorage[I] {
-    override def writeNBT(capability: Capability[I], instance: I, side: Direction): INBT = {
+    override def writeNBT(capability: Capability[I], instance: I, side: mu.Direction): INBT = {
       instance.getCodec.writeINBT(instance.getData)
     }
 
-    override def readNBT(capability: Capability[I], instance: I, side: Direction, nbt: INBT): Unit = {
+    override def readNBT(capability: Capability[I], instance: I, side: mu.Direction, nbt: INBT): Unit = {
       val maybeData = instance.getCodec.parseINBT(nbt)
       maybeData.foreach(data => instance.putData(data))
     }
@@ -204,8 +204,8 @@ object VanillaCodecs extends Logging {
 
   implicit class ConvenientRecipeSerializer[A <: IRecipe[_]](codec: Codec[A]) {
     def mkSerializer(default: A) = new ForgeRegistryEntry[IRecipeSerializer[_]] with IRecipeSerializer[A] {
-      override def read(recipeId: ResourceLocation, json: JsonObject): A = codec.parseJson(json).getOrElse(default)
-      override def read(recipeId: ResourceLocation, buffer: PacketBuffer): A = codec.readUncompressed(buffer).getOrElse(default)
+      override def read(recipeId: mu.ResourceLocation, json: JsonObject): A = codec.parseJson(json).getOrElse(default)
+      override def read(recipeId: mu.ResourceLocation, buffer: PacketBuffer): A = codec.readUncompressed(buffer).getOrElse(default)
       override def write(buffer: PacketBuffer, recipe: A): Unit = codec.writeUncompressed(buffer, recipe)
     }
   }

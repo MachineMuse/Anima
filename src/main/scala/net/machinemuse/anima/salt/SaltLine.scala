@@ -1,10 +1,6 @@
 package net.machinemuse.anima
 package salt
 
-import registration.RegistryHelpers.regBlock
-import util.DatagenHelpers._
-import util.VanillaClassEnrichers._
-
 import com.google.common.collect.Maps
 import net.minecraft.block.Block.{replaceBlockState, spawnDrops}
 import net.minecraft.block._
@@ -29,6 +25,10 @@ import shapeless.HNil
 
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.ListHasAsScala
+
+import registration.RegistryHelpers.regBlock
+import util.DatagenHelpers._
+import util.VanillaClassEnrichers._
 
 /**
  * Created by MachineMuse on 2/10/2021.

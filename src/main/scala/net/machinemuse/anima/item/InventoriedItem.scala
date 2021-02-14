@@ -1,8 +1,6 @@
 package net.machinemuse.anima
 package item
 
-import constants.NBTTypeRef
-
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.container.Container
@@ -12,6 +10,8 @@ import net.minecraft.util.text.{ITextComponent, TextFormatting}
 
 import java.util
 import scala.jdk.CollectionConverters._
+
+import constants.NBTTypeRef
 
 /**
  * Created by MachineMuse on 1/21/2021.
