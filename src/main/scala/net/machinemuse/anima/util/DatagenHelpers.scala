@@ -30,7 +30,7 @@ object DatagenHelpers extends Logging {
 
   def mkContainerProvider[T <: Container](name: String, menuctor: (Int, PlayerInventory, PlayerEntity) => T): INamedContainerProvider = {
     new INamedContainerProvider() {
-      override def getDisplayName: ITextComponent = new TranslationTextComponent(s"screen.${MODID}.$name")
+      override def getDisplayName: ITextComponent = new TranslationTextComponent(s"screen.${implicitly[MODID]}.$name")
 
       override def createMenu(windowId: Int, playerInventory: PlayerInventory, playerEntity: PlayerEntity): T = menuctor(windowId, playerInventory, playerEntity)
     }
