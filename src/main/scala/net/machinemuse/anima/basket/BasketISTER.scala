@@ -19,7 +19,7 @@ import org.apache.logging.log4j.scala.Logging
 import java.util.concurrent.Callable
 import scala.annotation.nowarn
 
-import client.ClientSetup
+import client.RenderStates
 import util.RenderingShorthand.withPushedMatrix
 
 /**
@@ -75,7 +75,7 @@ class BasketISTER extends ItemStackTileEntityRenderer with Logging {
       matrixStack.translate(0.0F, 0.25F, 0.0625F)
       matrixStack.scale(0.75F, 0.75F, 1.0F)
       val stackModel = Minecraft.getInstance.getItemRenderer.getItemModelWithOverrides(contents, Minecraft.getInstance.world, Minecraft.getInstance.player)
-      val vertexBuilder = ItemRenderer.getEntityGlintVertexBuilder(buffer, ClientSetup.getBetterTranslucentState, true, contents.hasEffect)
+      val vertexBuilder = ItemRenderer.getEntityGlintVertexBuilder(buffer, RenderStates.getBetterTranslucentState, true, contents.hasEffect)
       if(stackModel.isBuiltInRenderer) {
         contents.getItem.getItemStackTileEntityRenderer.func_239207_a_(contents, transformType, matrixStack, buffer, combinedLight, combinedOverlay)
       } else {
@@ -92,7 +92,7 @@ class BasketISTER extends ItemStackTileEntityRenderer with Logging {
                     combinedOverlay: Int): Unit = {
     withPushedMatrix(matrixStack) { matEl =>
       val bakedmodel = Minecraft.getInstance().getModelManager.getModel(BasketISTER.MODEL_LOCATION)
-      val vertexBuilder = ItemRenderer.getEntityGlintVertexBuilder(buffer, ClientSetup.getBetterTranslucentState, true, bag.hasEffect)
+      val vertexBuilder = ItemRenderer.getEntityGlintVertexBuilder(buffer, RenderStates.getBetterTranslucentState, true, bag.hasEffect)
       //    val transformedModel = ForgeHooksClient.handleCameraTransforms(matrixStack, bakedmodel, transformType, transformType.isLeftHand);
       Minecraft.getInstance().getItemRenderer.renderModel(bakedmodel, bag, combinedLight, combinedOverlay, matrixStack, vertexBuilder)
     }

@@ -1,6 +1,5 @@
 package net.machinemuse
 
-import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.nbt._
 import net.minecraft.util.ResourceLocation
@@ -152,6 +151,13 @@ package object anima {
         ()
       }
 
+    final def optionallyDoAsIfNot[O: Manifest, S: Manifest](f: O => Unit): Unit =
+      if (implicitly[Manifest[O]].runtimeClass.isInstance(x) && !implicitly[Manifest[S]].runtimeClass.isInstance(x)) {
+        f(x.asInstanceOf[O])
+      } else {
+        ()
+      }
+
     final def mapAsOrElse[O: Manifest, D](default: D)(f: O => D): D = {
       if(implicitly[Manifest[O]].runtimeClass.isInstance(x)) {
         f(x.asInstanceOf[O])
@@ -180,11 +186,9 @@ package object anima {
         }
       }
     }
-    def onClient(f: ClientWorld => Unit): Unit = {
+    def onClient(f: World => Unit): Unit = {
       if(world.isRemote) {
-        world.optionallyDoAs[ClientWorld] {cw =>
-          f(cw)
-        }
+        f(world)
       }
     }
   }

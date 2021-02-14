@@ -3,16 +3,30 @@ package basket
 
 import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
+import net.minecraft.client.gui.ScreenManager
 import net.minecraft.client.gui.screen.inventory.ContainerScreen
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.ITextComponent
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 
 import scala.annotation.nowarn
 
 /**
  * Created by MachineMuse on 1/22/2021.
  */
+object BasketGui {
+  @SubscribeEvent  def onClientSetup(event: FMLClientSetupEvent) : Unit = {
+    ScreenManager.registerFactory[BasketContainer, BasketGui](BasketContainer.BASKET_CONTAINER.get, new BasketGui(_, _, _)) // type annotations added for IntelliJ's sake
+  }
+
+}
+
+@EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Bus.MOD)
 class BasketGui(screenContainer: BasketContainer, inv: PlayerInventory, titleIn: ITextComponent) extends ContainerScreen[BasketContainer](screenContainer, inv, titleIn) {
   /** The ResourceLocation containing the chest GUI texture. */
   private val DISPENSER_GUI_TEXTURES = new ResourceLocation("textures/gui/container/dispenser.png")

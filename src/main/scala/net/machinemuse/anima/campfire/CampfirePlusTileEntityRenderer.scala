@@ -24,7 +24,7 @@ import org.apache.logging.log4j.scala.Logging
 import java.util.Random
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-import client.ClientSetup
+import client.RenderStates
 import util.Colour
 import util.RenderingShorthand.withPushedMatrix
 
@@ -60,7 +60,7 @@ class CampfirePlusTileEntityRenderer(dispatcher: TileEntityRendererDispatcher) e
     if(CampfireBlock.isLit(tileEntity.getBlockState))
       withPushedMatrix (matrixStack) { matrixEntry =>
         val flamesModel = Minecraft.getInstance().getModelManager.getModel(FLAMES_MODEL_LOCATION)
-        val vertexBuffer: IVertexBuilder = buffer.getBuffer(ClientSetup.getBetterTranslucentState) // ClientSetup.getBetterTranslucentState
+        val vertexBuffer: IVertexBuilder = buffer.getBuffer(RenderStates.getBetterTranslucentState) // ClientSetup.getBetterTranslucentState
 
 
         val (outer, inner) = {

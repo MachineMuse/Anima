@@ -1,5 +1,5 @@
 package net.machinemuse.anima
-package client
+package ghostdust
 
 import com.mojang.blaze3d.matrix.MatrixStack
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity
@@ -20,6 +20,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import org.apache.logging.log4j.scala.Logging
 
+import client.RenderStates
 import util.Colour
 import util.VanillaClassEnrichers.RichItemStack
 
@@ -28,16 +29,18 @@ import util.VanillaClassEnrichers.RichItemStack
  * Created by MachineMuse on 2/2/2021.
  */
 object BipedArmorLayerPlus extends Logging {
+  private var hookedLayer = 0
   @SubscribeEvent def onPrePlayerRender(event: RenderPlayerEvent.Pre): Unit = {
     val layerRenderers = event.getRenderer.layerRenderers
-    for(i <- 0 until layerRenderers.size()) {
-      val layerUntyped = layerRenderers.get(i)
-      type T = AbstractClientPlayerEntity
-      type M = PlayerModel[T]
-      layerUntyped.optionallyDoAs[BipedArmorLayer[T, M, M]] { layer =>
-        if(!layer.isInstanceOf[BipedArmorLayerPlus[_,_,_]]) {
+    if(!layerRenderers.get(hookedLayer).isInstanceOf[BipedArmorLayerPlus[_,_,_]]) {
+      for(i <- 0 until layerRenderers.size()) {
+        val layerUntyped = layerRenderers.get(i)
+        type T = AbstractClientPlayerEntity
+        type M = PlayerModel[T]
+        layerUntyped.optionallyDoAsIfNot[BipedArmorLayer[T, M, M], BipedArmorLayerPlus[_,_,_]] { layer =>
           layerRenderers.set(i, new BipedArmorLayerPlus(layer).asInstanceOf[LayerRenderer[T, M]])
           logger.info("Successfully inserted BipedArmorLayer hook")
+          hookedLayer = i
         }
       }
     }
@@ -87,7 +90,7 @@ class BipedArmorLayerPlus[T <: LivingEntity, M <: BipedModel[T], A <: BipedModel
   }
 
   private def renderArmorLayer(matrixStack : MatrixStack, renderTypeBuffer : IRenderTypeBuffer, packedLight : Int, glint : Boolean, playerModel : A, red : Float, green : Float, blue : Float, alpha: Float, armorResource: ResourceLocation): Unit = {
-    val ivertexbuilder = ItemRenderer.getArmorVertexBuilder(renderTypeBuffer, ClientSetup.getBetterArmorState(armorResource), false, glint)
+    val ivertexbuilder = ItemRenderer.getArmorVertexBuilder(renderTypeBuffer, RenderStates.getBetterArmorState(armorResource), false, glint)
     playerModel.render(matrixStack, ivertexbuilder, packedLight, OverlayTexture.NO_OVERLAY, red, green, blue, alpha)
   }
 
