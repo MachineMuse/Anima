@@ -10,7 +10,6 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataEvent}
 
-import bowl.BowlWithContents
 import util.DatagenHelpers._
 
 /**
@@ -30,10 +29,6 @@ object SimpleItems {
   val BIRDBONES_ITEM = regSimpleItem("birdbones")
 
   val ANIMALBONES_ITEM = regSimpleItem("animalbones")
-
-  val GHOSTDUST_ITEM = regSimpleItem("ghost_dust")
-
-  val GHOSTDUST_REMOVER_ITEM = regSimpleItem("ghost_dust_remover")
 
   val CAMPFIRE_ASH = regSimpleItem("campfire_ash")
 
@@ -72,38 +67,6 @@ object SimpleItems {
         .setGroup("bonemeal")
         .buildProperly(consumer, "bonemeal_from_animalbones")
 
-      ShapelessRecipeBuilder
-        .shapelessRecipe(SimpleItems.GHOSTDUST_ITEM.get, 2)
-        .addIngredientAsCriterion("gunpowder", Items.GUNPOWDER)
-        .addIngredientAsCriterion("bonemeal", Items.BONE_MEAL)
-        .addIngredientAsCriterion("bowl_of_salt", BowlWithContents.BOWL_OF_SALT.get)
-        .setGroup("ghost_dust")
-        .buildProperly(consumer, "ghost_dust_from_bonemeal")
-
-      ShapelessRecipeBuilder
-        .shapelessRecipe(SimpleItems.GHOSTDUST_ITEM.get, 2)
-        .addIngredientAsCriterion("gunpowder", Items.GUNPOWDER)
-        .addIngredientAsCriterion("white_dye", Items.WHITE_DYE)
-        .addIngredientAsCriterion("bowl_of_salt", BowlWithContents.BOWL_OF_SALT.get)
-        .setGroup("ghost_dust")
-        .buildProperly(consumer, "ghost_dust_from_white_dye")
-
-      ShapelessRecipeBuilder
-        .shapelessRecipe(SimpleItems.GHOSTDUST_REMOVER_ITEM.get, 1)
-        .addIngredientAsCriterion("gunpowder", Items.GUNPOWDER)
-        .addIngredientAsCriterion("ink_sac", Items.INK_SAC)
-        .addIngredientAsCriterion("bowl_of_salt", BowlWithContents.BOWL_OF_SALT.get)
-        .setGroup("ghost_dust_remover")
-        .buildProperly(consumer, "ghost_dust_remover_from_ink_sac")
-
-      ShapelessRecipeBuilder
-        .shapelessRecipe(SimpleItems.GHOSTDUST_REMOVER_ITEM.get, 1)
-        .addIngredientAsCriterion("gunpowder", Items.GUNPOWDER)
-        .addIngredientAsCriterion("black_dye", Items.BLACK_DYE)
-        .addIngredientAsCriterion("bowl_of_salt", BowlWithContents.BOWL_OF_SALT.get)
-        .setGroup("ghost_dust_remover")
-        .buildProperly(consumer, "ghost_dust_remover_from_black_dye")
-
       CampfireRecipeBuilder.campfireRecipe(ItemTags.LOGS_THAT_BURN, Items.CHARCOAL, 0.35F)
         .buildProperly(consumer, "charcoal_on_campfire")
 
@@ -114,8 +77,6 @@ object SimpleItems {
       lang.addItem(KINDLING_ITEM.supplier, "Kindling")
       lang.addItem(BIRDBONES_ITEM.supplier, "Bird Bones")
       lang.addItem(ANIMALBONES_ITEM.supplier, "Animal Bones")
-      lang.addItem(GHOSTDUST_ITEM.supplier, "Ghost Dust")
-      lang.addItem(GHOSTDUST_REMOVER_ITEM.supplier, "Ghost Dust Remover")
       lang.addItem(CAMPFIRE_ASH.supplier, "Campfire Ash")
 
       lang.addCreativeGroup("Anima")
@@ -124,8 +85,6 @@ object SimpleItems {
       lang.addItem(KINDLING_ITEM.supplier, "Petit Bois d'Allumage")
       lang.addItem(BIRDBONES_ITEM.supplier, "Os d'Oiseau")
       lang.addItem(ANIMALBONES_ITEM.supplier, "Os d'Animal")
-      lang.addItem(GHOSTDUST_ITEM.supplier, "Poussière de Fantôme")
-      lang.addItem(GHOSTDUST_REMOVER_ITEM.supplier, "Détachant de Fantôme")
       lang.addItem(CAMPFIRE_ASH.supplier, "Cendres de Feu de Camp")
 
       lang.addCreativeGroup("Anima")

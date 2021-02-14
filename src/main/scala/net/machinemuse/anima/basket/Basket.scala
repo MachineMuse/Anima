@@ -111,7 +111,7 @@ class Basket extends Item(Basket.properties) with InventoriedItem with Logging {
       ActionResultType.PASS // Passes to onItemRightClick
     } else {
       val bag = context.getItem
-      val selectedSlotStack = getSelectedStack(bag)
+      val selectedSlotStack = getStackInSelectedSlot(bag)
       if(!selectedSlotStack.isEmpty){
         val innerContext = new ItemUseContext(player, context.getHand, new BlockRayTraceResult(context.getHitVec,context.getFace, context.getPos, context.isInside))
         deferItemUseT(player, context.getHand, _.onItemUse(innerContext))
@@ -138,7 +138,7 @@ class Basket extends Item(Basket.properties) with InventoriedItem with Logging {
     } else {
       // player not sneaking
       val bag = player.getHeldItem(hand)
-      val selectedSlotStack = getSelectedStack(bag)
+      val selectedSlotStack = getStackInSelectedSlot(bag)
       if(!selectedSlotStack.isEmpty){
         deferItemUse(player, hand, _.useItemRightClick(world, player, hand))
       } else {
@@ -158,11 +158,11 @@ class Basket extends Item(Basket.properties) with InventoriedItem with Logging {
       case Hand.OFF_HAND => (player.inventory.offHandInventory, 0)
     }
     val bag = inventory.get(slot)
-    val selectedStack = getSelectedStack(bag)
+    val selectedStack = getStackInSelectedSlot(bag)
 
     inventory.set(slot, selectedStack)
     val usedStackResult = useItem(selectedStack)
-    setSelectedStack(bag, usedStackResult.getResult)
+    setStackInSelectedSlot(bag, usedStackResult.getResult)
     inventory.set(slot, bag)
     new ActionResult[ItemStack](usedStackResult.getType, bag)
   }

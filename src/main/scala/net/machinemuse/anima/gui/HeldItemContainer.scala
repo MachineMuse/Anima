@@ -6,6 +6,7 @@ import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.container._
 import net.minecraft.item.ItemStack
 import net.minecraft.util.Hand
+import net.minecraftforge.items.{IItemHandler, SlotItemHandler}
 import org.apache.logging.log4j.scala.Logging
 
 import scala.annotation.nowarn
@@ -29,14 +30,14 @@ abstract class HeldItemContainer(playerInventory: PlayerInventory, hand: Hand, c
 
   val containerItemStack: ItemStack = usedInventory.get(usedInventorySlot)
 
-  val innerInventory: IInventory = containerItem.createInventory(containerItemStack)
+  val innerInventory: IItemHandler = containerItem.createInventory(containerItemStack)
 
-  def numInnerSlots: Int = innerInventory.getSizeInventory
+  def numInnerSlots: Int = innerInventory.getSlots
 
   def mkInnerSlot(index: Int, xPosition: Int, yPosition: Int) = {
-    new Slot(innerInventory, index, xPosition, yPosition) {
-      override def isItemValid(stack: ItemStack): Boolean = containerItem.canStoreItem(containerItemStack, stack)
-      override def getItemStackLimit(stack: ItemStack): Int = containerItem.getStackLimit(stack)
+    new SlotItemHandler(innerInventory, index, xPosition, yPosition) {
+//      override def isItemValid(stack: ItemStack): Boolean = containerItem.canStoreItem(containerItemStack, stack)
+//      override def getItemStackLimit(stack: ItemStack): Int = containerItem.getStackLimit(stack)
     }
   }
 

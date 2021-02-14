@@ -25,7 +25,7 @@ object ModeChangingItem extends Logging{
       val player = context.getSender
       val item = player.inventory.getCurrentItem
       item.getItem.optionallyDoAs[ModeChangingItem[_]]{mci =>
-        logger.info(s"Mode change packet received: delta=$delta, item=$item")
+        logger.trace(s"Mode change packet received: delta=$delta, item=$item")
         mci.tryChangingModes(delta, item)
       }
     }
@@ -45,7 +45,7 @@ trait ModeChangingItem[T] extends Logging {
   def tryChangingModes(delta: Int, bag: ItemStack) = {
     val modes = getValidModes(bag)
     val indices = modes.zipWithIndex
-    logger.info("indices: " + indices)
+    logger.trace("indices: " + indices)
     if(delta > 0) {
       val nextIx = modes.indexOf(getCurrentMode(bag)) + delta
       val loopix = if(nextIx.isFromUntil(0, modes.size)) nextIx else 0

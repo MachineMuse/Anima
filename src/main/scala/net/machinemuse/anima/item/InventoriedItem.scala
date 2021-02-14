@@ -1,12 +1,11 @@
 package net.machinemuse.anima
 package item
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.inventory.IInventory
 import net.minecraft.inventory.container.Container
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt._
 import net.minecraft.util.text.{ITextComponent, TextFormatting}
+import net.minecraftforge.items.{IItemHandler, IItemHandlerModifiable}
 
 import java.util
 import scala.jdk.CollectionConverters._
@@ -19,8 +18,6 @@ import constants.NBTTypeRef
 trait InventoriedItem extends ModeChangingItem[Int] {
 
   // TODO: use ItemStackHelper methods where applicable
-
-  // TODO: Convert to IItemHandler capability
 
   def addContentsToTooltip(bag: ItemStack, tooltip: util.List[ITextComponent]) = {
     for (stack <- getContents(bag)) {
@@ -42,8 +39,8 @@ trait InventoriedItem extends ModeChangingItem[Int] {
     case (_, index) => Seq(index)
   }
 
-  def getSelectedStack(bag: ItemStack): ItemStack = getContentsAt(bag, getCurrentMode(bag))
-  def setSelectedStack(bag: ItemStack, contents: ItemStack) = setContentsAt(bag, getCurrentMode(bag), contents)
+  def getStackInSelectedSlot(bag: ItemStack): ItemStack = getContentsAt(bag, getCurrentMode(bag))
+  def setStackInSelectedSlot(bag: ItemStack, contents: ItemStack) = setContentsAt(bag, getCurrentMode(bag), contents)
 
   private def getContentsAsNBTTagList(bag: ItemStack): ListNBT = bag.getOrCreateTag().getList("contents", NBTTypeRef.TAG_COMPOUND)
 
@@ -131,72 +128,48 @@ trait InventoriedItem extends ModeChangingItem[Int] {
 
   def getStackLimit(bag: ItemStack): Int
 
-  def createInventory(container: ItemStack): IInventory = new IInventory {
+  def createInventory(container: ItemStack): IItemHandler = new IItemHandlerModifiable {
 
-    override def isEmpty: Boolean = getNumStacks(container) > 0
+    override def getSlots: Int = getSize(container)
 
     override def getStackInSlot(index: Int): ItemStack = {
-//      if(playerInventory.getStackInSlot(containingSlot) == containingItem) {
         getContentsAt(container, index)
-//      } else {
-//        ItemStack.EMPTY
-//      }
     }
 
-    override def decrStackSize(index: Int, requestedCount: Int): ItemStack = {
-//      if(playerInventory.getStackInSlot(containingSlot) == containingItem) {
-        val contents = getStackInSlot(index)
-        val actualCount = Math.min(requestedCount, contents.getCount)
-        val extracted = new ItemStack(contents.getItem, actualCount)
-        contents.setCount(contents.getCount - actualCount)
-        setInventorySlotContents(index, contents)
-        extracted
-//      } else {
-//        ItemStack.EMPTY
-//      }
+    override def insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack = {
+      val existingItem = getStackInSlot(slot)
+      if(isValidForSlot(slot, container, stack) && (existingItem.isEmpty || (existingItem.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(existingItem, stack)))) {
+        val numInserted = Math.min(stack.getCount, getStackLimit(container) - existingItem.getCount)
+        val result = stack.copy()
+        result.setCount(stack.getCount - numInserted)
+        if(!simulate) {
+          existingItem.setCount(existingItem.getCount + numInserted)
+          setContentsAt(container, slot, existingItem)
+        }
+        result
+      } else {
+        stack
+      }
     }
 
-    override def removeStackFromSlot(index: Int): ItemStack = {
-//      if(playerInventory.getStackInSlot(containingSlot) == containingItem) {
-        val contents = getStackInSlot(index)
-        setInventorySlotContents(index, null)
-        contents
-//      } else {
-//        ItemStack.EMPTY
-//      }
+    override def extractItem(slot: Int, amount: Int, simulate: Boolean): ItemStack = {
+      val existingItem = getStackInSlot(slot)
+      val numToExtract = Seq(amount, existingItem.getCount, existingItem.getMaxStackSize).min
+      val result = existingItem.copy()
+      result.setCount(numToExtract)
+      if(!simulate) {
+        existingItem.shrink(numToExtract)
+        setContentsAt(container, slot, existingItem)
+      }
+      result
     }
 
-    override def setInventorySlotContents(index: Int, stack: ItemStack): Unit = {
-//      if(playerInventory.getStackInSlot(containingSlot) == containingItem) {
-        setContentsAt(container, index, stack)
-//      } else {
-//         todo: error handling
-//      }
+    override def getSlotLimit(slot: Int): Int = getStackLimit(container)
+
+    override def isItemValid(slot: Int, stack: ItemStack): Boolean = isValidForSlot(slot, container, stack)
+
+    override def setStackInSlot(slot: Int, stack: ItemStack): Unit = {
+      setContentsAt(container, slot, stack)
     }
-
-    override def markDirty(): Unit = {} // not needed since we update instantly
-
-    override def isUsableByPlayer(player: PlayerEntity): Boolean = {
-      true
-//      playerInventory.getStackInSlot(containingSlot) == containingItem
-    }
-
-    override def clear(): Unit = {
-//      if(playerInventory.getStackInSlot(containingSlot) == containingItem) {
-        clearContents(container)
-//      } else {
-//         TODO: error handling
-//      }
-    }
-
-    override def getSizeInventory: Int = {
-//      if(playerInventory.getStackInSlot(containingSlot) == containingItem) {
-        getSize(container)
-//      } else {
-//        0
-//      }
-    }
-
-    override def getInventoryStackLimit: Int = getStackLimit(container)
   }
 }

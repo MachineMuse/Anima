@@ -1,9 +1,9 @@
 package net.machinemuse.anima
-package client
+package render
 
 import net.minecraft.client.renderer.RenderType.makeType
-import net.minecraft.client.renderer._
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import net.minecraft.client.renderer.{RenderState, RenderType}
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -18,20 +18,21 @@ import org.lwjgl.opengl.GL11
  */
 @EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Bus.MOD)
 object RenderStates extends Logging {
-  @SubscribeEvent def onClientSetup(event: FMLClientSetupEvent) : Unit = {  }
+  @SubscribeEvent def onClientSetup(event: FMLClientSetupEvent): Unit = {}
 
   val getBetterTranslucentState = {
     import RenderState._
     val renderState = RenderType.State.getBuilder
-                                .shadeModel(SHADE_ENABLED)
-                                .lightmap(LIGHTMAP_ENABLED)
-                                .texture(BLOCK_SHEET_MIPPED)
-                                .transparency(TRANSLUCENT_TRANSPARENCY)
-                                .alpha(DEFAULT_ALPHA)
-                                .build(true)
+      .shadeModel(SHADE_ENABLED)
+      .lightmap(LIGHTMAP_ENABLED)
+      .texture(BLOCK_SHEET_MIPPED)
+      .transparency(TRANSLUCENT_TRANSPARENCY)
+      .alpha(DEFAULT_ALPHA)
+      .build(true)
     val INITIAL_BUFFER_SIZE = 262144
     RenderType.makeType("anima_campfire_translucent", DefaultVertexFormats.BLOCK, GL11.GL_QUADS, INITIAL_BUFFER_SIZE, true, true, renderState)
   }
+
   def getBetterArmorState(locationIn: ResourceLocation) = {
     import RenderState._
     val renderState = RenderType.State.getBuilder
@@ -44,7 +45,7 @@ object RenderStates extends Logging {
       .overlay(OVERLAY_ENABLED)
       .layer(field_239235_M_)
       .build(true)
-//      .shadeModel(SHADE_ENABLED) // from other renderstate, may or may not be necessary?
+    //      .shadeModel(SHADE_ENABLED) // from other renderstate, may or may not be necessary?
     val INITIAL_BUFFER_SIZE = 256
     makeType("armor_cutout_translucent_no_cull", DefaultVertexFormats.ENTITY, GL11.GL_QUADS, INITIAL_BUFFER_SIZE, true, true, renderState)
   }

@@ -24,9 +24,9 @@ import org.apache.logging.log4j.scala.Logging
 import java.util.Random
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-import client.RenderStates
+import render.RenderStates
+import render.RenderingShorthand.withPushedMatrix
 import util.Colour
-import util.RenderingShorthand.withPushedMatrix
 
 /**
  * Created by MachineMuse on 1/24/2021.

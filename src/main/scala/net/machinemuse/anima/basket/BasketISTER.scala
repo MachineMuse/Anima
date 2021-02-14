@@ -19,8 +19,8 @@ import org.apache.logging.log4j.scala.Logging
 import java.util.concurrent.Callable
 import scala.annotation.nowarn
 
-import client.RenderStates
-import util.RenderingShorthand.withPushedMatrix
+import render.RenderStates
+import render.RenderingShorthand.withPushedMatrix
 
 /**
  * Created by MachineMuse on 1/21/2021.
@@ -52,7 +52,7 @@ class BasketISTER extends ItemStackTileEntityRenderer with Logging {
                              ): Unit = {
     transformType match {
       case TransformType.GUI =>
-        val selectedInBasket = Basket.BASKET_ITEM.get.getSelectedStack(bag)
+        val selectedInBasket = Basket.BASKET_ITEM.get.getStackInSelectedSlot(bag)
         doRenderModel(bag, transformType, matrixStack, buffer, combinedLight, combinedOverlay)
 
         if(!selectedInBasket.isEmpty) {

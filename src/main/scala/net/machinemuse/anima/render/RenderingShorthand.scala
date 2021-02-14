@@ -1,5 +1,5 @@
 package net.machinemuse.anima
-package util
+package render
 
 import com.mojang.blaze3d.matrix.MatrixStack
 
@@ -8,7 +8,7 @@ import com.mojang.blaze3d.matrix.MatrixStack
  */
 object RenderingShorthand {
 
-  def withPushedMatrix(m: MatrixStack) (f: MatrixStack.Entry => Unit) = {
+  def withPushedMatrix(m: MatrixStack)(f: MatrixStack.Entry => Unit) = {
     m.push()
     f(m.getLast)
     m.pop()
