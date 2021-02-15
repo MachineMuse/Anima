@@ -2,7 +2,7 @@ package net.machinemuse.anima
 package registration
 
 import net.minecraft.block.Blocks
-import net.minecraft.data.{ShapedRecipeBuilder, ShapelessRecipeBuilder}
+import net.minecraft.data.ShapedRecipeBuilder
 import net.minecraft.item.{Item, Items}
 import net.minecraft.tags.ItemTags
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -26,9 +26,6 @@ object SimpleItems {
 
   val KINDLING_ITEM = regSimpleItem("kindling")
 
-  val BIRDBONES_ITEM = regSimpleItem("birdbones")
-
-  val ANIMALBONES_ITEM = regSimpleItem("animalbones")
 
   val CAMPFIRE_ASH = regSimpleItem("campfire_ash")
 
@@ -55,18 +52,6 @@ object SimpleItems {
         .addKeyAsCriterion('P', ItemTags.PLANKS)
         .buildProperly(consumer, "kindling")
 
-      ShapelessRecipeBuilder
-        .shapelessRecipe(Items.BONE_MEAL)
-        .addIngredientAsCriterion("birdbones", SimpleItems.BIRDBONES_ITEM.get)
-        .setGroup("bonemeal")
-        .buildProperly(consumer, "bonemeal_from_birdbones")
-
-      ShapelessRecipeBuilder
-        .shapelessRecipe(Items.BONE_MEAL, 2)
-        .addIngredientAsCriterion("animalbones", SimpleItems.ANIMALBONES_ITEM.get)
-        .setGroup("bonemeal")
-        .buildProperly(consumer, "bonemeal_from_animalbones")
-
       CampfireRecipeBuilder.campfireRecipe(ItemTags.LOGS_THAT_BURN, Items.CHARCOAL, 0.35F)
         .buildProperly(consumer, "charcoal_on_campfire")
 
@@ -75,16 +60,12 @@ object SimpleItems {
     }
     mkLanguageProvider("en_us") { lang =>
       lang.addItem(KINDLING_ITEM.supplier, "Kindling")
-      lang.addItem(BIRDBONES_ITEM.supplier, "Bird Bones")
-      lang.addItem(ANIMALBONES_ITEM.supplier, "Animal Bones")
       lang.addItem(CAMPFIRE_ASH.supplier, "Campfire Ash")
 
       lang.addCreativeGroup("Anima")
     }
     mkLanguageProvider("fr_fr") { lang =>
       lang.addItem(KINDLING_ITEM.supplier, "Petit Bois d'Allumage")
-      lang.addItem(BIRDBONES_ITEM.supplier, "Os d'Oiseau")
-      lang.addItem(ANIMALBONES_ITEM.supplier, "Os d'Animal")
       lang.addItem(CAMPFIRE_ASH.supplier, "Cendres de Feu de Camp")
 
       lang.addCreativeGroup("Anima")

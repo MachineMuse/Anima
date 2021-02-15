@@ -1,19 +1,22 @@
 package net.machinemuse.anima
 package registration
 
+import com.google.gson.JsonObject
 import com.mojang.serialization.Codec
 import net.minecraft.block.Block
 import net.minecraft.entity._
 import net.minecraft.inventory.container.{Container, ContainerType}
 import net.minecraft.item._
 import net.minecraft.item.crafting.{IRecipe, IRecipeSerializer}
+import net.minecraft.loot.conditions.ILootCondition
 import net.minecraft.nbt.{CompoundNBT, INBT}
 import net.minecraft.particles.ParticleType
 import net.minecraft.tileentity.{TileEntity, TileEntityType}
-import net.minecraft.util.Direction
+import net.minecraft.util.{Direction, ResourceLocation}
 import net.minecraft.world.World
 import net.minecraftforge.common.capabilities._
 import net.minecraftforge.common.extensions.IForgeContainerType
+import net.minecraftforge.common.loot.{GlobalLootModifierSerializer, LootModifier}
 import net.minecraftforge.common.util.{INBTSerializable, LazyOptional}
 import net.minecraftforge.fml.RegistryObject
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
@@ -26,7 +29,7 @@ import java.util.function.Supplier
 import scala.reflect.ClassTag
 
 import registration.SimpleItems.AnimaCreativeGroup
-import util.VanillaCodecs.{ConvenientRecipeSerializer, SavedData, mkCapStorage}
+import util.VanillaCodecs.{ConvenientCodec, ConvenientRecipeSerializer, SavedData, mkCapStorage}
 
 /**
  * Created by MachineMuse on 1/28/2021.
@@ -44,8 +47,30 @@ object RegistryHelpers extends Logging {
   val ENTITIES: DeferredRegister[EntityType[_]] = mkRegister(ForgeRegistries.ENTITIES)
   val RECIPE_SERIALIZERS: DeferredRegister[IRecipeSerializer[_]] = mkRegister(ForgeRegistries.RECIPE_SERIALIZERS)
   val PARTICLES: DeferredRegister[ParticleType[_]] = mkRegister(ForgeRegistries.PARTICLE_TYPES)
+  val LOOT_MODIFIER_SERIALIZERS: DeferredRegister[GlobalLootModifierSerializer[_]] = mkRegister(ForgeRegistries.LOOT_MODIFIER_SERIALIZERS)
 
-  def regRecipeSerializer[R <: IRecipe[_]](name: String, codec: Codec[R], default: R): ConvenientRegistryObject[IRecipeSerializer[R]] = ConvenientRegistryObject(RECIPE_SERIALIZERS.register(name, () => codec.mkSerializer(default)))
+  abstract class SimpleLootModifier[D](val data: D, conditions: Array[ILootCondition]) extends LootModifier(conditions){
+    def getConditions = conditions
+  }
+
+  def regLootModifierSerializer[D, T <: SimpleLootModifier[D]](name: String, ctor: (D, Array[ILootCondition]) => T) (implicit codec: Codec[D])
+  : ConvenientRegistryObject[GlobalLootModifierSerializer[SimpleLootModifier[D]]] =
+    ConvenientRegistryObject(LOOT_MODIFIER_SERIALIZERS.register(name, () => mkSimpleLootSerializer(codec, ctor)))
+
+  def mkSimpleLootSerializer[D, T <: SimpleLootModifier[D]](implicit codec: Codec[D], ctor: (D, Array[ILootCondition]) => T) = new GlobalLootModifierSerializer[SimpleLootModifier[D]] {
+    override def read(location: ResourceLocation, json: JsonObject, lootconditions: Array[ILootCondition]): SimpleLootModifier[D] = {
+      val data = codec.parseJson(json.get("data")).get // OrElse{logger.error(s"Couldn't deserialize ${json.get("data"); ???} to a simple loot modifier")}
+      ctor(data, lootconditions)
+    }
+
+    override def write(instance: SimpleLootModifier[D]): JsonObject = {
+      val conditionsContainerJson = makeConditions(instance.getConditions)
+      conditionsContainerJson.add("data", codec.writeJson(instance.data))
+      conditionsContainerJson
+    }
+  }
+
+  def regRecipeSerializer[R <: IRecipe[_]](name: String, codec: Codec[R], default: R): ConvenientRegistryObject[IRecipeSerializer[R]] = ConvenientRegistryObject(RECIPE_SERIALIZERS.register(name, () => codec.mkRecipeSerializer(default)))
 
   def regEntityType[E <: Entity](name: String, initializer: () => Unit, ctor: (EntityType[E], World) => E, classification:EntityClassification): ConvenientRegistryObject[EntityType[E]] = {
     logger.info(s"Registering EntityType $name")

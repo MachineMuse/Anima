@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "entries": [
+    "anima:sheep_bones",
+    "anima:chicken_bones",
+    "anima:pig_bones",
+    "anima:cow_bones"
+  ]
+}

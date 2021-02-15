@@ -15,7 +15,7 @@ import net.minecraft.util.{IItemProvider, ResourceLocation}
 import net.minecraftforge.client.model.generators.ModelFile.ExistingModelFile
 import net.minecraftforge.client.model.generators.{BlockStateProvider => DatagenBlockStateProvider, _}
 import net.minecraftforge.common.crafting.conditions.IConditionBuilder
-import net.minecraftforge.common.data.LanguageProvider
+import net.minecraftforge.common.data.{GlobalLootModifierProvider, LanguageProvider}
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
 import org.apache.logging.log4j.scala.Logging
 
@@ -23,10 +23,23 @@ import java.util.function.Consumer
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
+import util.VanillaCodecs.ConvenientCodec
+
 /**
  * Created by MachineMuse on 2/9/2021.
  */
 object DatagenHelpers extends Logging {
+
+
+
+  def mkLootModifierProvider(addModifiers: GlobalLootModifierProvider => Unit)(implicit event: GatherDataEvent): Unit = {
+    lootModifierAccumulator.enqueueData(event, "global", addModifiers)
+  }
+  private val lootModifierAccumulator = new DataProviderAccumulator[String, GlobalLootModifierProvider]((event, name, actualize) =>
+    new GlobalLootModifierProvider(event.getGenerator, implicitly[MODID]) {
+      override def start(): Unit = actualize()
+    }
+  )
 
   def mkContainerProvider[T <: Container](name: String, menuctor: (Int, PlayerInventory, PlayerEntity) => T): INamedContainerProvider = {
     new INamedContainerProvider() {

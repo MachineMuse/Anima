@@ -1,0 +1,17 @@
+{
+  "conditions": [
+    {
+      "condition": "minecraft:entity_properties",
+      "predicate": {
+        "type": "minecraft:cow"
+      },
+      "entity": "this"
+    }
+  ],
+  "data": {
+    "itemToAdd": "anima:animalbones",
+    "minCount": 1,
+    "maxCount": 4
+  },
+  "type": "anima:animal_bones"
+}

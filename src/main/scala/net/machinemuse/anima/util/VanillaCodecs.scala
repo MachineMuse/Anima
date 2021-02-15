@@ -203,7 +203,7 @@ object VanillaCodecs extends Logging {
   }
 
   implicit class ConvenientRecipeSerializer[A <: IRecipe[_]](codec: Codec[A]) {
-    def mkSerializer(default: A) = new ForgeRegistryEntry[IRecipeSerializer[_]] with IRecipeSerializer[A] {
+    def mkRecipeSerializer(default: A) = new ForgeRegistryEntry[IRecipeSerializer[_]] with IRecipeSerializer[A] {
       override def read(recipeId: mu.ResourceLocation, json: JsonObject): A = codec.parseJson(json).getOrElse(default)
       override def read(recipeId: mu.ResourceLocation, buffer: PacketBuffer): A = codec.readUncompressed(buffer).getOrElse(default)
       override def write(buffer: PacketBuffer, recipe: A): Unit = codec.writeUncompressed(buffer, recipe)
