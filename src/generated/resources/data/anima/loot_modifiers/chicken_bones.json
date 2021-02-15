@@ -13,5 +13,5 @@
     "minCount": 1,
     "maxCount": 2
   },
-  "type": "anima:animal_bones"
+  "type": "anima:add_items"
 }

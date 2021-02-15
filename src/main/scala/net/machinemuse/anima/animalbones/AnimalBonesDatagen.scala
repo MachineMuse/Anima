@@ -4,9 +4,9 @@ package animalbones
 import net.minecraft.advancements.criterion.EntityPredicate
 import net.minecraft.data.ShapelessRecipeBuilder
 import net.minecraft.entity.EntityType
-import net.minecraft.item._
+import net.minecraft.item.{Item, Items}
 import net.minecraft.loot.LootContext
-import net.minecraft.loot.conditions.{EntityHasProperty, ILootCondition}
+import net.minecraft.loot.conditions.EntityHasProperty
 import net.minecraftforge.common.data.GlobalLootModifierProvider
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
@@ -14,32 +14,19 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataEvent}
 import org.apache.logging.log4j.scala.Logging
 
-import animalbones.AnimalBonesLootModifier.AnimalLootModifierData
+import animalbones.AddItemsLootModifier.AddItemsLootData
+import registration.RegistryHelpers.regSimpleItem
 import util.DatagenHelpers.{FancyShapelessRecipeBuilder, mkLanguageProvider, mkLootModifierProvider, mkRecipeProvider}
-import util.GenCodecsByName._
-import util.VanillaCodecs._
-import java.util
-import scala.util.Random
-
-import registration.RegistryHelpers._
 
 /**
- * Created by MachineMuse on 2/14/2021.
+ * Created by MachineMuse on 2/15/2021.
  */
-object AnimalBonesLootModifier extends Logging {
+@EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
+object AnimalBonesDatagen extends Logging {
   @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {}
 
   val BIRDBONES_ITEM = regSimpleItem("birdbones")
-
   val ANIMALBONES_ITEM = regSimpleItem("animalbones")
-
-  case class AnimalLootModifierData(itemToAdd: Item,
-                                    minCount: Int,
-                                    maxCount: Int) extends CodecByName
-
-  /*_*/
-  private val SERIALIZER = regLootModifierSerializer("animal_bones", new AnimalBonesLootModifier(_,_))
-  /*_*/
 
   @SubscribeEvent def onGatherData(implicit event: GatherDataEvent): Unit = {
     mkRecipeProvider { consumer =>
@@ -65,8 +52,8 @@ object AnimalBonesLootModifier extends Logging {
       lang.addItem(ANIMALBONES_ITEM.supplier, "Os d'Animal")
     }
     def mkLM(provider: GlobalLootModifierProvider, name: String, item: Item, min: Int, max: Int, entityType: EntityType[_]) = {
-      provider.add(name, SERIALIZER.get,
-        new AnimalBonesLootModifier(AnimalLootModifierData(item, min, max),
+      provider.add(name, AddItemsLootModifier.getSerializer,
+        AddItemsLootModifier.mkLootModifier(AddItemsLootData(item, min, max),
           Array(EntityHasProperty.builder(LootContext.EntityTarget.THIS, EntityPredicate.Builder.create().`type`(entityType)).build())
         )
       )
@@ -79,16 +66,4 @@ object AnimalBonesLootModifier extends Logging {
       mkLM(provider, "sheep_bones", ANIMALBONES_ITEM.get, 1, 2, EntityType.SHEEP)
     }
   }
-}
-
-@EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-class AnimalBonesLootModifier(data: AnimalLootModifierData, conditions: Array[ILootCondition])
-  extends SimpleLootModifier[AnimalLootModifierData](data, conditions) with Logging {
-
-  override def doApply(generatedLoot: util.List[ItemStack], context: LootContext): util.List[ItemStack] = {
-    val numBones = Random.nextInt(data.maxCount + 1 - data.minCount) + data.minCount
-    generatedLoot.add(new ItemStack(data.itemToAdd, numBones))
-    generatedLoot
-  }
-
 }

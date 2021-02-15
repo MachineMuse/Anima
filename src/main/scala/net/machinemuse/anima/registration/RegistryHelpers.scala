@@ -8,6 +8,7 @@ import net.minecraft.entity._
 import net.minecraft.inventory.container.{Container, ContainerType}
 import net.minecraft.item._
 import net.minecraft.item.crafting.{IRecipe, IRecipeSerializer}
+import net.minecraft.loot.LootContext
 import net.minecraft.loot.conditions.ILootCondition
 import net.minecraft.nbt.{CompoundNBT, INBT}
 import net.minecraft.particles.ParticleType
@@ -30,6 +31,7 @@ import scala.reflect.ClassTag
 
 import registration.SimpleItems.AnimaCreativeGroup
 import util.VanillaCodecs.{ConvenientCodec, ConvenientRecipeSerializer, SavedData, mkCapStorage}
+import java.util
 
 /**
  * Created by MachineMuse on 1/28/2021.
@@ -48,6 +50,13 @@ object RegistryHelpers extends Logging {
   val RECIPE_SERIALIZERS: DeferredRegister[IRecipeSerializer[_]] = mkRegister(ForgeRegistries.RECIPE_SERIALIZERS)
   val PARTICLES: DeferredRegister[ParticleType[_]] = mkRegister(ForgeRegistries.PARTICLE_TYPES)
   val LOOT_MODIFIER_SERIALIZERS: DeferredRegister[GlobalLootModifierSerializer[_]] = mkRegister(ForgeRegistries.LOOT_MODIFIER_SERIALIZERS)
+
+  def mkSimpleLootModifier[D : Codec](data: D, conditions: Array[ILootCondition])(f: (util.List[ItemStack], LootContext) => util.List[ItemStack]) =
+    new SimpleLootModifier[D](data, conditions) {
+      override def doApply(generatedLoot: util.List[ItemStack], context: LootContext): util.List[ItemStack] = {
+        f(generatedLoot, context)
+      }
+    }
 
   abstract class SimpleLootModifier[D](val data: D, conditions: Array[ILootCondition]) extends LootModifier(conditions){
     def getConditions = conditions
