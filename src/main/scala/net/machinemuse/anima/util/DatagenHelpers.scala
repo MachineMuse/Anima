@@ -1,13 +1,16 @@
 package net.machinemuse.anima
 package util
 
+import com.mojang.datafixers.util.Pair
 import net.minecraft.advancements.criterion._
 import net.minecraft.block.{Block, BlockState}
 import net.minecraft.data._
+import net.minecraft.data.loot.{BlockLootTables, EntityLootTables}
 import net.minecraft.entity.player.{PlayerEntity, PlayerInventory}
 import net.minecraft.inventory.container.{Container, INamedContainerProvider}
 import net.minecraft.item.Item
 import net.minecraft.item.crafting.{IRecipeSerializer, Ingredient}
+import net.minecraft.loot._
 import net.minecraft.state._
 import net.minecraft.tags.ITag
 import net.minecraft.util.text.{ITextComponent, TranslationTextComponent}
@@ -19,18 +22,59 @@ import net.minecraftforge.common.data.{GlobalLootModifierProvider, LanguageProvi
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
 import org.apache.logging.log4j.scala.Logging
 
-import java.util.function.Consumer
+import java.util.function._
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.jdk.CollectionConverters.{IterableHasAsJava, SeqHasAsJava}
 
 import util.VanillaCodecs.ConvenientCodec
+import java.{lang, util}
 
 /**
  * Created by MachineMuse on 2/9/2021.
  */
 object DatagenHelpers extends Logging {
 
+  private class LootTableProviderWithAccumulator(gen: DataGenerator) extends LootTableProvider(gen) {
+    private val tables: mutable.HashSet[(Supplier[Consumer[BiConsumer[ResourceLocation, LootTable.Builder]]], LootParameterSet)] = mutable.HashSet.empty
+    def putTable(table: Supplier[Consumer[BiConsumer[ResourceLocation, LootTable.Builder]]], params: LootParameterSet) = tables.add((table, params))
+    override def getTables = tables.map(tup => Pair.of(tup._1, tup._2)).toList.asJava
 
+    override def validate(registry: util.Map[ResourceLocation, LootTable], tracker: ValidationTracker): Unit = {}
+  }
+
+  private var blockLootTableProvider = none[LootTableProviderWithAccumulator]
+  private def getLootTableProvider(implicit event: GatherDataEvent) = blockLootTableProvider match {
+    case Some(provider) => provider
+    case None => new LootTableProviderWithAccumulator(event.getGenerator).andDo{
+      provider =>
+        blockLootTableProvider = provider.some
+        event.getGenerator.addProvider(provider)
+    }
+  }
+
+  // TODO: for other parameter sets
+  class SimplerBlockLootTable extends BlockLootTables {
+    private val tables: mutable.HashSet[(Block, java.util.function.Function[Block, LootTable.Builder])] = mutable.HashSet.empty
+    def add(block: Block, table: LootTable.Builder) = tables.add((block, _ => table))
+    def add(block: Block, table: Block => LootTable.Builder) = tables.add(block, table(_))
+
+    override def addTables(): Unit = {
+      tables.foreach { tup =>
+        registerLootTable(tup._1, tup._2)
+      }
+    }
+
+    override def getKnownBlocks: lang.Iterable[Block] = {
+      tables.map(_._1).asJava
+    }
+  }
+  def provideBlockLootTable(lootTable: BlockLootTables)(implicit event: GatherDataEvent) = {
+    getLootTableProvider.putTable(() => lootTable, LootParameterSets.BLOCK)
+  }
+
+  def provideEntityLootTable(lootTable: EntityLootTables)(implicit event: GatherDataEvent) = {
+    getLootTableProvider.putTable(() => lootTable, LootParameterSets.ENTITY)
+  }
 
   def mkLootModifierProvider(addModifiers: GlobalLootModifierProvider => Unit)(implicit event: GatherDataEvent): Unit = {
     lootModifierAccumulator.enqueueData(event, "global", addModifiers)

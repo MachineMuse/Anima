@@ -4,14 +4,15 @@ package catstatue
 import net.minecraft.block._
 import net.minecraft.block.material.{Material, MaterialColor}
 import net.minecraft.data.ShapedRecipeBuilder
+import net.minecraft.data.loot.BlockLootTables.dropping
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item._
 import net.minecraft.state.properties.BlockStateProperties
 import net.minecraft.state.{DirectionProperty, StateContainer}
 import net.minecraft.tileentity.TileEntity
-import net.minecraft.util._
 import net.minecraft.util.math.shapes.{ISelectionContext, VoxelShape}
 import net.minecraft.util.math.{BlockPos, BlockRayTraceResult}
+import net.minecraft.util.{Unit => _, _}
 import net.minecraft.world.{IBlockReader, World}
 import net.minecraftforge.common.ForgeHooks
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -24,7 +25,7 @@ import scala.annotation.nowarn
 
 import bowl.BowlWithContents
 import registration.RegistryHelpers.{regBlock, regSimpleBlockItem}
-import util.DatagenHelpers.{FancyShapedRecipeBuilder, PartBuilderWorkaround, existingModModelFile, mkLanguageProvider, mkMultipartBlockStates, mkRecipeProvider, mkSimpleBlockItemModel}
+import util.DatagenHelpers.{FancyShapedRecipeBuilder, PartBuilderWorkaround, SimplerBlockLootTable, existingModModelFile, mkLanguageProvider, mkMultipartBlockStates, mkRecipeProvider, mkSimpleBlockItemModel, provideBlockLootTable}
 import util.VanillaClassEnrichers.RichBlockState
 
 
@@ -84,7 +85,13 @@ object CatStatueBlock extends Logging {
       }
     }
     mkSimpleBlockItemModel(CAT_STATUE_BLOCK.get, existingModModelFile("block/cat_statue_base"))
-
+    provideBlockLootTable {
+      new SimplerBlockLootTable {
+        /*_*/
+        add(CAT_STATUE_BLOCK.get, dropping(CAT_STATUE_ITEM.get))
+        /*_*/
+      }
+    }
   }
 
 }

@@ -3,7 +3,12 @@ package campfire
 
 import net.minecraft.block._
 import net.minecraft.block.material.{Material, MaterialColor}
+import net.minecraft.data.loot.BlockLootTables
+import net.minecraft.data.loot.BlockLootTables.droppingWithSilkTouch
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.Items
+import net.minecraft.loot._
+import net.minecraft.loot.functions.SetCount
 import net.minecraft.state.properties.BlockStateProperties
 import net.minecraft.tags.BlockTags
 import net.minecraft.util.math.{BlockPos, BlockRayTraceResult}
@@ -16,7 +21,7 @@ import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataE
 import shapeless.HNil
 
 import registration.RegistryHelpers._
-import util.DatagenHelpers.{mkBlockTagsProvider, mkLanguageProvider}
+import util.DatagenHelpers.{SimplerBlockLootTable, mkBlockTagsProvider, mkLanguageProvider, provideBlockLootTable}
 import util.VanillaClassEnrichers.RichBlockState
 
 /**
@@ -38,6 +43,20 @@ object CampfirePlus {
     }
     mkLanguageProvider("fr_fr"){ lang =>
       lang.addBlock(CAMPFIREPLUS_BLOCK, "Feu de Camp Amélioré")
+    }
+
+    provideBlockLootTable {
+      new SimplerBlockLootTable {
+        /*_*/
+        add(CAMPFIREPLUS_BLOCK.get, block =>
+          droppingWithSilkTouch(block,
+            BlockLootTables.withSurvivesExplosion(block,
+              ItemLootEntry.builder(Items.CHARCOAL).acceptFunction(SetCount.builder(ConstantRange.of(2)))
+            )
+          )
+        )
+        /*_*/
+      }
     }
   }
 

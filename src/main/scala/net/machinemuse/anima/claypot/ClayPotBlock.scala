@@ -4,6 +4,7 @@ package claypot
 import net.minecraft.block._
 import net.minecraft.block.material.{Material, MaterialColor}
 import net.minecraft.data.ShapedRecipeBuilder
+import net.minecraft.data.loot.BlockLootTables.dropping
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.{BlockItemUseContext, Items}
 import net.minecraft.state._
@@ -23,7 +24,7 @@ import scala.annotation.nowarn
 
 import constants.BlockStateFlags
 import registration.RegistryHelpers.{regBlock, regSimpleBlockItem}
-import util.DatagenHelpers.{FancyShapedRecipeBuilder, existingModModelFile, mkAllVariantBlockStates, mkLanguageProvider, mkRecipeProvider, mkSimpleBlockItemModel}
+import util.DatagenHelpers.{FancyShapedRecipeBuilder, SimplerBlockLootTable, existingModModelFile, mkAllVariantBlockStates, mkLanguageProvider, mkRecipeProvider, mkSimpleBlockItemModel, provideBlockLootTable}
 
 /**
  * Created by MachineMuse on 2/9/2021.
@@ -73,6 +74,12 @@ object ClayPotBlock extends Logging {
       }
     }
     mkSimpleBlockItemModel(BLOCK.get, existingModModelFile("block/clay_pot"))
+
+    provideBlockLootTable {
+      new SimplerBlockLootTable {
+        add(BLOCK.get, dropping(ITEM.get))
+      }
+    }
 
   }
 }
