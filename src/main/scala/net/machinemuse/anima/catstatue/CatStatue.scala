@@ -3,8 +3,6 @@ package catstatue
 
 import net.minecraft.block._
 import net.minecraft.block.material.{Material, MaterialColor}
-import net.minecraft.data.ShapedRecipeBuilder
-import net.minecraft.data.loot.BlockLootTables.dropping
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item._
 import net.minecraft.state.properties.BlockStateProperties
@@ -18,30 +16,29 @@ import net.minecraftforge.common.ForgeHooks
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
-import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataEvent}
+import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 import org.apache.logging.log4j.scala.Logging
 
 import scala.annotation.nowarn
 
 import bowl.BowlWithContents
 import registration.RegistryHelpers.{regBlock, regSimpleBlockItem}
-import util.DatagenHelpers.{FancyShapedRecipeBuilder, PartBuilderWorkaround, SimplerBlockLootTable, existingModModelFile, mkLanguageProvider, mkMultipartBlockStates, mkRecipeProvider, mkSimpleBlockItemModel, provideBlockLootTable}
 import util.VanillaClassEnrichers.RichBlockState
 
 
 /**
  * Created by MachineMuse on 2/11/2021.
  */
-object CatStatueBlock extends Logging {
+object CatStatue extends Logging {
   @SubscribeEvent def onConstructMod(e: FMLConstructModEvent) = {}
 
   private val properties = AbstractBlock.Properties.create(Material.CLAY, MaterialColor.RED)
     .hardnessAndResistance(2.0F).sound(SoundType.BONE).notSolid
 
-  val CAT_STATUE_BLOCK = regBlock("cat_statue", () => new CatStatueBlock(properties))
-  val CAT_STATUE_ITEM = regSimpleBlockItem("cat_statue", CAT_STATUE_BLOCK)
+  private[catstatue] val BLOCK = regBlock("cat_statue", () => new CatStatue(properties))
+  private[catstatue] val ITEM = regSimpleBlockItem("cat_statue", BLOCK)
 
-  private val HORIZONTAL_DIRECTIONS = List(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST)
+  private[catstatue] val HORIZONTAL_DIRECTIONS = List(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST)
 
 
   val FACING: DirectionProperty = BlockStateProperties.HORIZONTAL_FACING
@@ -50,55 +47,11 @@ object CatStatueBlock extends Logging {
 
   protected val SHAPENORMAL = Block.makeCuboidShape(5.0D, 0.0D, 3.0D, 11.0D, 16.0D, 13.0D)
   protected val SHAPESIDE = Block.makeCuboidShape(3.0D, 0.0D, 5.0D, 13.0D, 16.0D, 11.0D)
-
-
-  @SubscribeEvent def onGatherData(implicit event: GatherDataEvent): Unit = {
-    mkRecipeProvider{ consumer =>
-      ShapedRecipeBuilder.shapedRecipe(CAT_STATUE_ITEM.get)
-        .patternLine("#  ")
-        .patternLine(" ##")
-        .patternLine("# #")
-        .addKeyAsCriterion('#', Items.CLAY_BALL)
-        .setGroup("cat_statue")
-        .buildProperly(consumer, "cat_statue")
-    }
-    mkLanguageProvider("en_us") { lang =>
-      // adds as a block i guess because it's an ItemBlock
-      lang.addItem(CAT_STATUE_ITEM, "Clay Cat Statue")
-    }
-    mkLanguageProvider("fr_fr") { lang =>
-      lang.addItem(CAT_STATUE_ITEM, "Statue de Chat en Argile")
-    }
-    mkMultipartBlockStates(CAT_STATUE_BLOCK.get){ builder =>
-      val catModel = existingModModelFile("block/cat_statue_base")
-      val waterModels = List(existingModModelFile("block/cat_statue_water1"),
-        existingModModelFile("block/cat_statue_water2"),
-        existingModModelFile("block/cat_statue_water3"))
-      for(index <- HORIZONTAL_DIRECTIONS.indices) {
-        for(i <- 1 to 3) {
-          builder.part.modelFile(waterModels(i-1)).rotationY(index * 90).addModel()
-            .saferCondition(FACING, HORIZONTAL_DIRECTIONS(index))
-            .saferCondition(WATERLEVEL, i)
-        }
-        builder.part.modelFile(catModel).rotationY(index * 90).addModel()
-          .saferCondition(FACING, HORIZONTAL_DIRECTIONS(index))
-      }
-    }
-    mkSimpleBlockItemModel(CAT_STATUE_BLOCK.get, existingModModelFile("block/cat_statue_base"))
-    provideBlockLootTable {
-      new SimplerBlockLootTable {
-        /*_*/
-        add(CAT_STATUE_BLOCK.get, dropping(CAT_STATUE_ITEM.get))
-        /*_*/
-      }
-    }
-  }
-
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-class CatStatueBlock(properties: AbstractBlock.Properties) extends Block(properties) with Logging {
-  import CatStatueBlock._
+class CatStatue(properties: AbstractBlock.Properties) extends Block(properties) with Logging {
+  import CatStatue._
   setDefaultState(this.stateContainer.getBaseState.updated(WATERLEVEL,0).updated(FACING, Direction.NORTH))
 
   override def getShape(state: BlockState, worldIn: IBlockReader, pos: BlockPos, context: ISelectionContext): VoxelShape = {

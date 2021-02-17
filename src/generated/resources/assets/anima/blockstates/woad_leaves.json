@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "age=0,has_flowers=false": {
+      "model": "anima:block/woadsprout"
+    },
+    "age=1,has_flowers=false": {
+      "model": "anima:block/woadsprout"
+    },
+    "age=2,has_flowers=false": {
+      "model": "anima:block/woadleavestrimmed"
+    },
+    "age=3,has_flowers=false": {
+      "model": "anima:block/woadleavestrimmed"
+    },
+    "age=4,has_flowers=false": {
+      "model": "anima:block/woadleavestrimmed"
+    },
+    "age=5,has_flowers=false": {
+      "model": "anima:block/woadleavestrimmed"
+    },
+    "age=6,has_flowers=false": {
+      "model": "anima:block/woadleavestrimmed"
+    },
+    "age=7,has_flowers=false": {
+      "model": "anima:block/woadleavesfull"
+    },
+    "age=0,has_flowers=true": {
+      "model": "anima:block/woadsprout"
+    },
+    "age=1,has_flowers=true": {
+      "model": "anima:block/woadsprout"
+    },
+    "age=2,has_flowers=true": {
+      "model": "anima:block/woadleavestrimmed"
+    },
+    "age=3,has_flowers=true": {
+      "model": "anima:block/woadleavestrimmed"
+    },
+    "age=4,has_flowers=true": {
+      "model": "anima:block/woadleavestrimmed"
+    },
+    "age=5,has_flowers=true": {
+      "model": "anima:block/woadleavestrimmed"
+    },
+    "age=6,has_flowers=true": {
+      "model": "anima:block/woadleavestrimmed"
+    },
+    "age=7,has_flowers=true": {
+      "model": "anima:block/woadleavesfull"
+    }
+  }
+}

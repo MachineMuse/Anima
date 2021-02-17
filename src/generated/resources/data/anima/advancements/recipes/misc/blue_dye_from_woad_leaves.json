@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "anima:blue_dye_from_woad_leaves"
+    ]
+  },
+  "criteria": {
+    "has_woad_leaves": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "anima:woad_leaves"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "anima:blue_dye_from_woad_leaves"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_woad_leaves",
+      "has_the_recipe"
+    ]
+  ]
+}

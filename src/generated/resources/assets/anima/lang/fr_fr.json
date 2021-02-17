@@ -4,6 +4,8 @@
   "block.anima.cat_statue": "Statue de Chat en Argile",
   "block.anima.clay_pot": "Pot en Argile",
   "block.anima.salt_line": "Sel",
+  "block.anima.woad_flowers": "Fleurs de Gu\u00EApe",
+  "block.anima.woad_leaves": "Feuilles de Gu\u00EApe",
   "item.anima.animalbones": "Os d'Animal",
   "item.anima.basket": "Panier",
   "item.anima.birdbones": "Os d'Oiseau",
@@ -14,6 +16,8 @@
   "item.anima.ghost_dust": "Poussi\u00E8re de Fant\u00F4me",
   "item.anima.ghost_dust_remover": "D\u00E9tachant de Fant\u00F4me",
   "item.anima.kindling": "Petit Bois d'Allumage",
+  "item.anima.woad_leaves": "Feuilles de Gu\u00EApe",
+  "item.anima.woad_seeds": "Graines de Gu\u00EApe",
   "itemGroup.anima": "Anima",
   "tooltip.anima.transparency": "Transparence: %s%%"
 }

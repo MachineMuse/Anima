@@ -3,25 +3,18 @@ package campfire
 
 import net.minecraft.block._
 import net.minecraft.block.material.{Material, MaterialColor}
-import net.minecraft.data.loot.BlockLootTables
-import net.minecraft.data.loot.BlockLootTables.droppingWithSilkTouch
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Items
-import net.minecraft.loot._
-import net.minecraft.loot.functions.SetCount
 import net.minecraft.state.properties.BlockStateProperties
-import net.minecraft.tags.BlockTags
 import net.minecraft.util.math.{BlockPos, BlockRayTraceResult}
 import net.minecraft.util.{Unit => _, _}
 import net.minecraft.world.{IBlockReader, World}
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
-import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataEvent}
+import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 import shapeless.HNil
 
 import registration.RegistryHelpers._
-import util.DatagenHelpers.{SimplerBlockLootTable, mkBlockTagsProvider, mkLanguageProvider, provideBlockLootTable}
 import util.VanillaClassEnrichers.RichBlockState
 
 /**
@@ -33,48 +26,22 @@ object CampfirePlus {
   // Use event.enqueueWork{ () => doStuff() } if you need to run any actual mutating code in here
   @SubscribeEvent def onConstructMod(e: FMLConstructModEvent) = {}
 
-  // Add CampfirePlus to the list of valid Campfires so e.g. flint & steel can light them if doused
-  @SubscribeEvent def gatherData(implicit event: GatherDataEvent): Unit = {
-    mkBlockTagsProvider(BlockTags.CAMPFIRES){ builder =>
-      builder.add(CampfirePlus.getBlock)
-    }
-    mkLanguageProvider("en_us"){ lang =>
-      lang.addBlock(CAMPFIREPLUS_BLOCK, "Enhanced Campfire")
-    }
-    mkLanguageProvider("fr_fr"){ lang =>
-      lang.addBlock(CAMPFIREPLUS_BLOCK, "Feu de Camp Amélioré")
-    }
 
-    provideBlockLootTable {
-      new SimplerBlockLootTable {
-        /*_*/
-        add(CAMPFIREPLUS_BLOCK.get, block =>
-          droppingWithSilkTouch(block,
-            BlockLootTables.withSurvivesExplosion(block,
-              ItemLootEntry.builder(Items.CHARCOAL).acceptFunction(SetCount.builder(ConstantRange.of(2)))
-            )
-          )
-        )
-        /*_*/
-      }
-    }
-  }
+  private[campfire] val WATERLOGGED = BlockStateProperties.WATERLOGGED
+  private[campfire] val SIGNAL_FIRE = BlockStateProperties.SIGNAL_FIRE
+  private[campfire] val LIT = BlockStateProperties.LIT
+  private[campfire] val HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING
 
-  private val WATERLOGGED = BlockStateProperties.WATERLOGGED
-  private val SIGNAL_FIRE = BlockStateProperties.SIGNAL_FIRE
-  private val LIT = BlockStateProperties.LIT
-  private val HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING
-
-  private val DATA_NAME = "campfireplus"
-  private val BLOCKPROPERTIES = AbstractBlock.Properties.create(Material.WOOD, MaterialColor.OBSIDIAN)
+  private[campfire] val DATA_NAME = "campfireplus"
+  private[campfire] val BLOCKPROPERTIES = AbstractBlock.Properties.create(Material.WOOD, MaterialColor.OBSIDIAN)
     .hardnessAndResistance(2.0F).sound(SoundType.WOOD).notSolid
     .setLightLevel((state: BlockState) => if (state.get(BlockStateProperties.LIT).booleanValue()) 15 else 0)
 
   // Block and BlockItem registration
-  private val CAMPFIREPLUS_BLOCK = regBlock(DATA_NAME, () => new CampfirePlus(false, 1, BLOCKPROPERTIES))
-  def getBlock = CAMPFIREPLUS_BLOCK.get
-  private val CAMPFIREPLUS_ITEM = regSimpleBlockItem(DATA_NAME, CampfirePlus.CAMPFIREPLUS_BLOCK)
-  def getBlockItem = CAMPFIREPLUS_ITEM.get
+  private[campfire] val BLOCK = regBlock(DATA_NAME, () => new CampfirePlus(false, 1, BLOCKPROPERTIES))
+  def getBlock = BLOCK.get
+  private[campfire] val ITEM = regSimpleBlockItem(DATA_NAME, CampfirePlus.BLOCK)
+  def getBlockItem = ITEM.get
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)

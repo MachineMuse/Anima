@@ -4,8 +4,8 @@ package util
 import com.mojang.datafixers.util.Pair
 import net.minecraft.advancements.criterion._
 import net.minecraft.block.{Block, BlockState}
-import net.minecraft.data._
 import net.minecraft.data.loot.{BlockLootTables, EntityLootTables}
+import net.minecraft.data.{BlockModelProvider => _, ItemModelProvider => _, _}
 import net.minecraft.entity.player.{PlayerEntity, PlayerInventory}
 import net.minecraft.inventory.container.{Container, INamedContainerProvider}
 import net.minecraft.item.Item
@@ -15,7 +15,7 @@ import net.minecraft.state._
 import net.minecraft.tags.ITag
 import net.minecraft.util.text.{ITextComponent, TranslationTextComponent}
 import net.minecraft.util.{IItemProvider, ResourceLocation}
-import net.minecraftforge.client.model.generators.ModelFile.ExistingModelFile
+import net.minecraftforge.client.model.generators.ModelFile.{ExistingModelFile, UncheckedModelFile}
 import net.minecraftforge.client.model.generators.{BlockStateProvider => DatagenBlockStateProvider, _}
 import net.minecraftforge.common.crafting.conditions.IConditionBuilder
 import net.minecraftforge.common.data.{GlobalLootModifierProvider, LanguageProvider}
@@ -112,6 +112,9 @@ object DatagenHelpers extends Logging {
   def existingVanillaModelFile(path: String)(implicit event: GatherDataEvent): ExistingModelFile = {
     new ExistingModelFile(new ResourceLocation(path), event.getExistingFileHelper)
   }
+  def uncheckedModelFile(path: String)(implicit event: GatherDataEvent): UncheckedModelFile = {
+    new ModelFile.UncheckedModelFile(new ResourceLocation(path))
+  }
 
   def mkAllVariantBlockStates(block: Block)(f: BlockState => Array[ConfiguredModel])(implicit event: GatherDataEvent): Unit = {
     event.getGenerator.addProvider(
@@ -161,6 +164,31 @@ object DatagenHelpers extends Logging {
     }
   }
 
+  def mkBlockModel(f: BlockModelProvider => Unit) (implicit event: GatherDataEvent): Unit = {
+    event.getGenerator.addProvider(new BlockModelProvider(event.getGenerator, implicitly[MODID], event.getExistingFileHelper) {
+      override def registerModels(): Unit = {
+        f(this)
+      }
+    })
+  }
+
+  def mkSimpleItemModel(item: Item) (implicit event: GatherDataEvent) : Unit = {
+    mkSimpleItemModel(item, s"item/${item.getRegistryName.getPath}")
+  }
+
+  def mkSimpleItemModel(item: Item, texturepath: String)(implicit event: GatherDataEvent): Unit = {
+    event.getGenerator.addProvider(
+      new ItemModelProvider (event.getGenerator, implicitly[MODID], event.getExistingFileHelper) {
+        override def registerModels(): Unit = {
+          val location = item.getRegistryName
+          getBuilder(location.getPath)
+            .parent(uncheckedModelFile("item/generated"))
+            .texture("layer0", modLoc(texturepath))
+        }
+      }
+    )
+  }
+
   def mkSimpleBlockItemModel(block: Block, file: ModelFile)(implicit event: GatherDataEvent): Unit = {
     event.getGenerator.addProvider(
       new DatagenBlockStateProvider(event.getGenerator, implicitly[MODID], event.getExistingFileHelper) {
@@ -170,11 +198,22 @@ object DatagenHelpers extends Logging {
       }
     )
   }
+
   def mkSimpleBlock(block: Block, file: ModelFile)(implicit event: GatherDataEvent): Unit = {
     event.getGenerator.addProvider(
       new DatagenBlockStateProvider(event.getGenerator, implicitly[MODID], event.getExistingFileHelper) {
         override def registerStatesAndModels(): Unit = {
           simpleBlock(block, file)
+        }
+      }
+    )
+  }
+
+  def mkOtherBlockStateProvider (f: DatagenBlockStateProvider => Unit) (implicit event: GatherDataEvent): Unit = {
+    event.getGenerator.addProvider(
+      new DatagenBlockStateProvider(event.getGenerator, implicitly[MODID], event.getExistingFileHelper) {
+        override def registerStatesAndModels(): Unit = {
+          f(this)
         }
       }
     )

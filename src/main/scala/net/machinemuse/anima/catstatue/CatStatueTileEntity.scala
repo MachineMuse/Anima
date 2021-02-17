@@ -28,7 +28,7 @@ object CatStatueTileEntity extends Logging {
 
   @SubscribeEvent def onConstructMod(e: FMLConstructModEvent) = {}
 
-  val TYPE = regTE[CatStatueTileEntity]("cat_statue", () => new CatStatueTileEntity, CatStatueBlock.CAT_STATUE_BLOCK)
+  val TYPE = regTE[CatStatueTileEntity]("cat_statue", () => new CatStatueTileEntity, CatStatue.BLOCK)
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
@@ -45,7 +45,7 @@ class CatStatueTileEntity extends TileEntity(CatStatueTileEntity.TYPE.get) with 
 
   def addFuel(burnTime: Int) = {
     BURNTIME += burnTime
-    world.setBlockState(pos, getBlockState.updated(CatStatueBlock.LIT, true))
+    world.setBlockState(pos, getBlockState.updated(CatStatue.LIT, true))
   }
 
   override def tick(): Unit = {
@@ -54,14 +54,14 @@ class CatStatueTileEntity extends TileEntity(CatStatueTileEntity.TYPE.get) with 
         BURNTIME -= 1
         val myChunk = world.getChunkAt(pos)
         val capability = CatStatueTrackingCapability.getCapability
-        if(getBlockState.get(CatStatueBlock.WATERLEVEL) > 0) {
+        if(getBlockState.get(CatStatue.WATERLEVEL) > 0) {
           val myCap = myChunk.getCapability(capability).resolve().get()
           myCap.putCatStatue(pos)
 
           BOILTIME += 1
           if (BOILTIME > BOILAWAY_EVERY) {
-            val newWaterLevel = getBlockState.get(CatStatueBlock.WATERLEVEL) - 1
-            world.setBlockState(pos, getBlockState.updated(CatStatueBlock.WATERLEVEL, newWaterLevel))
+            val newWaterLevel = getBlockState.get(CatStatue.WATERLEVEL) - 1
+            world.setBlockState(pos, getBlockState.updated(CatStatue.WATERLEVEL, newWaterLevel))
             BOILTIME = 0
             if(newWaterLevel <= 0) {
               myCap.removeCatStatue(pos)
@@ -74,16 +74,16 @@ class CatStatueTileEntity extends TileEntity(CatStatueTileEntity.TYPE.get) with 
         }
         this.markDirty()
       } else {
-        world.setBlockState(pos, getBlockState.updated(CatStatueBlock.LIT, false))
+        world.setBlockState(pos, getBlockState.updated(CatStatue.LIT, false))
         this.markDirty()
       }
 
     }
     world.onClient {clientworld =>
       val state = world.getBlockState(pos)
-      val direction = state.get(CatStatueBlock.FACING).getDirectionVec
-      val lit = state.get(CatStatueBlock.LIT)
-      val hasWater = state.get(CatStatueBlock.WATERLEVEL) > 0
+      val direction = state.get(CatStatue.FACING).getDirectionVec
+      val lit = state.get(CatStatue.LIT)
+      val hasWater = state.get(CatStatue.WATERLEVEL) > 0
       if(lit && Random.nextInt(20) == 0) {
         val x = pos.getX + 0.5 + direction.getX * 6.0/16.0
         val y = pos.getY + (0.25/16.0) + direction.getY * 0.5

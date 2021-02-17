@@ -2,7 +2,6 @@ package net.machinemuse.anima
 package basket
 
 import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.data.ShapedRecipeBuilder
 import net.minecraft.entity.player.{PlayerEntity, ServerPlayerEntity}
 import net.minecraft.item._
 import net.minecraft.network.PacketBuffer
@@ -17,7 +16,7 @@ import net.minecraftforge.eventbus.api.Event.Result
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
-import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataEvent}
+import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 import net.minecraftforge.fml.network.NetworkHooks
 import org.apache.logging.log4j.scala.Logging
 
@@ -36,8 +35,9 @@ import scala.jdk.CollectionConverters._
 
 object Basket extends Logging {
 
-  @SubscribeEvent
-  def onConstructMod(event: FMLConstructModEvent) = addForgeListeners(onEntityItemPickup)
+  @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {
+    addForgeListeners(onEntityItemPickup)
+  }
 
   def onEntityItemPickup(event: EntityItemPickupEvent): Unit = {
     // Iterate through the player's inventory slots for baskets
@@ -54,38 +54,6 @@ object Basket extends Logging {
 
   val BASKET_ITEM = regExtendedItem("basket", () => new Basket)
 
-  @SubscribeEvent
-  def gatherData(implicit event: GatherDataEvent): Unit = {
-    logger.trace("BasketDatagen.gatherData called")
-    mkRecipeProvider({ consumer =>
-          ShapedRecipeBuilder.shapedRecipe(BASKET_ITEM.get)
-            .patternLine(" / ")
-            .patternLine("# #")
-            .patternLine("###")
-            .addKeyAsCriterion('/', Items.STICK)
-            .addKeyAsCriterion('#', Items.SUGAR_CANE)
-            .setGroup("basket")
-            .buildProperly(consumer, "basket_from_sugar_cane")
-
-          ShapedRecipeBuilder.shapedRecipe(BASKET_ITEM.get)
-            .patternLine(" / ")
-            .patternLine("# #")
-            .patternLine("###")
-            .addKeyAsCriterion('/', Items.STICK)
-            .addKeyAsCriterion('#', Items.BAMBOO)
-            .setGroup("basket")
-            .buildProperly(consumer, "basket_from_bamboo")
-        })
-
-    mkLanguageProvider("en_us")({ lang =>
-          lang.addItem(BASKET_ITEM.supplier, "Basket")
-          lang.addScreen("basket", "Basket")
-        })
-    mkLanguageProvider("fr_fr")({ lang =>
-          lang.addItem(BASKET_ITEM.supplier, "Panier")
-          lang.add("basket", "Panier")
-        })
-  }
 
   val properties = new Item.Properties().maxStackSize(1).group(AnimaCreativeGroup).setISTER(() => BasketISTER.mkISTER)
 }
@@ -102,7 +70,7 @@ class Basket extends Item(Basket.properties) with InventoriedItem with Logging {
     addContentsToTooltip(bag, tooltip)
   }
 
-  override def canStoreItem(container: ItemStack, toStore: ItemStack): Boolean = isVeggie(toStore) || isPlantable(toStore)
+  override def canStoreItem(container: ItemStack, toStore: ItemStack): Boolean = isPlantable(toStore) // || isVeggie(toStore)
 
   // Called when the item is used on a block
   override def onItemUse(context: ItemUseContext): ActionResultType = {

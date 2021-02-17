@@ -8,7 +8,6 @@ import net.minecraft.entity.monster.CreeperEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.vector.Vector3d
 import net.minecraftforge.event.entity.EntityJoinWorldEvent
-import net.minecraftforge.event.entity.living.LivingSpawnEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
@@ -19,14 +18,8 @@ import java.util
 /**
  * Created by MachineMuse on 2/12/2021.
  */
+// TODO: Rework this to be more general
 object AvoidScaryBlocksGoal extends Logging {
-  @SubscribeEvent def onSpawnMob(event: LivingSpawnEvent.SpecialSpawn): Unit = {
-    event.getEntityLiving.optionallyDoAs[CreeperEntity] { creeper =>
-      creeper.goalSelector.addGoal(3,
-        new AvoidScaryBlocksGoal(creeper, 16, 1.0D, 1.2D)
-      )
-    }
-  }
   @SubscribeEvent def onJoinWorld(event: EntityJoinWorldEvent): Unit = {
     event.getEntity.optionallyDoAs[CreeperEntity] { creeper =>
       creeper.goalSelector.addGoal(3,

@@ -62,7 +62,7 @@ class CatStatueTrackingCapability extends TrackingInterface with Logging {
   override def getScaryCatStatues(world: World): Set[BlockPos] = {
     catStatueSet.filter{pos =>
       val blockState = world.getBlockState(pos)
-      blockState.get(CatStatueBlock.WATERLEVEL) > 0 && blockState.get(CatStatueBlock.LIT)
+      blockState.get(CatStatue.WATERLEVEL) > 0 && blockState.get(CatStatue.LIT)
     }.toSet
   }
 

@@ -21,7 +21,7 @@ import org.apache.logging.log4j.scala.Logging
 @EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Bus.MOD)
 object CatStatueBlockColours extends IBlockColor with Logging {
   @SubscribeEvent def onBlockColorEvent(event: ColorHandlerEvent.Block) = {
-    event.getBlockColors.register(this, CatStatueBlock.CAT_STATUE_BLOCK.get)
+    event.getBlockColors.register(this, CatStatue.BLOCK.get)
   }
 
   override def getColor(state : BlockState, world : IBlockDisplayReader, pos : BlockPos, tintIndex : Int): Int = {
