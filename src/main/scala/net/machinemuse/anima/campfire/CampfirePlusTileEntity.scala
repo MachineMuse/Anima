@@ -154,7 +154,7 @@ class CampfirePlusTileEntity extends CampfireTileEntity with CodecByName with Lo
       }
       dance_enhancement = 0
       nearbyPlayers.foreach { player =>
-        val danceScore = DanceTracker.getPlayerDanceScore(player)
+        val danceScore = DanceTrackers.getPlayerDanceScore(player)
         dance_enhancement += MathHelper.clamp(danceScore - 800, 0, 800)
 //        if (Random.nextInt(20) == 0) logger.info("Dance Thing: " + dance_enhancement)
 
