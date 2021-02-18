@@ -155,17 +155,16 @@ class CampfirePlusTileEntity extends CampfireTileEntity with CodecByName with Lo
       dance_enhancement = 0
       nearbyPlayers.foreach { player =>
         val danceScore = DanceTrackers.getPlayerDanceScore(player)
-        dance_enhancement += MathHelper.clamp(danceScore - 800, 0, 800)
-//        if (Random.nextInt(20) == 0) logger.info("Dance Thing: " + dance_enhancement)
+//        logger.debug(s"Player ${player.getName.getString} dance score: $danceScore")
+        dance_enhancement += danceScore
 
-//        world.setBlockState(this.getPos, this.getBlockState, BlockStateFlags.STANDARD_CLIENT_UPDATE)
-        //        this.markDirty()
       }
       if(dance_enhancement != last_dance_enhancement) {
         serverWorld.getChunkProvider().markBlockChanged(this.getPos) // send update to clients
         this.markDirty()
         last_dance_enhancement = dance_enhancement
       }
+//      logger.trace(s"Dance enhancement: $dance_enhancement (last: $last_dance_enhancement)")
 
 
       if(activeDusts.nonEmpty) {

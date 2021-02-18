@@ -2,6 +2,7 @@ package net.machinemuse.anima
 package campfire
 
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.vector.Vector3d
 import net.minecraftforge.event.entity.living.LivingEvent.{LivingJumpEvent, LivingUpdateEvent}
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -91,17 +92,18 @@ object DanceTrackers extends Logging {
 
       danceValueQueue.add(now, getDanceValue(player))
       danceValueQueue.dropTo(now - TIMEOUT * 5)
+      jumpingQueue.dropTo(now - TIMEOUT * 5)
     }
     def jump(): Unit = {
       jumpingQueue.add(System.currentTimeMillis(), 1)
     }
 
     def getDanceValue(player: PlayerEntity): Double = {
-      val lookAveragePerSecond = lookQueue.getSum * 20 / lookQueue.size
-      val look = Math.log(lookAveragePerSecond * 4 + 1) * 2
+      val look = Math.log(lookQueue.getSum * 4 + 1) * 4
 
-      val accelScore = accelMagQueue.getSum * (TIMEOUT / 50) / accelMagQueue.size - accelQueue.getSum.length()
-      val speedScore = velocityMagQueue.getSum * (TIMEOUT / 50) / velocityMagQueue.size - velocityQueue.getSum.length()
+      val accelScore = accelMagQueue.getSum - accelQueue.getSum.length()
+      val speedScore = velocityMagQueue.getSum - velocityQueue.getSum.length()
+
       val motion = accelScore * speedScore * 10
 
       val sneak = Math.log(sneakingQueue.getSum + 1) * 5
@@ -109,7 +111,6 @@ object DanceTrackers extends Logging {
       val jump = Math.log(jumpingQueue.getSum + 1) * 8
 
       val danceScore = look + motion + sneak + jump
-
       danceScore
     }
   }
@@ -190,8 +191,8 @@ object DanceTrackers extends Logging {
   }
   def getPlayerDanceScore(player: PlayerEntity) = {
     val data = getPlayerDanceData(player)
-    val aggDanceScore = data.danceValueQueue.getSum
-    aggDanceScore
+    val aggDanceScore = data.danceValueQueue.getSum / 5
+    MathHelper.clamp(aggDanceScore - 300, 0, 300)/300
   }
 
   @SubscribeEvent def onJump(event: LivingJumpEvent): Unit = {
