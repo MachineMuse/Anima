@@ -1,0 +1,15 @@
+{
+  "block": "minecraft:cactus",
+  "likes": [
+    "water"
+  ],
+  "dislikes": [
+    "air"
+  ],
+  "consumes": [
+    "earth"
+  ],
+  "infuses": [
+    "fire"
+  ]
+}

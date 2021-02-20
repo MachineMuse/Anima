@@ -1,0 +1,15 @@
+{
+  "block": "minecraft:beetroots",
+  "likes": [
+    "water"
+  ],
+  "dislikes": [
+    "air"
+  ],
+  "consumes": [
+    "earth"
+  ],
+  "infuses": [
+    "darkness"
+  ]
+}

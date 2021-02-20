@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "anima:block/radish_sprouts"
+    },
+    "age=1": {
+      "model": "anima:block/radish_sprouts"
+    },
+    "age=2": {
+      "model": "anima:block/radish_growing"
+    },
+    "age=3": {
+      "model": "anima:block/radish_growing"
+    },
+    "age=4": {
+      "model": "anima:block/radish_growing"
+    },
+    "age=5": {
+      "model": "anima:block/radish_almost_grown"
+    },
+    "age=6": {
+      "model": "anima:block/radish_almost_grown"
+    },
+    "age=7": {
+      "model": "anima:block/radish_grown"
+    }
+  }
+}

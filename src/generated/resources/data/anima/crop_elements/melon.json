@@ -1,0 +1,15 @@
+{
+  "block": "minecraft:melon_stem",
+  "likes": [
+    "water"
+  ],
+  "dislikes": [
+    "air"
+  ],
+  "consumes": [
+    "air"
+  ],
+  "infuses": [
+    "darkness"
+  ]
+}

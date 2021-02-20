@@ -1,0 +1,6 @@
+{
+  "block": "minecraft:wheat",
+  "consumes": [
+    "air"
+  ]
+}

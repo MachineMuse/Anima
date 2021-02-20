@@ -160,7 +160,7 @@ class CampfirePlusTileEntity extends CampfireTileEntity with CodecByName with Lo
 
       }
       if(dance_enhancement != last_dance_enhancement) {
-        serverWorld.getChunkProvider().markBlockChanged(this.getPos) // send update to clients
+        serverWorld.getChunkProvider.markBlockChanged(this.getPos) // send update to clients
         this.markDirty()
         last_dance_enhancement = dance_enhancement
       }
@@ -170,7 +170,7 @@ class CampfirePlusTileEntity extends CampfireTileEntity with CodecByName with Lo
       if(activeDusts.nonEmpty) {
         activeDusts = activeDusts.flatMap {dust =>
           for{entityType <- dust.attracts} {
-            if(Random.nextInt(800 * 5) < dance_enhancement)
+            if(Random.nextDouble() * 5 < dance_enhancement)
               trySpawnEntity(serverWorld, 5, entityType)
           }
           // reduce ticks and remove from list if done

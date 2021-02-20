@@ -7,8 +7,9 @@ import org.apache.logging.log4j.scala.Logging
 import shapeless.labelled.{FieldType, field}
 import shapeless.{:+:, ::, CNil, Coproduct, HList, HNil, Inl, Inr, LabelledGeneric, Lazy, Witness}
 
+import java.util.Optional
 import java.util.stream.Stream
-import java.util.{Optional, stream}
+import java.{util => ju}
 import scala.jdk.OptionConverters.{RichOption, RichOptional}
 
 /**
@@ -33,9 +34,16 @@ object GenCodecsByName extends Logging {
   implicit def OptionOptionalizer[K <: Symbol, V](implicit witness: Witness.Aux[K], codec: Codec[V]) = new Optionalizer[K, Option[V]] {
     override val genField: MapCodec[Option[V]] = codec.optionalFieldOf(witness.value.name).xmap(_.toScala, _.toJava)
   }
+  implicit def ListOptionalizer[K <: Symbol, V](implicit witness: Witness.Aux[K], codec: Codec[List[V]]) = new Optionalizer[K, List[V]] {
+    override val genField: MapCodec[List[V]] = codec.optionalFieldOf(witness.value.name).xmap(
+      _.orElseGet(() => List.empty[V]),
+      list => if(list.isEmpty) Optional.empty[List[V]] else Optional.of(list)
+    )
+  }
   implicit def NonOptionOptionalizer[K <: Symbol, V](implicit witness: Witness.Aux[K], codec: Codec[V]) = new Optionalizer[K, V] {
     override val genField: MapCodec[V] = codec.fieldOf(witness.value.name)
   }
+  implicit def mkEnumCodecByName[E <: Enumeration](implicit enum: E): Codec[enum.Value] = STRINGCODEC.xmap ({str: String => enum.withName(str)}, _.toString)
 
   // And here the magic begins
 
@@ -53,14 +61,14 @@ object GenCodecsByName extends Logging {
         override def encode[T](input: FieldType[K, V] :: TailVals, ops: DynamicOps[T], prefix: RecordBuilder[T]): RecordBuilder[T] =
           tailCodec.encode(input.tail, ops, mapCodecHead.encode(input.head, ops, prefix))
 
-        override def keys[T](ops: DynamicOps[T]): stream.Stream[T] =
+        override def keys[T](ops: DynamicOps[T]): Stream[T] =
           Stream.concat(mapCodecHead.keys(ops), tailCodec.keys(ops))
       },
       new MapDecoder.Implementation[FieldType[K, V] :: TailVals] {
         override def decode[T](ops: DynamicOps[T], input: MapLike[T]): DataResult[FieldType[K, V] :: TailVals] =
           tailCodec.decode(ops, input).flatMap(tailVals => mapCodecHead.decode(ops, input).map(headVal => field[K](headVal) :: tailVals))
 
-        override def keys[T](ops: DynamicOps[T]): stream.Stream[T] =
+        override def keys[T](ops: DynamicOps[T]): Stream[T] =
           Stream.concat(mapCodecHead.keys(ops), tailCodec.keys(ops))
       }
     )

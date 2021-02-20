@@ -9,6 +9,7 @@ import com.mojang.serialization
 import com.mojang.serialization._
 import com.mojang.serialization.codecs._
 import io.netty.buffer._
+import net.minecraft.block.Block
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.ai.attributes.Attribute
 import net.minecraft.item.Item
@@ -73,6 +74,7 @@ object VanillaCodecs extends Logging {
 
   /*_*/ // Registries
   implicit val ITEMCODEC: Codec[Item] = Registry.ITEM : @nowarn
+  implicit val BLOCKCODEC: Codec[Block] = Registry.BLOCK : @nowarn
   implicit val ATTRIBUTECODEC: Codec[Attribute] = Registry.ATTRIBUTE : @nowarn
 
   // Caution: This will fail to generate a codec at the top level, but it works fine if it's an encased type

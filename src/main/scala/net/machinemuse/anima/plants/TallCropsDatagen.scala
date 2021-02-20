@@ -7,6 +7,7 @@ import net.minecraft.data.ShapelessRecipeBuilder
 import net.minecraft.data.loot.BlockLootTables.droppingAndBonusWhen
 import net.minecraft.item.Items
 import net.minecraft.loot.conditions.BlockStateProperty
+import net.minecraft.tags.BlockTags
 import net.minecraftforge.client.model.generators.ConfiguredModel
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
@@ -24,14 +25,15 @@ import util.DatagenHelpers._
 object TallCropsDatagen extends Logging {
   @SubscribeEvent
   def gatherData(implicit event: GatherDataEvent): Unit = {
-    logger.trace("BasketDatagen.gatherData called")
-    mkRecipeProvider({ consumer =>
+    mkBlockTagsProvider(BlockTags.CROPS) { builder =>
+      builder.add(TallCropsBlock.WOAD_LEAVES_BLOCK.get)
+    }
+    mkRecipeProvider{ consumer =>
       ShapelessRecipeBuilder.shapelessRecipe(Items.BLUE_DYE)
         .addIngredientAsCriterion("woad_leaves", WOAD_LEAVES_ITEM.get)
         .setGroup("dyes")
         .buildProperly(consumer, "blue_dye_from_woad_leaves")
-    })
-
+    }
     mkLanguageProvider("en_us") { lang =>
       lang.addBlock(WOAD_LEAVES_BLOCK, "Woad Leaves")
       lang.addBlock(WOAD_FLOWERS_BLOCK, "Woad Flowers")
@@ -75,7 +77,7 @@ object TallCropsDatagen extends Logging {
         case _ => throw new Exception("Age went beyond 0..7 when generating woad blockstates? Unexpected")
       }
     }
-    mkSimpleBlock(WOAD_FLOWERS_BLOCK.get, existingModModelFile("block/woadflowers"))
+    mkSimpleBlockState(WOAD_FLOWERS_BLOCK.get, existingModModelFile("block/woadflowers"))
 
   }
 }

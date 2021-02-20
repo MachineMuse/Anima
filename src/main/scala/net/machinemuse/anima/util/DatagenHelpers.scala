@@ -1,7 +1,9 @@
 package net.machinemuse.anima
 package util
 
+import com.google.gson.GsonBuilder
 import com.mojang.datafixers.util.Pair
+import com.mojang.serialization.Codec
 import net.minecraft.advancements.criterion._
 import net.minecraft.block.{Block, BlockState}
 import net.minecraft.data.loot.{BlockLootTables, EntityLootTables}
@@ -22,6 +24,8 @@ import net.minecraftforge.common.data.{GlobalLootModifierProvider, LanguageProvi
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
 import org.apache.logging.log4j.scala.Logging
 
+import java.io.IOException
+import java.nio.file.Path
 import java.util.function._
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.{IterableHasAsJava, SeqHasAsJava}
@@ -68,6 +72,30 @@ object DatagenHelpers extends Logging {
       tables.map(_._1).asJava
     }
   }
+  def provideArbitrarySerializer[T](name: String)(toSave: (ResourceLocation, T)*)(implicit event: GatherDataEvent, codec: Codec[T]) = {
+    event.getGenerator.addProvider(new IDataProvider {
+      private val GSON = (new GsonBuilder).setPrettyPrinting().create
+      private val generator = event.getGenerator
+      override def act(directoryCache: DirectoryCache): Unit = {
+        val path = generator.getOutputFolder
+        toSave.foreach{ case (location, el) =>
+          val fullPath = getPath(path, location)
+          try {
+            IDataProvider.save(GSON, directoryCache, codec.writeJson(el), fullPath)
+          } catch {
+            case ioexception: IOException =>
+              logger.error(s"Couldn't save $name in $fullPath: $ioexception")
+          }
+        }
+
+      }
+      def getPath(path: Path, id: ResourceLocation) = {
+        path.resolve(s"data/${id.getNamespace}/$name/${id.getPath}.json")
+      }
+      override def getName: String = name
+    })
+  }
+
   def provideBlockLootTable(lootTable: BlockLootTables)(implicit event: GatherDataEvent) = {
     getLootTableProvider.putTable(() => lootTable, LootParameterSets.BLOCK)
   }
@@ -199,7 +227,7 @@ object DatagenHelpers extends Logging {
     )
   }
 
-  def mkSimpleBlock(block: Block, file: ModelFile)(implicit event: GatherDataEvent): Unit = {
+  def mkSimpleBlockState(block: Block, file: ModelFile)(implicit event: GatherDataEvent): Unit = {
     event.getGenerator.addProvider(
       new DatagenBlockStateProvider(event.getGenerator, implicitly[MODID], event.getExistingFileHelper) {
         override def registerStatesAndModels(): Unit = {

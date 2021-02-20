@@ -1,0 +1,15 @@
+{
+  "block": "minecraft:carrots",
+  "likes": [
+    "water"
+  ],
+  "dislikes": [
+    "air"
+  ],
+  "consumes": [
+    "earth"
+  ],
+  "infuses": [
+    "darkness"
+  ]
+}

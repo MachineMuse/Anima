@@ -1,0 +1,12 @@
+{
+  "block": "minecraft:sugar_cane",
+  "likes": [
+    "water"
+  ],
+  "consumes": [
+    "water"
+  ],
+  "infuses": [
+    "air"
+  ]
+}
