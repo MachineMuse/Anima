@@ -23,13 +23,13 @@ import net.minecraftforge.fml.RegistryObject
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
 import net.minecraftforge.fml.network.IContainerFactory
 import net.minecraftforge.registries._
-import org.apache.logging.log4j.scala.Logging
 
 import java.util.concurrent.Callable
 import java.util.function.Supplier
 import scala.reflect.ClassTag
 
 import registration.SimpleItems.AnimaCreativeGroup
+import util.Logging
 import util.VanillaCodecs.{ConvenientCodec, ConvenientRecipeSerializer, SavedData, mkCapStorage}
 import java.util
 

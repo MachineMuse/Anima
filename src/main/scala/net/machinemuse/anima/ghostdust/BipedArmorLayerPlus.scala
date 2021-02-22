@@ -18,11 +18,10 @@ import net.minecraftforge.client.event.RenderPlayerEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
-import org.apache.logging.log4j.scala.Logging
 
 import render.RenderStates
-import util.Colour
 import util.VanillaClassEnrichers.RichItemStack
+import util.{Colour, Logging}
 
 
 /**

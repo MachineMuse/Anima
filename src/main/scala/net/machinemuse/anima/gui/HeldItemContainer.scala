@@ -7,12 +7,12 @@ import net.minecraft.inventory.container._
 import net.minecraft.item.ItemStack
 import net.minecraft.util.Hand
 import net.minecraftforge.items.{IItemHandler, SlotItemHandler}
-import org.apache.logging.log4j.scala.Logging
 
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.ListHasAsScala
 
 import item.InventoriedItem
+import util.Logging
 
 /**
  * Created by MachineMuse on 1/29/2021.

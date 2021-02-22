@@ -10,10 +10,10 @@ import net.minecraftforge.fml.RegistryObject
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
-import org.apache.logging.log4j.scala.Logging
 
 import registration.RegistryHelpers.PARTICLES
 import util.GenCodecsByName._
+import util.Logging
 import util.VanillaCodecs._
 
 /**

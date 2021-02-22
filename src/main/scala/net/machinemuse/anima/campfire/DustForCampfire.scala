@@ -13,7 +13,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataEvent}
-import org.apache.logging.log4j.scala.Logging
 
 import scala.util.Random
 
@@ -22,8 +21,8 @@ import entity.EntityLightSpirit
 import registration.ParticlesGlobal.AnimaParticleData
 import registration.RegistryHelpers._
 import registration.SimpleItems._
-import util.Colour
 import util.DatagenHelpers.mkLanguageProvider
+import util.{Colour, Logging}
 
 /**
  * Created by MachineMuse on 1/24/2021.

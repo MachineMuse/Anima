@@ -8,7 +8,8 @@ import net.minecraftforge.client.event.ColorHandlerEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
-import org.apache.logging.log4j.scala.Logging
+
+import util.Logging
 
 /**
  * Created by MachineMuse on 2/7/2021.

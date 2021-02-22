@@ -10,8 +10,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
-import org.apache.logging.log4j.scala.Logging
 import org.lwjgl.opengl.GL11
+
+import util.Logging
 
 /**
  * Created by MachineMuse on 1/22/2021.

@@ -18,13 +18,13 @@ import net.minecraftforge.eventbus.api.Event.Result
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
-import org.apache.logging.log4j.scala.Logging
 
 import blockinfusion.BlockInfusionCapability.BlockInfusionInterface
 import util.GenCodecsByName._
+import util.Logging
 import util.VanillaCodecs._
 import java.util
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable
 import scala.language.implicitConversions
 import scala.util.Random
@@ -63,7 +63,7 @@ object BlockInfusionEvents extends Logging {
     val behaviourOpt = BEHAVIOURS.get(block)
     behaviourOpt.foreach { behaviour =>
       val blocksUnder = getBlocksBelowPlant(pos, world).flatMap[(BlockPos, BlockInfusionInterface)]{pos =>
-        if(!world.isBlockLoaded(pos)) {
+        if(!world.isBlockLoaded(pos) : @nowarn) {
           none.toSeq
         } else {
           val chunkOpt = world.getChunk(pos.getX >> 4, pos.getZ >> 4).optionallyAs[Chunk]

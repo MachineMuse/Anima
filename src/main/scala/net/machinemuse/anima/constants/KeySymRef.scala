@@ -2,7 +2,8 @@ package net.machinemuse.anima
 package constants
 
 import net.minecraft.client.util.InputMappings
-import org.apache.logging.log4j.scala.Logging
+
+import util.Logging
 
 /**
  * Created by MachineMuse on 2/14/2021.

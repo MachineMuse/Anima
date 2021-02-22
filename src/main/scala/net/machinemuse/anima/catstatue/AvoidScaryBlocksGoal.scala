@@ -11,8 +11,8 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
-import org.apache.logging.log4j.scala.Logging
 
+import util.Logging
 import java.util
 
 /**

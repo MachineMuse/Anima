@@ -2,7 +2,8 @@ package net.machinemuse.anima
 package gui
 
 import net.minecraft.inventory.container.Container
-import org.apache.logging.log4j.scala.Logging
+
+import util.Logging
 
 /**
  * Created by MachineMuse on 1/29/2021.

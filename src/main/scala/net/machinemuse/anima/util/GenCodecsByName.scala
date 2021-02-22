@@ -3,13 +3,11 @@ package util
 
 import com.mojang.datafixers.util
 import com.mojang.serialization._
-import org.apache.logging.log4j.scala.Logging
 import shapeless.labelled.{FieldType, field}
 import shapeless.{:+:, ::, CNil, Coproduct, HList, HNil, Inl, Inr, LabelledGeneric, Lazy, Witness}
 
 import java.util.Optional
 import java.util.stream.Stream
-import java.{util => ju}
 import scala.jdk.OptionConverters.{RichOption, RichOptional}
 
 /**

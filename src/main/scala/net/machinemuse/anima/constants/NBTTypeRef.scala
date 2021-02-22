@@ -1,7 +1,7 @@
 package net.machinemuse.anima
 package constants
 
-import org.apache.logging.log4j.scala.Logging
+import util.Logging
 
 /**
  * Created by MachineMuse on 1/29/2021.

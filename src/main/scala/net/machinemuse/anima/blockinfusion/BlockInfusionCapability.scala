@@ -14,7 +14,6 @@ import net.minecraftforge.event.TickEvent.WorldTickEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
-import org.apache.logging.log4j.scala.Logging
 
 import scala.collection.{concurrent, mutable}
 import scala.jdk.CollectionConverters.IterableHasAsScala
@@ -24,6 +23,7 @@ import blockinfusion.BlockInfusionCapability.BlockInfusionInterface
 import blockinfusion.BlockInfusionEvents.SoilElement
 import registration.RegistryHelpers.{mkCapabilityProviderWithSaveData, regCapWithStorage}
 import util.GenCodecsByName._
+import util.Logging
 import util.VanillaCodecs._
 
 /**

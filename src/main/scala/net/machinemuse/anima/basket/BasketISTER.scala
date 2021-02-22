@@ -14,13 +14,13 @@ import net.minecraftforge.client.event.ModelRegistryEvent
 import net.minecraftforge.client.model.ModelLoader
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
-import org.apache.logging.log4j.scala.Logging
 
 import java.util.concurrent.Callable
 import scala.annotation.nowarn
 
 import render.RenderStates
 import render.RenderingShorthand.withPushedMatrix
+import util.Logging
 
 /**
  * Created by MachineMuse on 1/21/2021.

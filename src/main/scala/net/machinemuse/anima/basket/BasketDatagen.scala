@@ -7,10 +7,10 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
-import org.apache.logging.log4j.scala.Logging
 
 import basket.Basket.BASKET_ITEM
 import util.DatagenHelpers.{FancyShapedRecipeBuilder, mkLanguageProvider, mkRecipeProvider}
+import util.Logging
 
 /**
  * Created by MachineMuse on 2/17/2021.

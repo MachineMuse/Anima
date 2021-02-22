@@ -18,12 +18,12 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 import net.minecraftforge.fml.network.NetworkHooks
-import org.apache.logging.log4j.scala.Logging
 
 import item.InventoriedItem
 import registration.RegistryHelpers._
 import registration.SimpleItems.AnimaCreativeGroup
 import util.DatagenHelpers._
+import util.Logging
 import util.VanillaClassEnrichers._
 import java.util
 import java.util.function.Consumer

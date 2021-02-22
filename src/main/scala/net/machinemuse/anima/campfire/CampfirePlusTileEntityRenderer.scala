@@ -19,14 +19,13 @@ import net.minecraftforge.fml.client.registry.ClientRegistry
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.{FMLClientSetupEvent, GatherDataEvent}
-import org.apache.logging.log4j.scala.Logging
 
 import java.util.Random
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 import render.RenderStates
 import render.RenderingShorthand.withPushedMatrix
-import util.Colour
+import util.{Colour, Logging}
 
 /**
  * Created by MachineMuse on 1/24/2021.

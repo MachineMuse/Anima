@@ -22,7 +22,6 @@ import net.minecraftforge.client.model.generators.{BlockStateProvider => Datagen
 import net.minecraftforge.common.crafting.conditions.IConditionBuilder
 import net.minecraftforge.common.data.{GlobalLootModifierProvider, LanguageProvider}
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
-import org.apache.logging.log4j.scala.Logging
 
 import java.io.IOException
 import java.nio.file.Path

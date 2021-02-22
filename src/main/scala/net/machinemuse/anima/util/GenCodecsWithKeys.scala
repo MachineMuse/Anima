@@ -3,7 +3,6 @@ package util
 
 import com.mojang.datafixers.util
 import com.mojang.serialization._
-import org.apache.logging.log4j.scala.Logging
 import shapeless.{:+:, ::, CNil, Coproduct, HList, HNil, Inl, Inr}
 
 import java.util.stream.Stream

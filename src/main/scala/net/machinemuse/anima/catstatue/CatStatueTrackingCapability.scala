@@ -9,12 +9,12 @@ import net.minecraftforge.event.AttachCapabilitiesEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
-import org.apache.logging.log4j.scala.Logging
 
 import scala.collection.mutable
 
 import catstatue.CatStatueTrackingCapability.TrackingInterface
 import registration.RegistryHelpers._
+import util.Logging
 import util.VanillaCodecs._
 
 /**

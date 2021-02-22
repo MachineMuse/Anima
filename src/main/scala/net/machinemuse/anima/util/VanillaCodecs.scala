@@ -23,7 +23,6 @@ import net.minecraft.util.registry.Registry
 import net.minecraft.{util => mu}
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.registries.ForgeRegistryEntry
-import org.apache.logging.log4j.scala.Logging
 
 import java.io._
 import java.nio.ByteBuffer

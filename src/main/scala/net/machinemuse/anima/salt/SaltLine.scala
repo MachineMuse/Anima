@@ -20,7 +20,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle._
-import org.apache.logging.log4j.scala.Logging
 import shapeless.HNil
 
 import scala.annotation.nowarn
@@ -28,6 +27,7 @@ import scala.jdk.CollectionConverters.ListHasAsScala
 
 import registration.RegistryHelpers.regBlock
 import util.DatagenHelpers._
+import util.Logging
 import util.VanillaClassEnrichers._
 
 /**

@@ -14,16 +14,15 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataEvent}
-import org.apache.logging.log4j.scala.Logging
 
 import bowl.BowlWithContents
 import campfire.CampfireDustRecipe.CampfireDustIngredient
 import entity.EntityLightSpirit
 import registration.RegistryHelpers
-import util.Colour
 import util.DatagenHelpers._
 import util.GenCodecsByName._
 import util.VanillaCodecs._
+import util.{Colour, Logging}
 
 
 /**

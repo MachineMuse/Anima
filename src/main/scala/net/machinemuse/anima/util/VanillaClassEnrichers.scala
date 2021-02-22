@@ -7,7 +7,6 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.state._
 import net.minecraft.util.{Unit => _, _}
-import org.apache.logging.log4j.scala.Logging
 import shapeless._
 
 import util.VanillaCodecs.ConvenientCodec

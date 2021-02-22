@@ -11,10 +11,9 @@ import net.minecraftforge.eventbus.api.{EventPriority, SubscribeEvent}
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
-import org.apache.logging.log4j.scala.Logging
 
 import registration.ParticlesGlobal.{AnimaParticleData, MOTE}
-import util.Colour
+import util.{Colour, Logging}
 
 
 /**

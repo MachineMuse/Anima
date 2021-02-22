@@ -3,10 +3,11 @@ package net.machinemuse.anima
 import net.minecraft.network.PacketBuffer
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.network.{NetworkEvent, NetworkRegistry}
-import org.apache.logging.log4j.scala.Logging
 
 import java.util.function.{BiConsumer, Supplier}
 import scala.reflect.{ClassTag, classTag}
+
+import util.Logging
 
 /**
  * Created by MachineMuse on 2/1/2021.

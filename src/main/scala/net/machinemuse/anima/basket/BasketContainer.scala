@@ -8,11 +8,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
-import org.apache.logging.log4j.scala.Logging
 
 import basket.BasketContainer.BASKET_CONTAINER
 import gui.HeldItemContainer
 import registration.RegistryHelpers._
+import util.Logging
 
 /**
  * Created by MachineMuse on 1/22/2021.

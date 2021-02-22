@@ -133,15 +133,15 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
     shadow deps.scalalib
-    runtimeOnly deps.scalalib
+    runtime deps.scalalib
 
     // adds 3-5mb
     shadow deps.shapeless
-    runtimeOnly deps.shapeless
+    runtime deps.shapeless
 
     // adds 4mb
-    shadow deps.log4j_scala
-    runtimeOnly deps.log4j_scala
+//    shadow deps.log4j_scala
+//    runtime deps.log4j_scala
 
     runtimeOnly fg.deobf(deps.curios)
     compileOnly fg.deobf(mkApi(deps.curios))
@@ -175,13 +175,16 @@ jar {
 }
 
 shadowJar {
-    minimize() // experimental
+//    minimize() // experimental
     project.configurations.shadow.setTransitive(true)
     configurations = [project.configurations.shadow]
 
+    exclude 'Shadow'
     classifier '' // Replace the default JAR
 
-    relocate "scala", group + ".shadow.scala"
+//    relocate "scala", group + ".shadow.scala"
+//    relocate "shapeless", group + ".shadow.shapeless"
+//    relocate "org.apache.logging", group + ".shadow.org.apache.logging"
 }
 
 reobf {

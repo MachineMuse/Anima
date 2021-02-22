@@ -11,12 +11,12 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
-import org.apache.logging.log4j.scala.Logging
 
 import scala.util.Random
 
 import catstatue.CatStatueTileEntity.BOILAWAY_EVERY
 import registration.RegistryHelpers.regTE
+import util.Logging
 import util.VanillaClassEnrichers.RichBlockState
 
 /**

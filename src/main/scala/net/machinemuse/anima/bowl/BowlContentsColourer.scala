@@ -6,7 +6,8 @@ import net.minecraft.item.ItemStack
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
-import org.apache.logging.log4j.scala.Logging
+
+import util.Logging
 
 /**
  * Created by MachineMuse on 2/9/2021.

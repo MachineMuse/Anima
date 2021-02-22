@@ -1,7 +1,8 @@
 package net.machinemuse.anima
 
 import net.minecraftforge.fml.common.Mod
-import org.apache.logging.log4j.scala.Logging
+
+import util.Logging
 
 /**
  * Created by MachineMuse on 1/20/2021.

@@ -6,11 +6,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
-import org.apache.logging.log4j.scala.Logging
 
 import blockinfusion.BlockInfusionEvents.{ElementalBehaviour, SoilElement}
 import util.DatagenHelpers._
 import util.GenCodecsByName._
+import util.Logging
 import util.VanillaCodecs._
 
 /**

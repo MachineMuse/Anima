@@ -15,12 +15,12 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
-import org.apache.logging.log4j.scala.Logging
 
 import scala.annotation.nowarn
 
 import constants.BlockStateFlags
 import registration.RegistryHelpers.{regBlock, regSimpleBlockItem}
+import util.Logging
 
 /**
  * Created by MachineMuse on 2/9/2021.

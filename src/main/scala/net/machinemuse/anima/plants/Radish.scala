@@ -1,17 +1,17 @@
 package net.machinemuse.anima
 package plants
 
-import net.minecraft.block.material.Material
 import net.minecraft.block._
+import net.minecraft.block.material.Material
 import net.minecraft.client.renderer.{RenderType, RenderTypeLookup}
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.{FMLClientSetupEvent, FMLConstructModEvent}
-import org.apache.logging.log4j.scala.Logging
 
 import registration.RegistryHelpers._
+import util.Logging
 
 /**
  * Created by MachineMuse on 2/19/2021.

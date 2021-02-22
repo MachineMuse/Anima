@@ -10,7 +10,6 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.NonNullSupplier
 import net.minecraftforge.eventbus.api.Event
 import net.minecraftforge.fml.event.lifecycle.ParallelDispatchEvent
-import org.apache.logging.log4j.scala.Logger
 
 import java.util.concurrent.Callable
 import java.util.function.Consumer
@@ -81,10 +80,10 @@ package object anima {
       f(ret)
       ret
     }
-    def andLog(f: Logger => Unit)(implicit logr: Logger): T = {
-      f(logr)
-      ret
-    }
+//    def andLog(f: Logger => Unit)(implicit logr: Logger): T = {
+//      f(logr)
+//      ret
+//    }
   }
 
   implicit class ButFirstAble0[O](f: () => O) {

@@ -13,7 +13,6 @@ import net.minecraft.util.math.{BlockPos, Rotations}
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.{Unit => _, _}
 import net.minecraftforge.fml.network.NetworkHooks
-import org.apache.logging.log4j.scala.Logging
 
 import java.util._
 import scala.collection.mutable

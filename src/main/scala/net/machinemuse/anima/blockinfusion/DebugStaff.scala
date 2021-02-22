@@ -3,19 +3,19 @@ package blockinfusion
 
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.{Item, ItemStack}
+import net.minecraft.util._
 import net.minecraft.util.math.{RayTraceContext, RayTraceResult}
 import net.minecraft.util.text.StringTextComponent
-import net.minecraft.util._
 import net.minecraft.world.World
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataEvent}
-import org.apache.logging.log4j.scala.Logging
 
 import registration.RegistryHelpers
 import registration.RegistryHelpers.regExtendedItem
 import util.DatagenHelpers.{mkLanguageProvider, mkSimpleItemModel}
+import util.Logging
 
 /**
  * Created by MachineMuse on 2/21/2021.

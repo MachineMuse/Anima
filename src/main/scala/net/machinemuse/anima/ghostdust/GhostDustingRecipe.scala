@@ -17,7 +17,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle._
-import org.apache.logging.log4j.scala.Logging
 
 import bowl.BowlWithContents
 import ghostdust.GhostDustingRecipe.GhostDustingIngredient
@@ -25,6 +24,7 @@ import registration.RegistryHelpers
 import registration.RegistryHelpers.regSimpleItem
 import util.DatagenHelpers.{FancyShapelessRecipeBuilder, mkLanguageProvider, mkRecipeProvider}
 import util.GenCodecsByName._
+import util.Logging
 import util.VanillaClassEnrichers.RichItemStack
 import util.VanillaCodecs.ConvenientCodec
 

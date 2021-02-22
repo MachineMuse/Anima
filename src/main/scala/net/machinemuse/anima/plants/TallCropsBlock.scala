@@ -7,8 +7,8 @@ import net.minecraft.block._
 import net.minecraft.block.material.Material
 import net.minecraft.client.renderer.{RenderType, RenderTypeLookup}
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.state.properties.BlockStateProperties
 import net.minecraft.state._
+import net.minecraft.state.properties.BlockStateProperties
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.shapes.VoxelShape
 import net.minecraft.world.World
@@ -19,7 +19,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.{FMLClientSetupEvent, FMLConstructModEvent}
-import org.apache.logging.log4j.scala.Logging
 
 import java.util.Random
 import java.util.function.Supplier
@@ -28,6 +27,7 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 import constants.BlockStateFlags.{STANDARD_CLIENT_UPDATE, STANDARD_MULTIBLOCK_BREAK_UPDATE}
 import registration.RegistryHelpers._
+import util.Logging
 import util.VanillaClassEnrichers.RichBlockState
 
 /**
