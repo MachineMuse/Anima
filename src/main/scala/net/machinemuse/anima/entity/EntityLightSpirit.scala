@@ -28,10 +28,10 @@ import util.{Colour, Logging}
 object EntityLightSpirit extends ParameterRegistrar(classOf[EntityLightSpirit]) with Logging {
   @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {}
 
-  private val ENTITY_LIGHT_SPIRIT = regEntityType[EntityLightSpirit]("lightspirit", () => EntityLightSpirit, new EntityLightSpirit(_,_), EntityClassification.MISC)
+  private[entity] val ENTITY_LIGHT_SPIRIT = regEntityType[EntityLightSpirit]("lightspirit", () => EntityLightSpirit, new EntityLightSpirit(_,_), EntityClassification.MISC)
   def getType = ENTITY_LIGHT_SPIRIT.get
 
-  private val AIRLIGHT_BLOCK = regBlock("airlight", () => new AirLightBlock)
+  private[entity] val AIRLIGHT_BLOCK = regBlock("airlight", () => new AirLightBlock)
   def getAirLightBlock = AIRLIGHT_BLOCK.get
 
   class AirLightBlock extends Block(AbstractBlock.Properties.create(Material.AIR).doesNotBlockMovement.noDrops.setLightLevel(_ => 15)) {

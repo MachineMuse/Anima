@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "anima:item/summoningstaff"
+    "layer0": "anima:item/birdbones"
   }
 }

@@ -7,12 +7,13 @@ import net.minecraft.item.Items
 import net.minecraft.loot.functions.SetCount
 import net.minecraft.loot.{ConstantRange, ItemLootEntry}
 import net.minecraft.tags.BlockTags
+import net.minecraftforge.client.model.generators.ConfiguredModel
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
 
-import util.DatagenHelpers.{SimplerBlockLootTable, mkBlockTagsProvider, mkLanguageProvider, provideBlockLootTable}
+import util.DatagenHelpers.{SimplerBlockLootTable, existingModModelFile, existingVanillaModelFile, mkAllVariantBlockStatesExcept, mkBlockTagsProvider, mkLanguageProvider, provideBlockLootTable}
 import util.Logging
 
 /**
@@ -44,6 +45,19 @@ object CampfirePlusDatagen extends Logging {
           )
         )
         /*_*/
+      }
+    }
+    mkAllVariantBlockStatesExcept(CampfirePlus.BLOCK.get, CampfirePlus.SIGNAL_FIRE, CampfirePlus.WATERLOGGED) { state =>
+      if(state.get(CampfirePlus.LIT)) {
+        ConfiguredModel.builder()
+          .modelFile(existingModModelFile("block/campfireplus"))
+          .rotationY(state.get(CampfirePlus.HORIZONTAL_FACING).getHorizontalIndex * 90)
+          .build()
+      } else {
+        ConfiguredModel.builder()
+          .modelFile(existingVanillaModelFile("block/campfire_off"))
+          .rotationY(state.get(CampfirePlus.HORIZONTAL_FACING).getHorizontalIndex * 90)
+          .build()
       }
     }
   }

@@ -70,5 +70,11 @@ object SimpleItems {
 
       lang.addCreativeGroup("Anima")
     }
+
+    mkSimpleItemModel(CAMPFIRE_ASH.get)
+    mkSimpleItemModel(KINDLING_ITEM.get, "item/bundle")
+    mkSimpleItemModel(SPIRITFIRE_ITEM.get, "item/1")
+
   }
 }
+

@@ -203,13 +203,13 @@ object DatagenHelpers extends Logging {
     mkSimpleItemModel(item, s"item/${item.getRegistryName.getPath}")
   }
 
-  def mkSimpleItemModel(item: Item, texturepath: String)(implicit event: GatherDataEvent): Unit = {
+  def mkSimpleItemModel(item: Item, texturepath: String, parent: String = "item/handheld")(implicit event: GatherDataEvent): Unit = {
     event.getGenerator.addProvider(
       new ItemModelProvider (event.getGenerator, implicitly[MODID], event.getExistingFileHelper) {
         override def registerModels(): Unit = {
           val location = item.getRegistryName
           getBuilder(location.getPath)
-            .parent(uncheckedModelFile("item/generated"))
+            .parent(uncheckedModelFile(parent))
             .texture("layer0", modLoc(texturepath))
         }
       }

@@ -3,7 +3,7 @@ package ghostdust
 
 import com.google.gson.JsonObject
 import com.mojang.serialization.Codec
-import net.minecraft.data.{IFinishedRecipe, ShapelessRecipeBuilder}
+import net.minecraft.data.IFinishedRecipe
 import net.minecraft.inventory.CraftingInventory
 import net.minecraft.item._
 import net.minecraft.item.crafting.{ICraftingRecipe, IRecipeSerializer}
@@ -11,18 +11,15 @@ import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.text.{TextFormatting, TranslationTextComponent}
 import net.minecraft.world.World
-import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import net.minecraftforge.event.entity.player.ItemTooltipEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle._
 
-import bowl.BowlWithContents
 import ghostdust.GhostDustingRecipe.GhostDustingIngredient
 import registration.RegistryHelpers
 import registration.RegistryHelpers.regSimpleItem
-import util.DatagenHelpers.{FancyShapelessRecipeBuilder, mkLanguageProvider, mkRecipeProvider}
 import util.GenCodecsByName._
 import util.Logging
 import util.VanillaClassEnrichers.RichItemStack
@@ -48,66 +45,9 @@ object GhostDustingRecipe extends Logging {
   val GHOSTDUST_REMOVER_ITEM = regSimpleItem("ghost_dust_remover")
 
 
-  @SubscribeEvent
-  def gatherData(implicit event: GatherDataEvent): Unit = {
-    mkRecipeProvider{ consumer =>
-      val defaultRecipe = GhostDustingRecipe(
-        List(
-          GhostDustingIngredient(GHOSTDUST_REMOVER_ITEM.get, -1.0F, 1, true),
-          GhostDustingIngredient(GHOSTDUST_ITEM.get, 0.125F, 0, false)
-        )
-      )
-      consumer.accept(defaultRecipe)
+  @SubscribeEvent def onClientSetup(event: FMLClientSetupEvent) = addForgeListeners(onItemTooltip)
 
-      ShapelessRecipeBuilder
-        .shapelessRecipe(GHOSTDUST_ITEM.get, 2)
-        .addIngredientAsCriterion("gunpowder", Items.GUNPOWDER)
-        .addIngredientAsCriterion("bonemeal", Items.BONE_MEAL)
-        .addIngredientAsCriterion("bowl_of_salt", BowlWithContents.BOWL_OF_SALT.get)
-        .setGroup("ghost_dust")
-        .buildProperly(consumer, "ghost_dust_from_bonemeal")
-
-      ShapelessRecipeBuilder
-        .shapelessRecipe(GHOSTDUST_ITEM.get, 2)
-        .addIngredientAsCriterion("gunpowder", Items.GUNPOWDER)
-        .addIngredientAsCriterion("white_dye", Items.WHITE_DYE)
-        .addIngredientAsCriterion("bowl_of_salt", BowlWithContents.BOWL_OF_SALT.get)
-        .setGroup("ghost_dust")
-        .buildProperly(consumer, "ghost_dust_from_white_dye")
-
-      ShapelessRecipeBuilder
-        .shapelessRecipe(GHOSTDUST_REMOVER_ITEM.get, 1)
-        .addIngredientAsCriterion("gunpowder", Items.GUNPOWDER)
-        .addIngredientAsCriterion("ink_sac", Items.INK_SAC)
-        .addIngredientAsCriterion("bowl_of_salt", BowlWithContents.BOWL_OF_SALT.get)
-        .setGroup("ghost_dust_remover")
-        .buildProperly(consumer, "ghost_dust_remover_from_ink_sac")
-
-      ShapelessRecipeBuilder
-        .shapelessRecipe(GHOSTDUST_REMOVER_ITEM.get, 1)
-        .addIngredientAsCriterion("gunpowder", Items.GUNPOWDER)
-        .addIngredientAsCriterion("black_dye", Items.BLACK_DYE)
-        .addIngredientAsCriterion("bowl_of_salt", BowlWithContents.BOWL_OF_SALT.get)
-        .setGroup("ghost_dust_remover")
-        .buildProperly(consumer, "ghost_dust_remover_from_black_dye")
-
-    }
-    mkLanguageProvider("en_us"){lang =>
-      lang.addTooltip("transparency", "Transparency: %s%%")
-
-      lang.addItem(GHOSTDUST_ITEM.supplier, "Ghost Dust")
-      lang.addItem(GHOSTDUST_REMOVER_ITEM.supplier, "Ghost Dust Remover")
-    }
-    mkLanguageProvider("fr_fr"){lang =>
-      lang.addTooltip("transparency", "Transparence: %s%%")
-
-      lang.addItem(GHOSTDUST_ITEM.supplier, "Poussière de Fantôme")
-      lang.addItem(GHOSTDUST_REMOVER_ITEM.supplier, "Détachant de Fantôme")
-    }
-  }
-  @OnlyIn(Dist.CLIENT) @SubscribeEvent def onClientSetup(event: FMLClientSetupEvent) = addForgeListeners(onItemTooltip)
-
-  @OnlyIn(Dist.CLIENT) def onItemTooltip(event: ItemTooltipEvent): Unit = {
+  def onItemTooltip(event: ItemTooltipEvent): Unit = {
     if(event.getItemStack.hasTransparency)
       event.getToolTip.add(
         new TranslationTextComponent(s"tooltip.${implicitly[MODID]}.transparency", (event.getItemStack.getTransparency * 100).toString)

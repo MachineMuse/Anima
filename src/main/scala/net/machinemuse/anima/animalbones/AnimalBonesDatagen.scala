@@ -15,7 +15,7 @@ import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataE
 
 import animalbones.AddItemsLootModifier.AddItemsLootData
 import registration.RegistryHelpers.regSimpleItem
-import util.DatagenHelpers.{FancyShapelessRecipeBuilder, mkLanguageProvider, mkLootModifierProvider, mkRecipeProvider}
+import util.DatagenHelpers.{FancyShapelessRecipeBuilder, mkLanguageProvider, mkLootModifierProvider, mkRecipeProvider, mkSimpleItemModel}
 import util.Logging
 
 /**
@@ -65,5 +65,8 @@ object AnimalBonesDatagen extends Logging {
       mkLM(provider, "pig_bones", ANIMALBONES_ITEM.get, 1, 3, EntityType.PIG)
       mkLM(provider, "sheep_bones", ANIMALBONES_ITEM.get, 1, 2, EntityType.SHEEP)
     }
+
+    mkSimpleItemModel(BIRDBONES_ITEM.get)
+    mkSimpleItemModel(ANIMALBONES_ITEM.get)
   }
 }
