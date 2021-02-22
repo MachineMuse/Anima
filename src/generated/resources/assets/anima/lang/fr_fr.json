@@ -1,10 +1,7 @@
 {
-  "basket": "Panier",
   "block.anima.campfireplus": "Feu de Camp Am\u00E9lior\u00E9",
   "block.anima.cat_statue": "Statue de Chat en Argile",
   "block.anima.clay_pot": "Pot en Argile",
-  "block.anima.infused_dirt": "Terre Infus\u00E9e",
-  "block.anima.infused_farmland": "Terre Agricole Infus\u00E9e",
   "block.anima.radish": "Radis",
   "block.anima.salt_line": "Sel",
   "block.anima.woad_flowers": "Fleurs de Gu\u00EApe",
@@ -16,6 +13,7 @@
   "item.anima.bowl_of_water": "Bol d'Eau",
   "item.anima.campfire_ash": "Cendres de Feu de Camp",
   "item.anima.campfiredust": "Poussi\u00E8re pour Feu de Camp",
+  "item.anima.debug_staff": "B\u00E2ton de D\u00E9bogage",
   "item.anima.ghost_dust": "Poussi\u00E8re de Fant\u00F4me",
   "item.anima.ghost_dust_remover": "D\u00E9tachant de Fant\u00F4me",
   "item.anima.kindling": "Petit Bois d'Allumage",
@@ -24,5 +22,6 @@
   "item.anima.woad_leaves": "Feuilles de Gu\u00EApe",
   "item.anima.woad_seeds": "Graines de Gu\u00EApe",
   "itemGroup.anima": "Anima",
+  "screen.anima.basket": "Panier",
   "tooltip.anima.transparency": "Transparence: %s%%"
 }

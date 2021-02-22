@@ -138,8 +138,8 @@ trait InventoriedItem extends ModeChangingItem[Int] {
 
     override def insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack = {
       val existingItem = getStackInSlot(slot)
-      if(isValidForSlot(slot, container, stack) && (existingItem.isEmpty || (existingItem.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(existingItem, stack)))) {
-        val numInserted = Math.min(stack.getCount, getStackLimit(container) - existingItem.getCount)
+      if(isItemValid(slot, stack) && (existingItem.isEmpty || (existingItem.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(existingItem, stack)))) {
+        val numInserted = Math.min(stack.getCount, getSlotLimit(slot) - existingItem.getCount)
         val result = stack.copy()
         result.setCount(stack.getCount - numInserted)
         if(!simulate) {

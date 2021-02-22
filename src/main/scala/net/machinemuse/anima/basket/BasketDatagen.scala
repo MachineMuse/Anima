@@ -46,7 +46,7 @@ object BasketDatagen extends Logging {
     }
     mkLanguageProvider("fr_fr"){ lang =>
       lang.addItem(BASKET_ITEM.supplier, "Panier")
-      lang.add("basket", "Panier")
+      lang.addScreen("basket", "Panier")
     }
   }
 }

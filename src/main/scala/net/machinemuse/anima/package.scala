@@ -191,6 +191,15 @@ package object anima {
         f(world)
       }
     }
+    def onEach[T](serverDo: ServerWorld => T) (clientDo: World => T) (default: T): T = {
+      if(!world.isRemote) {
+        world.mapAsOrElse[ServerWorld, T](default) { sw =>
+          serverDo(sw)
+        }
+      } else {
+        clientDo(world)
+      }
+    }
   }
 
   def rayTrace(worldIn: World, player: PlayerEntity, fluidMode: RayTraceContext.FluidMode): BlockRayTraceResult = {

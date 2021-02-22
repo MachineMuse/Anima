@@ -29,6 +29,7 @@ import java.io._
 import java.nio.ByteBuffer
 import java.{util => ju}
 import scala.annotation.nowarn
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters.RichOptional
 
@@ -90,6 +91,24 @@ object VanillaCodecs extends Logging {
   implicit def PAIRCODEC[A: Codec, B: Codec]: Codec[Pair[A, B]] = new PairCodec(implicitly[Codec[A]], implicitly[Codec[B]])
   implicit def SPAIRCODEC[A: Codec, B: Codec]: Codec[(A, B)] = PAIRCODEC[A,B].xmap (p => (p.getFirst, p.getSecond), t => Pair.of(t._1, t._2))
 
+
+  // TODO: Revisit and see if a more robust and efficient string conversion for keys is possible
+  val GSON = new Gson()
+  implicit def STRINGMAPCODEC[V: Codec]: Codec[ju.Map[String, V]] = Codec.unboundedMap(
+    STRINGCODEC, implicitly[Codec[V]]
+  )
+  implicit def LONGMAPCODEC[V: Codec]: Codec[ju.Map[Long, V]] = Codec.unboundedMap(
+    STRINGCODEC.xmap(_.toLong, _.toString), implicitly[Codec[V]]
+  )
+
+  implicit def KMAPCODEC[K: Codec, V: Codec]: Codec[ju.Map[K,V]] = Codec.unboundedMap(
+    STRINGCODEC.flatXmap(
+      str => implicitly[Codec[K]].parse(JsonOps.INSTANCE, new JsonParser().parse(str)),
+      k => DataResult.success(GSON.toJson(implicitly[Codec[K]].writeJson(k)))
+    ), implicitly[Codec[V]]
+  )
+  implicit def SMAPCODEC[K: Codec, V: Codec](implicit jmapcodec: Codec[ju.Map[K, V]]): Codec[mutable.Map[K, V]] = jmapcodec.xmap(_.asScala, _.asJava)
+
   implicit def MATCHINGTRIPLETCODEC[A: Codec]: Codec[(A, A, A)] = SLISTCODEC[A].flatXmap ({
       case List(x,y,z) => DataResult.success((x,y,z))
       case el => DataResult.error(s"Triplet didn't contain 3 elements: $el")
@@ -113,7 +132,7 @@ object VanillaCodecs extends Logging {
   implicit def VECTOR4FCODEC  : Codec[Vector4f] =   MATCHINGQUADCODEC[Float]    .xmap(t => new Vector4f(t._1,t._2,t._3,t._4), v => (v.getW, v.getX, v.getY, v.getZ))
   implicit def QUATERNIONCODEC: Codec[Quaternion] = MATCHINGQUADCODEC[Float]    .xmap(t => new Quaternion(t._1,t._2,t._3,t._4), v => (v.getW, v.getX, v.getY, v.getZ))
 
-  implicit def BLOCKPOSCODEC : Codec[BlockPos] = MATCHINGTRIPLETCODEC[Int].xmap(t => new BlockPos(t._1, t._2, t._3), b => (b.getX, b.getY, b.getZ))
+  implicit def BLOCKPOSCODEC : Codec[BlockPos] = LONGCODEC.xmap(t => BlockPos.fromLong(t), b => b.toLong)
 
   import JavaFunctionConverters._
 
@@ -126,7 +145,7 @@ object VanillaCodecs extends Logging {
           logger.error(s" [input: $nbt ]")
         }.toScala
     }
-    def writeINBT(obj: A): INBT = codec.encodeStart(NBTDynamicOps.INSTANCE, obj).result().get() // we assume that encoding will always be successful
+    def writeINBT(obj: A): INBT = codec.encodeStart(NBTDynamicOps.INSTANCE, obj).getOrThrow(false, str => logger.error(s"Problem encoding: $str"))
 
     def parseJson(json: JsonElement): Option[A] = {
       codec.parse(JsonOps.INSTANCE, json)
@@ -135,7 +154,7 @@ object VanillaCodecs extends Logging {
           logger.error(s" [input: $json ]")
         }.toScala
     }
-    def writeJson(obj: A): JsonElement = codec.encodeStart(JsonOps.INSTANCE, obj).result().get() // we assume that encoding will always be successful
+    def writeJson(obj: A): JsonElement = codec.encodeStart(JsonOps.INSTANCE, obj).getOrThrow(false, str => logger.error(s"Problem encoding: $str"))
     def writeIntoMutableJson(obj: A, jsonOut: JsonObject): Unit = {
       val jsonIn = codec.writeJson(obj)
       jsonIn.getAsJsonObject.entrySet().forEach { entry =>
