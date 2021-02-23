@@ -135,7 +135,7 @@ object BlockInfusionCapability extends Logging {
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.FORGE)
-class BlockInfusionCapability extends BlockInfusionInterface with Logging {
+class BlockInfusionCapability extends BlockInfusionInterface {
   import BlockInfusionCapability._
 
   private val blockData: BlockInfusionData = mutable.HashMap.empty[BlockPos, mutable.Map[SoilElement.Value, Int]]

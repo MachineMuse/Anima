@@ -57,7 +57,7 @@ object GhostDustingRecipe extends Logging {
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-case class GhostDustingRecipe(items: List[GhostDustingIngredient]) extends ICraftingRecipe with CodecByName with IFinishedRecipe with Logging {
+case class GhostDustingRecipe(items: List[GhostDustingIngredient]) extends ICraftingRecipe with CodecByName with IFinishedRecipe {
   import ghostdust.GhostDustingRecipe._
   // TODO: Cleaning
   override def matches(inv: CraftingInventory, worldIn: World): Boolean = {

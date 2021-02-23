@@ -50,7 +50,7 @@ object CatStatue extends Logging {
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-class CatStatue(properties: AbstractBlock.Properties) extends Block(properties) with Logging {
+class CatStatue(properties: AbstractBlock.Properties) extends Block(properties) {
   import CatStatue._
   setDefaultState(this.stateContainer.getBaseState.updated(WATERLEVEL,0).updated(FACING, Direction.NORTH))
 

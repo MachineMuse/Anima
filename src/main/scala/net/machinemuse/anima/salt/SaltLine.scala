@@ -110,7 +110,7 @@ object SaltLine extends Logging {
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-class SaltLine(properties: AbstractBlock.Properties) extends Block(properties) with Logging {
+class SaltLine(properties: AbstractBlock.Properties) extends Block(properties) {
   import SaltLine._
 
   // Constructor

@@ -41,7 +41,7 @@ object ClayPotBlock extends Logging {
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-class ClayPotBlock(properties: AbstractBlock.Properties) extends Block(properties) with Logging {
+class ClayPotBlock(properties: AbstractBlock.Properties) extends Block(properties) {
   import ClayPotBlock._
   setDefaultState(this.stateContainer.getBaseState.`with`(OPEN, Boolean.box(false)).`with`(FACING, Direction.NORTH))
 

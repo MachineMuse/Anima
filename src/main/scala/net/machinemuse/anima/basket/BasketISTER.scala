@@ -38,7 +38,7 @@ object BasketISTER extends Logging {
   def mkISTER: Callable[ItemStackTileEntityRenderer] = () => new BasketISTER
 }
 @Mod.EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Mod.EventBusSubscriber.Bus.MOD)
-class BasketISTER extends ItemStackTileEntityRenderer with Logging {
+class BasketISTER extends ItemStackTileEntityRenderer {
 
 
 

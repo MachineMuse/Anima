@@ -85,7 +85,7 @@ object BowlWithContents extends Logging {
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-class BowlWithContents(properties: Item.Properties, val contentsColour: Int) extends Item(properties) with Logging {
+class BowlWithContents(properties: Item.Properties, val contentsColour: Int) extends Item(properties) {
 
   override def onItemUse(context: ItemUseContext): ActionResultType =
     this match {

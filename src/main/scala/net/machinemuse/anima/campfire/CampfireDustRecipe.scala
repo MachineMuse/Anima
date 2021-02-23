@@ -63,7 +63,7 @@ object CampfireDustRecipe extends Logging {
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-case class CampfireDustRecipe(bases: List[Item], ingredients: List[CampfireDustIngredient]) extends ICraftingRecipe with CodecByName with IFinishedRecipe with Logging {
+case class CampfireDustRecipe(bases: List[Item], ingredients: List[CampfireDustIngredient]) extends ICraftingRecipe with CodecByName with IFinishedRecipe {
 
   import campfire.CampfireDustRecipe._
   override def matches(inv: CraftingInventory, worldIn: World): Boolean = {

@@ -20,7 +20,8 @@ import util.Logging
 object HeldItemContainer extends Logging {
 }
 
-abstract class HeldItemContainer(playerInventory: PlayerInventory, hand: Hand, containerItem: InventoriedItem, ct: ContainerType[_], id: Int) extends Container(ct, id) with Logging {
+abstract class HeldItemContainer(playerInventory: PlayerInventory, hand: Hand, containerItem: InventoriedItem, ct: ContainerType[_], id: Int) extends Container(ct, id) {
+  import HeldItemContainer._
   override def canInteractWith(playerIn: PlayerEntity): Boolean = true
 
   val (usedInventory, usedInventorySlot, activeSlot) = hand match {

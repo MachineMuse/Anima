@@ -16,7 +16,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 import scala.util.Random
 
 import constants.BlockStateFlags
-import entity.EntityLightSpirit.{AirLightBlock, getAirLightBlock}
 import registration.ParticlesGlobal.AnimaParticleData
 import registration.RegistryHelpers._
 import util.RichDataParameter._
@@ -42,7 +41,8 @@ object EntityLightSpirit extends ParameterRegistrar(classOf[EntityLightSpirit]) 
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-class EntityLightSpirit (entityType: EntityType[EntityLightSpirit], world: World) extends Entity(entityType, world) with DataHandlingEntity with Logging {
+class EntityLightSpirit (entityType: EntityType[EntityLightSpirit], world: World) extends Entity(entityType, world) with DataHandlingEntity {
+  import EntityLightSpirit._
   override def registrar = EntityLightSpirit
   val homeblock: DataSync[BlockPos] = mkDataSync("homeblock", new BlockPos(0, 62, 0))
   val attention: DataSync[Int] =      mkDataSync("attention", 1000)

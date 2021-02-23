@@ -28,7 +28,7 @@ import util.{Colour, Logging}
  * Created by MachineMuse on 1/24/2021.
  */
 
-object DustForCampfire {
+object DustForCampfire extends Logging {
   @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {} // Ensures the class gets initialized when the mod is constructed
 
   final val CAMPFIRE_DUST_ITEM = regExtendedItem("campfiredust", () => new DustForCampfire)
@@ -46,7 +46,7 @@ object DustForCampfire {
 
 // counterintuitively, this will autosubscribe all the methods annotated with @SubscribeEvent in the companion object above.
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-class DustForCampfire extends Item(new Item.Properties().group(AnimaCreativeGroup)) with Logging {
+class DustForCampfire extends Item(new Item.Properties().group(AnimaCreativeGroup)) {
   // Called when this item is used when targeting a Block
   override def onItemUse(context: ItemUseContext): ActionResultType = {
     val pos = context.getPos

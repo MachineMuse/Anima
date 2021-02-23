@@ -2,8 +2,6 @@ package net.machinemuse.anima
 
 import net.minecraftforge.fml.common.Mod
 
-import util.Logging
-
 /**
  * Created by MachineMuse on 1/20/2021.
  */
@@ -11,7 +9,7 @@ object Anima {
   final val MODID = "anima"
 }
 @Mod(Anima.MODID)
-class Anima extends Logging {
+class Anima {
 
 //  FMLJavaModLoadingContext.get.getModEventBus.addListener(respondToModEvents)
 //  def respondToModEvents(event: ModLifecycleEvent) = {

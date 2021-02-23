@@ -60,7 +60,7 @@ object Basket extends Logging {
 
 // counterintuitively, this will autosubscribe all the methods annotated with @SubscribeEvent in the companion object above.
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-class Basket extends Item(Basket.properties) with InventoriedItem with Logging {
+class Basket extends Item(Basket.properties) with InventoriedItem {
   def isVeggie(stack: ItemStack): Boolean = stack.getItem.isFood && !stack.getItem.getFood.isMeat
   def isPlantable(stack: ItemStack): Boolean = OptionCast[BlockItem](stack.getItem).exists(_.getBlock.isInstanceOf[IPlantable])
 

@@ -32,7 +32,7 @@ object CatStatueTileEntity extends Logging {
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-class CatStatueTileEntity extends TileEntity(CatStatueTileEntity.TYPE.get) with IClearable with ITickableTileEntity with Logging {
+class CatStatueTileEntity extends TileEntity(CatStatueTileEntity.TYPE.get) with IClearable with ITickableTileEntity {
   private var BURNTIME = 0
   private var BOILTIME = 0
 

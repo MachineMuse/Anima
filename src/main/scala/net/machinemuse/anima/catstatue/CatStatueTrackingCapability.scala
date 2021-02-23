@@ -53,7 +53,7 @@ object CatStatueTrackingCapability extends Logging {
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.FORGE)
-class CatStatueTrackingCapability extends TrackingInterface with Logging {
+class CatStatueTrackingCapability extends TrackingInterface {
 
   private val catStatueSet: mutable.HashSet[BlockPos] = mutable.HashSet.empty
 

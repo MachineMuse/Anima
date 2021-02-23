@@ -90,7 +90,7 @@ object TallCropsBlock extends Logging {
     }
   }
 
-  class TallCropsBodyBlock(head: Supplier[TallCropsHeadBlock], age: IntegerProperty, properties: AbstractBlock.Properties) extends CropsBlock(properties) with IGrowable with IPlantable with Logging {
+  class TallCropsBodyBlock(head: Supplier[TallCropsHeadBlock], age: IntegerProperty, properties: AbstractBlock.Properties) extends CropsBlock(properties) with IGrowable with IPlantable {
     setDefaultState(this.stateContainer.getBaseState.updated(HAS_FLOWERS, false))
 
     override def fillStateContainer(container : StateContainer.Builder[Block, BlockState]): Unit = {

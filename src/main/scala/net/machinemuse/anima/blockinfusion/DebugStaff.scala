@@ -41,7 +41,7 @@ object DebugStaff extends Logging {
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-class DebugStaff(properties: Item.Properties) extends Item(properties) with Logging {
+class DebugStaff(properties: Item.Properties) extends Item(properties) {
 
   override def onItemRightClick(world : World, player : PlayerEntity, hand : Hand): ActionResult[ItemStack] = {
     val rayTraceResult = rayTrace(world, player, RayTraceContext.FluidMode.ANY)

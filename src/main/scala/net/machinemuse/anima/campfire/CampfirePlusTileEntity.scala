@@ -32,7 +32,7 @@ import util.VanillaCodecs.{ConvenientCodec, _}
 /**
  * Created by MachineMuse on 1/24/2021.
  */
-object CampfirePlusTileEntity {
+object CampfirePlusTileEntity extends Logging {
   @SubscribeEvent def onConstructMod(e: FMLConstructModEvent) = {}
 
   val CAMPFIREPLUS_TE = regTE[CampfirePlusTileEntity]("campfireplus", () => new CampfirePlusTileEntity, () => CampfirePlus.getBlock)
@@ -68,8 +68,8 @@ object CampfirePlusTileEntity {
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-class CampfirePlusTileEntity extends CampfireTileEntity with CodecByName with Logging {
-  import campfire.CampfirePlusTileEntity._
+class CampfirePlusTileEntity extends CampfireTileEntity with CodecByName {
+  import CampfirePlusTileEntity._
   def copyOldTE(blockstate: BlockState, oldTE: CampfireTileEntity): Unit = {
     val oldNBT: CompoundNBT = oldTE.write(new CompoundNBT)
     this.read(blockstate, oldNBT)
