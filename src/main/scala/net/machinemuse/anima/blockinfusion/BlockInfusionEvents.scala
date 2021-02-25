@@ -19,12 +19,12 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 
-import blockinfusion.BlockInfusionCapability.BlockInfusionInterface
+import blockinfusion.BlockInfusionCapability.ChunkWithCapability
 import util.GenCodecsByName._
 import util.Logging
 import util.VanillaCodecs._
 import java.util
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.language.implicitConversions
 import scala.util.Random
@@ -55,47 +55,30 @@ object BlockInfusionEvents extends Logging {
                                 consumes: List[SoilElement.Value] = List.empty,
                                 infuses: List[SoilElement.Value] = List.empty) extends CodecByName
 
+  private val CODEC = implicitly[Codec[ElementalBehaviour]]
+
   @SubscribeEvent def onCropGrowthPre(event: CropGrowEvent.Pre): Unit = {
     val world = event.getWorld
     val pos = event.getPos
     val state = event.getState
     val block = state.getBlock
-    val behaviourOpt = BEHAVIOURS.get(block)
-    behaviourOpt.foreach { behaviour =>
-      val blocksUnder = getBlocksBelowPlant(pos, world).flatMap[(BlockPos, BlockInfusionInterface)]{pos =>
-        if(!world.isBlockLoaded(pos) : @nowarn) {
-          none.toSeq
+    for {
+      behaviour <- BEHAVIOURS.get(block)
+      chunk <- world.getChunk(pos).optionallyAs[Chunk]
+      cap = chunk.getAndRealizeCapability(BlockInfusionCapability.getCapability)
+    } {
+      val consumptions = behaviour.consumes.map {consumes =>
+        if(cap.getElementAtPos(pos, consumes) > 0) {
+          cap.decreaseElementAtPos(pos, consumes, 1, 0)
         } else {
-          val chunkOpt = world.getChunk(pos.getX >> 4, pos.getZ >> 4).optionallyAs[Chunk]
-          val capOpt = chunkOpt.map(_.getCapability(BlockInfusionCapability.getCapability).resolve().get())
-          capOpt.fold[Seq[(BlockPos, BlockInfusionInterface)]](Seq.empty) (cap => Seq((pos, cap)))
+          0
         }
       }
-      if(behaviour.consumes.nonEmpty && blocksUnder.nonEmpty) {
-        val consumptionResults = for(consumes <- behaviour.consumes) yield {
-          val (bestPos, bestCap) = blocksUnder.maxBy{case (pos, cap) => cap.getElementAtPos(pos, consumes)}
-          val bestValue = bestCap.getElementAtPos(bestPos, consumes)
-          if(bestValue > 0) {
-            bestCap.setElementAtPos(bestPos, consumes, bestValue - 1)
-            true
-          } else {
-            val (leastDepletedPos, leastDepletedCap) = blocksUnder.minBy{case (pos, cap) => cap.getElementAtPos(pos, SoilElement.Depletion)}
-            val leastDepletion = leastDepletedCap.getElementAtPos(leastDepletedPos, SoilElement.Depletion)
-            if(leastDepletion == 3) {
-              // TODO: something more interesting
-//              world.setBlockState(leastDepletedPos, Blocks.COARSE_DIRT.getDefaultState, BlockStateFlags.STANDARD_CLIENT_UPDATE)
-            } else {
-              leastDepletedCap.setElementAtPos(leastDepletedPos, SoilElement.Depletion, leastDepletion + 1)
-            }
-            false
-          }
-        }
-        val failedConsumptions = consumptionResults.count(!_)
-        if(failedConsumptions == 0) {
-          event.setResult(Result.ALLOW)
-        } else if (Random.nextDouble() < failedConsumptions.toDouble / consumptionResults.size.toDouble) {
-          event.setResult(Result.DENY)
-        }
+      val failedConsumptions = consumptions.count(_ == 0)
+      if(failedConsumptions == 0) {
+        event.setResult(Result.ALLOW)
+      } else if (Random.nextDouble() < failedConsumptions.toDouble / consumptions.size.toDouble) {
+        event.setResult(Result.DENY)
       }
     }
   }
@@ -113,8 +96,6 @@ object BlockInfusionEvents extends Logging {
   }
 
   private[blockinfusion] val BEHAVIOURS = mutable.HashMap.empty[Block, ElementalBehaviour]
-
-  private val CODEC = implicitly[Codec[ElementalBehaviour]]
 
   @SubscribeEvent def onAddReloadListeners(event: AddReloadListenerEvent): Unit =
     event.addListener {
