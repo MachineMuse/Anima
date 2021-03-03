@@ -7,7 +7,7 @@ import net.minecraft.data.IFinishedRecipe
 import net.minecraft.entity.EntityType
 import net.minecraft.inventory.CraftingInventory
 import net.minecraft.item._
-import net.minecraft.item.crafting.{ICraftingRecipe, IRecipeSerializer}
+import net.minecraft.item.crafting._
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.World
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.{FMLConstructModEvent, GatherDataEvent}
 
-import bowl.BowlWithContents
+import bowl.BowlWithContents.BOWL_OF_SALT
 import campfire.CampfireDustRecipe.CampfireDustIngredient
 import entity.EntityLightSpirit
 import registration.RegistryHelpers
@@ -53,7 +53,8 @@ object CampfireDustRecipe extends Logging {
   def gatherData(implicit event: GatherDataEvent): Unit = {
     mkRecipeProvider { consumer =>
       val colours = DyeColor.values().map(color => CampfireDustIngredient(DyeItem.getItem(color), outercolour = color.getColorValue.some, innercolour = color.getTextColor.some))
-      val defaultRecipe = CampfireDustRecipe(List(Items.GUNPOWDER, BowlWithContents.BOWL_OF_SALT.get), List(
+      val defaultRecipe = CampfireDustRecipe(List(
+        new ItemStack(Items.GUNPOWDER), BOWL_OF_SALT), List(
         CampfireDustIngredient(Items.CHARCOAL, attracts = EntityLightSpirit.getType.some)
       ) ++ colours)
       consumer.accept(defaultRecipe)
@@ -63,7 +64,7 @@ object CampfireDustRecipe extends Logging {
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)
-case class CampfireDustRecipe(bases: List[Item], ingredients: List[CampfireDustIngredient]) extends ICraftingRecipe with CodecByName with IFinishedRecipe {
+case class CampfireDustRecipe(bases: List[ItemStack], ingredients: List[CampfireDustIngredient]) extends ICraftingRecipe with CodecByName with IFinishedRecipe {
 
   import campfire.CampfireDustRecipe._
   override def matches(inv: CraftingInventory, worldIn: World): Boolean = {
@@ -72,7 +73,7 @@ case class CampfireDustRecipe(bases: List[Item], ingredients: List[CampfireDustI
     var fail = false
     for (stack <- stacks) {
       val matchingIngredients = ingredients.filter(_.item == stack.getItem)
-      val matchingBases = bases.filter(_ == stack.getItem)
+      val matchingBases = bases.filter(other => other.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(other, stack))
       missingBases = missingBases.diff(matchingBases)
       if (matchingIngredients.isEmpty && matchingBases.isEmpty) fail = true
 

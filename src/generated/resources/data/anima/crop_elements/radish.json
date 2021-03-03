@@ -1,0 +1,9 @@
+{
+  "block": "anima:radish",
+  "consumes": [
+    "air"
+  ],
+  "infuses": [
+    "fire"
+  ]
+}

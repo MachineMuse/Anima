@@ -1,7 +1,8 @@
 package net.machinemuse.anima
 package util
 
-import com.google.gson.GsonBuilder
+import com.google.common.base.Preconditions
+import com.google.gson.{GsonBuilder, JsonObject}
 import com.mojang.datafixers.util.Pair
 import com.mojang.serialization.Codec
 import net.minecraft.advancements.criterion._
@@ -10,8 +11,8 @@ import net.minecraft.data.loot.{BlockLootTables, EntityLootTables}
 import net.minecraft.data.{BlockModelProvider => _, ItemModelProvider => _, _}
 import net.minecraft.entity.player.{PlayerEntity, PlayerInventory}
 import net.minecraft.inventory.container.{Container, INamedContainerProvider}
-import net.minecraft.item.Item
 import net.minecraft.item.crafting.{IRecipeSerializer, Ingredient}
+import net.minecraft.item.{Item, ItemStack}
 import net.minecraft.loot._
 import net.minecraft.state._
 import net.minecraft.tags.ITag
@@ -20,6 +21,7 @@ import net.minecraft.util.{IItemProvider, ResourceLocation}
 import net.minecraftforge.client.model.generators.ModelFile.{ExistingModelFile, UncheckedModelFile}
 import net.minecraftforge.client.model.generators.{BlockStateProvider => DatagenBlockStateProvider, _}
 import net.minecraftforge.common.crafting.conditions.IConditionBuilder
+import net.minecraftforge.common.crafting.{CraftingHelper, NBTIngredient}
 import net.minecraftforge.common.data.{GlobalLootModifierProvider, LanguageProvider}
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
 
@@ -36,6 +38,8 @@ import java.{lang, util}
  * Created by MachineMuse on 2/9/2021.
  */
 object DatagenHelpers extends Logging {
+
+  def mkCenteredCuboidShape(width: Double, height: Double) = Block.makeCuboidShape(8.0 - (width/2.0), 0.0D, 8.0 - (width/2.0), 8.0 + (width/2.0), height, 8.0 + (width/2.0))
 
   private class LootTableProviderWithAccumulator(gen: DataGenerator) extends LootTableProvider(gen) {
     private val tables: mutable.HashSet[(Supplier[Consumer[BiConsumer[ResourceLocation, LootTable.Builder]]], LootParameterSet)] = mutable.HashSet.empty
@@ -180,10 +184,10 @@ object DatagenHelpers extends Logging {
     }
     def saferCondition[T  <: AnyRef with Comparable[T]](property: Property[T], values: T*): MultiPartBlockStateBuilder#PartBuilder = {
       // TODO: safecheck this somehow
-//      Preconditions.checkNotNull(property, "Property must not be null")
-//      Preconditions.checkNotNull(values, "Value list must not be null")
-//      Preconditions.checkArgument(values.length > 0, "Value list must not be empty")
-//      Preconditions.checkArgument(!builder.conditions.containsKey(property), "Cannot set condition for property \"%s\" more than once", prop.getName)
+      Preconditions.checkNotNull(property, "Property must not be null".asInstanceOf[Object])
+      Preconditions.checkNotNull(values, "Value list must not be null".asInstanceOf[Object])
+      Preconditions.checkArgument(values.nonEmpty, "Value list must not be empty".asInstanceOf[Object])
+      Preconditions.checkArgument(!builder.conditions.containsKey(property), "Cannot set condition for property \"%s\" more than once", property.getName)
 //      Preconditions.checkArgument(builder.canApplyTo(owner), "IProperty %s is not valid for the block %s", prop, owner)
       builder.conditions.putAll(property.asInstanceOf[Property[_]], values.map(_.asInstanceOf[Comparable[_]]).toList.asJava)
 
@@ -318,6 +322,17 @@ object DatagenHelpers extends Logging {
     }
   }
 
+  def serializeItemStackForRecipe(stack: ItemStack): JsonObject = {
+    val json = new JsonObject
+    json.addProperty("type", CraftingHelper.getID(NBTIngredient.Serializer.INSTANCE).toString)
+    json.addProperty("item", stack.getItem.getRegistryName.toString)
+    json.addProperty("count", stack.getCount)
+    if (stack.hasTag) {
+      json.addProperty("nbt", stack.getTag.toString)
+    }
+    json
+  }
+
   implicit class FancyShapelessRecipeBuilder(builder: ShapelessRecipeBuilder) {
     def addIngredientAsCriterion(name: String, ingredient: Item) = {
       builder.addIngredient(ingredient)
@@ -326,6 +341,11 @@ object DatagenHelpers extends Logging {
     def addIngredientAsCriterion(name: String, ingredient: ITag[Item]) = {
       builder.addIngredient(ingredient)
       builder.addCriterion("has_" + name, hasItem(ingredient))
+    }
+    def addIngredientAsCriterion(name: String, stack: ItemStack) = {
+      val ingredient = new NBTIngredient(stack) {}
+      builder.addIngredient(ingredient)
+      builder.addCriterion("has_" + name, hasItem(stack))
     }
     def buildProperly(consumer: Consumer[IFinishedRecipe], filename: String) = {
       builder.build((a: IFinishedRecipe) => {
@@ -351,9 +371,10 @@ object DatagenHelpers extends Logging {
     }
   }
 
-  protected def hasItem(item: IItemProvider): InventoryChangeTrigger.Instance = hasItem(ItemPredicate.Builder.create.item(item).build)
+  def hasItem(item: IItemProvider): InventoryChangeTrigger.Instance = hasItem(ItemPredicate.Builder.create.item(item).build)
 
-  protected def hasItem(tag: ITag[Item]): InventoryChangeTrigger.Instance = hasItem(ItemPredicate.Builder.create.tag(tag).build)
+  def hasItem(tag: ITag[Item]): InventoryChangeTrigger.Instance = hasItem(ItemPredicate.Builder.create.tag(tag).build)
 
-  protected def hasItem(predicate: ItemPredicate*) = new InventoryChangeTrigger.Instance(EntityPredicate.AndPredicate.ANY_AND, MinMaxBounds.IntBound.UNBOUNDED, MinMaxBounds.IntBound.UNBOUNDED, MinMaxBounds.IntBound.UNBOUNDED, predicate.toArray)
+  def hasItem(predicate: ItemPredicate*) = new InventoryChangeTrigger.Instance(EntityPredicate.AndPredicate.ANY_AND, MinMaxBounds.IntBound.UNBOUNDED, MinMaxBounds.IntBound.UNBOUNDED, MinMaxBounds.IntBound.UNBOUNDED, predicate.toArray)
+  def hasItem(itemStack: ItemStack) = new InventoryChangeTrigger.Instance(EntityPredicate.AndPredicate.ANY_AND, MinMaxBounds.IntBound.UNBOUNDED, MinMaxBounds.IntBound.UNBOUNDED, MinMaxBounds.IntBound.UNBOUNDED, Array(ItemPredicate.Builder.create().item(itemStack.getItem).nbt(itemStack.getTag).build()))
 }

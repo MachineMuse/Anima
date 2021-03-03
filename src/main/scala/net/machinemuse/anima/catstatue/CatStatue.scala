@@ -4,6 +4,7 @@ package catstatue
 import net.minecraft.block._
 import net.minecraft.block.material.{Material, MaterialColor}
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.fluid.Fluids
 import net.minecraft.item._
 import net.minecraft.state.properties.BlockStateProperties
 import net.minecraft.state.{DirectionProperty, StateContainer}
@@ -20,7 +21,8 @@ import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent
 
 import scala.annotation.nowarn
 
-import bowl.BowlWithContents
+import bowl.BowlContents.FluidContents
+import bowl.{BowlContents, BowlWithContents}
 import registration.RegistryHelpers.{regBlock, regSimpleBlockItem}
 import util.Logging
 import util.VanillaClassEnrichers.RichBlockState
@@ -65,7 +67,8 @@ class CatStatue(properties: AbstractBlock.Properties) extends Block(properties) 
   override def onBlockActivated(state: BlockState, world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, hit: BlockRayTraceResult): ActionResultType = {
 //    hit.getFace match {
     val itemInUse = player.getHeldItem(hand)
-    if(itemInUse.getItem == BowlWithContents.BOWL_OF_WATER.get) {
+    // TODO: use IFluidHandler
+    if(itemInUse.getItem == BowlWithContents.BOWL_WITH_CONTENTS.get && BowlContents.getContents(itemInUse) == FluidContents(Fluids.WATER)) {
       val waterLevel = state.get(WATERLEVEL)
       if (waterLevel < 3) {
         val emptyBowl = new ItemStack(Items.BOWL)

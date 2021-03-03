@@ -9,7 +9,10 @@
       "item": "minecraft:black_dye"
     },
     {
-      "item": "anima:bowl_of_salt"
+      "type": "forge:nbt",
+      "item": "anima:bowl_with_contents",
+      "count": 1,
+      "nbt": "{contents:{block:\"anima:salt_line\",type:\"BlockContents\"}}"
     }
   ],
   "result": {

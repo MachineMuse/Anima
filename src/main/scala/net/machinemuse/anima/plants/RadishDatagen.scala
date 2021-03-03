@@ -25,35 +25,35 @@ object RadishDatagen extends Logging {
   def gatherData(implicit event: GatherDataEvent): Unit = {
 
     mkBlockTagsProvider(BlockTags.CROPS) { builder =>
-      builder.add(Radish.RADISH_BLOCK.get)
+      builder.add(Radish.BLOCK.get)
     }
     mkLanguageProvider("en_us") { lang =>
-      lang.addBlock(Radish.RADISH_BLOCK, "Radish")
-      lang.addItem(Radish.RADISH_ITEM, "Radish")
-      lang.addItem(Radish.RADISH_SEEDS_ITEM, "Radish Seeds")
+      lang.addBlock(Radish.BLOCK, "Radish")
+      lang.addItem(Radish.ITEM, "Radish")
+      lang.addItem(Radish.SEEDS_ITEM, "Radish Seeds")
     }
     mkLanguageProvider("fr_fr") { lang =>
-      lang.addBlock(Radish.RADISH_BLOCK, "Radis")
-      lang.addItem(Radish.RADISH_ITEM, "Radis")
-      lang.addItem(Radish.RADISH_SEEDS_ITEM, "Graines de Radis")
+      lang.addBlock(Radish.BLOCK, "Radis")
+      lang.addItem(Radish.ITEM, "Radis")
+      lang.addItem(Radish.SEEDS_ITEM, "Graines de Radis")
     }
     provideBlockLootTable {
       new SimplerBlockLootTable {
         /*_*/
-        val lootConditionBuilder = BlockStateProperty.builder(Radish.RADISH_BLOCK.get)
+        val lootConditionBuilder = BlockStateProperty.builder(Radish.BLOCK.get)
           .fromProperties(StatePropertiesPredicate.Builder.newBuilder.withIntProp(CropsBlock.AGE, 7))
-        add(Radish.RADISH_BLOCK.get, droppingAndBonusWhen(Radish.RADISH_BLOCK.get, Radish.RADISH_ITEM.get, Radish.RADISH_SEEDS_ITEM.get, lootConditionBuilder))
+        add(Radish.BLOCK.get, droppingAndBonusWhen(Radish.BLOCK.get, Radish.ITEM.get, Radish.SEEDS_ITEM.get, lootConditionBuilder))
         /*_*/
       }
     }
-    mkSimpleItemModel(Radish.RADISH_SEEDS_ITEM.get)
-    mkSimpleItemModel(Radish.RADISH_ITEM.get)
+    mkSimpleItemModel(Radish.SEEDS_ITEM.get)
+    mkSimpleItemModel(Radish.ITEM.get)
     mkBlockModel { provider =>
       for(name <- List("radish_sprouts", "radish_growing", "radish_almost_grown", "radish_grown")) {
         provider.crop(name, modLoc(s"block/$name"))
       }
     }
-    mkAllVariantBlockStates(Radish.RADISH_BLOCK.get) {state =>
+    mkAllVariantBlockStates(Radish.BLOCK.get) { state =>
       state.get(TallCropsBlock.AGE).intValue() match {
         case 0 | 1 =>
           ConfiguredModel.builder()

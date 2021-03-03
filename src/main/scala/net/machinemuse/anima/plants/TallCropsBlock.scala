@@ -27,6 +27,7 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 import constants.BlockStateFlags.{STANDARD_CLIENT_UPDATE, STANDARD_MULTIBLOCK_BREAK_UPDATE}
 import registration.RegistryHelpers._
+import util.DatagenHelpers.mkCenteredCuboidShape
 import util.Logging
 import util.VanillaClassEnrichers.RichBlockState
 
@@ -44,7 +45,7 @@ object TallCropsBlock extends Logging {
 
   val AGE: IntegerProperty = BlockStateProperties.AGE_0_7
   val HAS_FLOWERS: BooleanProperty = BooleanProperty.create("has_flowers")
-  def mkCenteredCuboidShape(width: Double, height: Double) = Block.makeCuboidShape(8.0 - (width/2.0), 0.0D, 8.0 - (width/2.0), 8.0 + (width/2.0), height, 8.0 + (width/2.0))
+
   protected val SPROUT_SHAPE: VoxelShape = mkCenteredCuboidShape(4.0, 3.0)
   protected val TRIMMED_SHAPE: VoxelShape = mkCenteredCuboidShape(16.0, 10.0)
   protected val FULL_SHAPE: VoxelShape = mkCenteredCuboidShape(16.0, 16.0)

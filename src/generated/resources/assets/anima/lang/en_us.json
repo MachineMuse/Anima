@@ -1,4 +1,5 @@
 {
+  "block.anima.bowl_placed": "Bowl",
   "block.anima.campfireplus": "Enhanced Campfire",
   "block.anima.cat_statue": "Clay Cat Statue",
   "block.anima.clay_pot": "Clay Pot",
@@ -9,8 +10,7 @@
   "item.anima.animalbones": "Animal Bones",
   "item.anima.basket": "Basket",
   "item.anima.birdbones": "Bird Bones",
-  "item.anima.bowl_of_salt": "Bowl of Salt",
-  "item.anima.bowl_of_water": "Bowl of Water",
+  "item.anima.bowl_with_contents": "Bowl",
   "item.anima.campfire_ash": "Campfire Ash",
   "item.anima.campfiredust": "Campfire Dust",
   "item.anima.debug_staff": "Debug Staff",

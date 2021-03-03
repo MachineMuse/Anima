@@ -4,7 +4,7 @@ package salt
 import com.google.common.collect.Maps
 import net.minecraft.block.Block.{replaceBlockState, spawnDrops}
 import net.minecraft.block._
-import net.minecraft.block.material.Material
+import net.minecraft.block.material.{Material, MaterialColor}
 import net.minecraft.client.renderer.{RenderType, RenderTypeLookup}
 import net.minecraft.entity.{LivingEntity, MobEntity}
 import net.minecraft.item.BlockItemUseContext
@@ -26,7 +26,6 @@ import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.ListHasAsScala
 
 import registration.RegistryHelpers.regBlock
-import util.DatagenHelpers._
 import util.Logging
 import util.VanillaClassEnrichers._
 
@@ -36,10 +35,10 @@ import util.VanillaClassEnrichers._
 object SaltLine extends Logging {
 
   @SubscribeEvent def onConstructMod(e: FMLConstructModEvent) = {}
-  private val NORTH = BlockStateProperties.REDSTONE_NORTH
-  private val EAST = BlockStateProperties.REDSTONE_EAST
-  private val SOUTH = BlockStateProperties.REDSTONE_SOUTH
-  private val WEST = BlockStateProperties.REDSTONE_WEST
+  private[salt] val NORTH = BlockStateProperties.REDSTONE_NORTH
+  private[salt] val EAST = BlockStateProperties.REDSTONE_EAST
+  private[salt] val SOUTH = BlockStateProperties.REDSTONE_SOUTH
+  private[salt] val WEST = BlockStateProperties.REDSTONE_WEST
 
   private val BASE_SHAPE: VoxelShape = Block.makeCuboidShape(3.0D, 0.0D, 3.0D, 13.0D, 1.0D, 13.0D)
 
@@ -56,7 +55,7 @@ object SaltLine extends Logging {
 
   private val SHAPE_FOR_UNDEAD: VoxelShape = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 128.0D, 16.0D)
 
-  val properties = AbstractBlock.Properties.create(Material.MISCELLANEOUS).zeroHardnessAndResistance().notSolid()
+  val properties = AbstractBlock.Properties.create(Material.MISCELLANEOUS, MaterialColor.WHITE_TERRACOTTA).zeroHardnessAndResistance().notSolid()
     .setBlocksVision((_,_,_) => false).setSuffocates((_,_,_) => false).doesNotBlockMovement
   val SALT_LINE_BLOCK = regBlock("salt_line", () => new SaltLine(properties))
 
@@ -70,43 +69,6 @@ object SaltLine extends Logging {
     RenderTypeLookup.setRenderLayer(SALT_LINE_BLOCK.get, RenderType.getCutout)
   }
 
-  @SubscribeEvent def onGatherData(implicit event: GatherDataEvent): Unit = {
-    mkLanguageProvider("en_us"){ lang =>
-      // adds as a block i guess because it's an ItemBlock
-      lang.addBlock(SALT_LINE_BLOCK, "Salt")
-    }
-    mkLanguageProvider("fr_fr"){ lang =>
-      lang.addBlock(SALT_LINE_BLOCK, "Sel")
-    }
-    mkMultipartBlockStates(SALT_LINE_BLOCK.get){ builder =>
-      val dotmodel = existingVanillaModelFile("block/redstone_dust_dot")
-      val sidemodel = existingVanillaModelFile("block/redstone_dust_side")
-      val sidemodel0 = existingVanillaModelFile("block/redstone_dust_side0")
-      val sidemodel1 = existingVanillaModelFile("block/redstone_dust_side1")
-      val sidealtmodel = existingVanillaModelFile("block/redstone_dust_side_alt")
-      val sidealtmodel0 = existingVanillaModelFile("block/redstone_dust_side_alt0")
-      val sidealtmodel1 = existingVanillaModelFile("block/redstone_dust_side_alt1")
-      val upmodel = existingVanillaModelFile("block/redstone_dust_up")
-      val sides = Seq(NORTH, EAST, SOUTH, WEST)
-      val sidemodels = Seq(sidemodel0, sidealtmodel1, sidealtmodel0, sidemodel1)
-      val siderotations = Seq(0, 270, 0, 270)
-      for(sidenumber <- sides.indices) {
-        builder.part.modelFile(upmodel).rotationY(sidenumber * 90).addModel()
-          .saferCondition(sides(sidenumber), RedstoneSide.UP)
-        builder.part.modelFile(sidemodels(sidenumber)).rotationY(siderotations(sidenumber)).addModel()
-          .saferCondition(sides(sidenumber), RedstoneSide.SIDE, RedstoneSide.UP)
-        builder.part.modelFile(dotmodel).addModel()
-          .saferCondition(sides(sidenumber), RedstoneSide.UP, RedstoneSide.SIDE)
-          .saferCondition(sides((sidenumber + 1) % 4), RedstoneSide.UP, RedstoneSide.SIDE)
-      }
-      builder.part.modelFile(dotmodel).addModel()
-        .saferCondition(NORTH, RedstoneSide.NONE)
-        .saferCondition(SOUTH, RedstoneSide.NONE)
-        .saferCondition(EAST, RedstoneSide.NONE)
-        .saferCondition(WEST, RedstoneSide.NONE)
-    }
-
-  }
 }
 
 @EventBusSubscriber(modid = Anima.MODID, bus = Bus.MOD)

@@ -12,8 +12,9 @@ import io.netty.buffer._
 import net.minecraft.block.Block
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.ai.attributes.Attribute
-import net.minecraft.item.Item
+import net.minecraft.fluid.Fluid
 import net.minecraft.item.crafting.{IRecipe, IRecipeSerializer}
+import net.minecraft.item.{Item, ItemStack}
 import net.minecraft.nbt._
 import net.minecraft.network.PacketBuffer
 import net.minecraft.particles.{IParticleData, ParticleType}
@@ -74,7 +75,9 @@ object VanillaCodecs extends Logging {
 
   /*_*/ // Registries
   implicit val ITEMCODEC: Codec[Item] = Registry.ITEM : @nowarn
+  implicit val ITEMSTACKCODEC: Codec[ItemStack] = ItemStack.CODEC : @nowarn
   implicit val BLOCKCODEC: Codec[Block] = Registry.BLOCK : @nowarn
+  implicit val FLUIDCODEC: Codec[Fluid] = Registry.FLUID : @nowarn
   implicit val ATTRIBUTECODEC: Codec[Attribute] = Registry.ATTRIBUTE : @nowarn
 
   // Caution: This will fail to generate a codec at the top level, but it works fine if it's an encased type

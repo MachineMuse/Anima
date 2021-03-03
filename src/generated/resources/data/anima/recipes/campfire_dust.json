@@ -1,8 +1,20 @@
 {
   "type": "anima:campfire_dust",
   "bases": [
-    "minecraft:gunpowder",
-    "anima:bowl_of_salt"
+    {
+      "id": "minecraft:gunpowder",
+      "Count": 1
+    },
+    {
+      "id": "anima:bowl_with_contents",
+      "Count": 1,
+      "tag": {
+        "contents": {
+          "block": "anima:salt_line",
+          "type": "BlockContents"
+        }
+      }
+    }
   ],
   "ingredients": [
     {

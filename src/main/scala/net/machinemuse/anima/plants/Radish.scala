@@ -22,7 +22,7 @@ object Radish extends Logging {
   @SubscribeEvent def onConstructMod(event: FMLConstructModEvent) = {}
 
   @OnlyIn(Dist.CLIENT) @SubscribeEvent def onClientSetup(event: FMLClientSetupEvent) = {
-    RenderTypeLookup.setRenderLayer(RADISH_BLOCK.get, RenderType.getCutout)
+    RenderTypeLookup.setRenderLayer(BLOCK.get, RenderType.getCutout)
   }
 
   protected val properties = AbstractBlock.Properties.create(Material.PLANTS)
@@ -31,9 +31,9 @@ object Radish extends Logging {
     .zeroHardnessAndResistance
     .sound(SoundType.PLANT)
 
-  val RADISH_BLOCK = regBlock("radish", () => new CropsBlock(properties))
+  val BLOCK = regBlock("radish", () => new CropsBlock(properties))
 
-  val RADISH_ITEM = regSimpleItem("radish")
-  val RADISH_SEEDS_ITEM = regNamedBlockItem("radish_seeds", RADISH_BLOCK)
+  val ITEM = regSimpleItem("radish")
+  val SEEDS_ITEM = regNamedBlockItem("radish_seeds", BLOCK)
 
 }

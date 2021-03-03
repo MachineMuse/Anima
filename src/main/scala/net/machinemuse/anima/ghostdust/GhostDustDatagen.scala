@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
 
-import bowl.BowlWithContents
+import bowl.BowlWithContents.BOWL_OF_SALT
 import ghostdust.GhostDustingRecipe._
 import util.DatagenHelpers.{FancyShapelessRecipeBuilder, mkLanguageProvider, mkRecipeProvider, mkSimpleItemModel}
 import util.Logging
@@ -34,7 +34,7 @@ object GhostDustDatagen extends Logging {
         .shapelessRecipe(GHOSTDUST_ITEM.get, 2)
         .addIngredientAsCriterion("gunpowder", Items.GUNPOWDER)
         .addIngredientAsCriterion("bonemeal", Items.BONE_MEAL)
-        .addIngredientAsCriterion("bowl_of_salt", BowlWithContents.BOWL_OF_SALT.get)
+        .addIngredientAsCriterion("bowl_of_salt", BOWL_OF_SALT)
         .setGroup("ghost_dust")
         .buildProperly(consumer, "ghost_dust_from_bonemeal")
 
@@ -42,7 +42,7 @@ object GhostDustDatagen extends Logging {
         .shapelessRecipe(GHOSTDUST_ITEM.get, 2)
         .addIngredientAsCriterion("gunpowder", Items.GUNPOWDER)
         .addIngredientAsCriterion("white_dye", Items.WHITE_DYE)
-        .addIngredientAsCriterion("bowl_of_salt", BowlWithContents.BOWL_OF_SALT.get)
+        .addIngredientAsCriterion("bowl_of_salt", BOWL_OF_SALT)
         .setGroup("ghost_dust")
         .buildProperly(consumer, "ghost_dust_from_white_dye")
 
@@ -50,7 +50,7 @@ object GhostDustDatagen extends Logging {
         .shapelessRecipe(GHOSTDUST_REMOVER_ITEM.get, 1)
         .addIngredientAsCriterion("gunpowder", Items.GUNPOWDER)
         .addIngredientAsCriterion("ink_sac", Items.INK_SAC)
-        .addIngredientAsCriterion("bowl_of_salt", BowlWithContents.BOWL_OF_SALT.get)
+        .addIngredientAsCriterion("bowl_of_salt", BOWL_OF_SALT)
         .setGroup("ghost_dust_remover")
         .buildProperly(consumer, "ghost_dust_remover_from_ink_sac")
 
@@ -58,7 +58,7 @@ object GhostDustDatagen extends Logging {
         .shapelessRecipe(GHOSTDUST_REMOVER_ITEM.get, 1)
         .addIngredientAsCriterion("gunpowder", Items.GUNPOWDER)
         .addIngredientAsCriterion("black_dye", Items.BLACK_DYE)
-        .addIngredientAsCriterion("bowl_of_salt", BowlWithContents.BOWL_OF_SALT.get)
+        .addIngredientAsCriterion("bowl_of_salt", BOWL_OF_SALT)
         .setGroup("ghost_dust_remover")
         .buildProperly(consumer, "ghost_dust_remover_from_black_dye")
 

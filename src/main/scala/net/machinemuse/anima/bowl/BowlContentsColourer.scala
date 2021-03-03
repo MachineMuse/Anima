@@ -4,9 +4,12 @@ package bowl
 import net.minecraft.client.renderer.color.IItemColor
 import net.minecraft.item.ItemStack
 import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.client.event.ColorHandlerEvent
+import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus
 
+import bowl.BowlWithContents.BOWL_WITH_CONTENTS
 import util.Logging
 
 /**
@@ -15,10 +18,13 @@ import util.Logging
 @EventBusSubscriber(modid = Anima.MODID, value = Array(Dist.CLIENT), bus = Bus.MOD)
 object BowlContentsColourer extends IItemColor with Logging {
 
+  @SubscribeEvent def onItemColorEvent(event: ColorHandlerEvent.Item) = {
+    event.getItemColors.register(BowlContentsColourer, BOWL_WITH_CONTENTS.get)
+  }
 
   override def getColor(stack : ItemStack, tintIndex : Int): Int = {
     if(tintIndex > 0) {
-      stack.getItem.mapAsOrElse[BowlWithContents, Int] (-1) { _.contentsColour }
+      BowlContents.getContents(stack).getColour
     } else {
       -1
     }

@@ -1,4 +1,5 @@
 {
+  "block.anima.bowl_placed": "Bol",
   "block.anima.campfireplus": "Feu de Camp Am\u00E9lior\u00E9",
   "block.anima.cat_statue": "Statue de Chat en Argile",
   "block.anima.clay_pot": "Pot en Argile",
@@ -9,8 +10,7 @@
   "item.anima.animalbones": "Os d'Animal",
   "item.anima.basket": "Panier",
   "item.anima.birdbones": "Os d'Oiseau",
-  "item.anima.bowl_of_salt": "Bol de Sel",
-  "item.anima.bowl_of_water": "Bol d'Eau",
+  "item.anima.bowl_with_contents": "Bol",
   "item.anima.campfire_ash": "Cendres de Feu de Camp",
   "item.anima.campfiredust": "Poussi\u00E8re pour Feu de Camp",
   "item.anima.debug_staff": "B\u00E2ton de D\u00E9bogage",

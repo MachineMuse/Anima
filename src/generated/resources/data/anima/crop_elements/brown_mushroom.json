@@ -1,0 +1,10 @@
+{
+  "block": "minecraft:brown_mushroom",
+  "consumes": [
+    "darkness"
+  ],
+  "infuses": [
+    "earth",
+    "air"
+  ]
+}

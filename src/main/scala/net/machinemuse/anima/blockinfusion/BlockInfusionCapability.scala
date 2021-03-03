@@ -5,7 +5,7 @@ import net.minecraft.block._
 import net.minecraft.tags.FluidTags
 import net.minecraft.util.math.{BlockPos, ChunkPos}
 import net.minecraft.world._
-import net.minecraft.world.chunk.Chunk
+import net.minecraft.world.chunk.{Chunk, ChunkSection}
 import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.common.capabilities.{Capability, CapabilityInject}
 import net.minecraftforge.event.AttachCapabilitiesEvent
@@ -19,7 +19,7 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters.IterableHasAsScala
 
 import blockinfusion.BlockInfusionCapability.BlockInfusionInterface
-import blockinfusion.BlockInfusionEvents.SoilElement
+import blockinfusion.BlockInfusionEvents.{ElementalBehaviour, SoilElement}
 import registration.RegistryHelpers.{mkCapabilityProviderWithSaveData, regCapWithStorage}
 import util.ChunkDataHandler.{WorldData, WorldLoadedChunkDataHandler}
 import util.GenCodecsByName._
@@ -32,20 +32,6 @@ import util.VanillaCodecs._
 object BlockInfusionCapability extends Logging {
 
   private val LOADED_CHUNK_REFS = new WorldLoadedChunkDataHandler[BlockInfusionInterface]
-
-  val INFUSABLE_BLOCKS = Set(
-    Blocks.DIRT,
-    Blocks.COARSE_DIRT,
-    Blocks.FARMLAND,
-    Blocks.WATER,
-    Blocks.LAVA,
-    Blocks.SAND,
-    Blocks.SOUL_SAND,
-    Blocks.CRIMSON_NYLIUM,
-    Blocks.WARPED_NYLIUM,
-    Blocks.MYCELIUM,
-    Blocks.PODZOL,
-    Blocks.GRASS_BLOCK)
 
   @SubscribeEvent def attachCapabilities(event: AttachCapabilitiesEvent[Chunk]) = {
     val newCap = new BlockInfusionCapability
@@ -67,25 +53,12 @@ object BlockInfusionCapability extends Logging {
   @SubscribeEvent def onWorldTick(event: WorldTickEvent): Unit = {
     event.world.onServer { world =>
       val profiler = world.getProfiler
-      profiler.startSection("Cleaning Chunk Refs")
-//      LOADED_CHUNK_REFS.clean(world)
-      profiler.endStartSection("Ticking elemental infusion")
+      profiler.startSection("Ticking elemental infusion")
       for {
         worldData <- LOADED_CHUNK_REFS.getData(world)
         (chunk, cap) <- worldData.iterator
       } {
-//        profiler.startSection("Generating chunks for random ticks")
-//        val nearbyChunkPositions = {
-//          for {
-//            ((x, z), _) <- ADJACENT_MAP
-//            nearbyPos = ChunkPos.asLong(chunk.getPos.x + x, chunk.getPos.z + z)
-//            (nearbyChunkRef, cap) <- worldData.contents.get(nearbyPos)
-//            nearbyChunk <- nearbyChunkRef.get
-//          } yield nearbyPos -> (nearbyChunk, cap)
-//        }
-//        profiler.endStartSection(s"Doing ${world.getGameRules.getInt(GameRules.RANDOM_TICK_SPEED)} random ticks")
         cap.randomTick(chunk, world, worldData)
-//        profiler.endSection()
       }
       profiler.endSection()
     }
@@ -95,20 +68,13 @@ object BlockInfusionCapability extends Logging {
 
   trait BlockInfusionInterface extends SavedData[BlockInfusionData] {
     def increaseElementAtPos(pos: BlockPos, elem: SoilElement.Value, increase: Int, max: Int): Int
-
     def decreaseElementAtPos(pos: BlockPos, elem: SoilElement.Value, decrease: Int, min: Int): Int
-
     def getDataForPos(pos: BlockPos): mutable.Map[SoilElement.Value, Int]
-
     def getElementAtPos(pos: BlockPos, elem: SoilElement.Value): Int
-
     def setDataForPos(pos: BlockPos, values: mutable.Map[SoilElement.Value, Int]): Unit
-
     def setElementAtPos(pos: BlockPos, elem: SoilElement.Value, value: Int): Unit
-
     def randomTick(chunk: Chunk, world: ServerWorld, cache: WorldData[BlockInfusionInterface]): Unit
-
-    def removeDataForPos(pos: BlockPos): Unit
+    def removeDataForPos(pos: BlockPos): Option[ElementalBehaviour] // Returns none
   }
 
   @CapabilityInject(classOf[BlockInfusionInterface])
@@ -136,7 +102,7 @@ class BlockInfusionCapability extends BlockInfusionInterface {
   override def getData: BlockInfusionData = blockData
 
   // returns the actual change in value after limiting by max (can be negative if max is lower than existing)
-  override def increaseElementAtPos(pos: BlockPos, elem: BlockInfusionEvents.SoilElement.Value, increase: Int, max: Int): Int = {
+  override def increaseElementAtPos(pos: BlockPos, elem: BlockInfusionEvents.SoilElement.Value, increase: Int, max: Int = Int.MaxValue): Int = {
     val prev = getElementAtPos(pos, elem)
     val next = Math.min(prev + increase, max)
     setElementAtPos(pos, elem, next)
@@ -144,7 +110,7 @@ class BlockInfusionCapability extends BlockInfusionInterface {
   }
 
   // returns the actual change in value after limiting by min (can be negative if min is higher than existing)
-  override def decreaseElementAtPos(pos: BlockPos, elem: BlockInfusionEvents.SoilElement.Value, decrease: Int, min: Int): Int = {
+  override def decreaseElementAtPos(pos: BlockPos, elem: BlockInfusionEvents.SoilElement.Value, decrease: Int, min: Int = 0): Int = {
     val prev = getElementAtPos(pos, elem)
     val next = Math.max(prev - decrease, min)
     setElementAtPos(pos, elem, next)
@@ -163,8 +129,10 @@ class BlockInfusionCapability extends BlockInfusionInterface {
     }
   }
 
-  override def removeDataForPos(pos: BlockPos): Unit = {
+  // Returns none
+  override def removeDataForPos(pos: BlockPos): Option[ElementalBehaviour] = {
     blockData.remove(pos)
+    none[ElementalBehaviour]
   }
 
   override def getElementAtPos(pos: BlockPos, elem: SoilElement.Value): Int = getDataForPos(pos).getOrElse(elem, 0)
@@ -190,17 +158,14 @@ class BlockInfusionCapability extends BlockInfusionInterface {
   }
 
 
-  implicit class BlockWithInteraction(blockState: BlockState) {
-    final def isInfuser: Boolean = {
+  implicit final class BlockWithInteraction(blockState: BlockState) {
+    def hasInfusionBehaviour: Boolean = {
       BlockInfusionEvents.BEHAVIOURS.contains(blockState.getBlock)
     }
-    final def isInfusable: Boolean = {
-      INFUSABLE_BLOCKS.contains(blockState.getBlock)
-    }
-    final def getInfusionBehaviour = {
+    def getInfusionBehaviour = {
       BlockInfusionEvents.BEHAVIOURS.get(blockState.getBlock)
     }
-    final def isValidToBeAbove: Boolean = {
+    def isValidToBeAbove: Boolean = {
       if(!blockState.isSolid)
         true
       else
@@ -209,71 +174,59 @@ class BlockInfusionCapability extends BlockInfusionInterface {
   }
 
   @tailrec
-  private def getBlocksBelowPlant(pos: BlockPos, world: IWorld): Iterable[BlockPos] = {
-    if(!world.getBlockState(pos.down()).isInfuser) {
-      BlockPos.getAllInBoxMutable(pos.add(-1, -1, -1), pos.add(1, -1, 1)).asScala
+  private def getBlocksAroundBaseOfPlant(pos: BlockPos, world: IWorld, radius: Int, depth: Int): Iterable[BlockPos] = {
+    if(!world.getBlockState(pos.down()).hasInfusionBehaviour) {
+      BlockPos.getAllInBoxMutable(pos.add(-radius, -depth, -radius), pos.add(radius, 0, radius)).asScala
     } else {
-      getBlocksBelowPlant(pos.down(), world)
+      getBlocksAroundBaseOfPlant(pos.down(), world, radius, depth)
     }
+  }
+
+  private def getRandomPositionAndState(originChunk: Chunk, section: ChunkSection, world: ServerWorld) = {
+    val xOrigin = originChunk.getPos.getXStart
+    val yOrigin = section.getYLocation
+    val zOrigin = originChunk.getPos.getZStart
+    val origin = world.getBlockRandomPos(xOrigin, yOrigin, zOrigin, 15)
+    val stateAtOrigin = section.getBlockState(origin.getX - xOrigin, origin.getY - yOrigin, origin.getZ - zOrigin)
+    (origin, stateAtOrigin)
   }
 
   override def randomTick(originChunk: Chunk, world : ServerWorld, worldData: WorldData[BlockInfusionInterface]): Unit = {
     for {section <- originChunk.getSections if section != Chunk.EMPTY_SECTION
-         i <- 0 until world.getGameRules.getInt(GameRules.RANDOM_TICK_SPEED)
+         _ <- 0 until world.getGameRules.getInt(GameRules.RANDOM_TICK_SPEED)
+         (origin, stateAtOrigin) = getRandomPositionAndState(originChunk, section, world)
+         allBehaviours <- stateAtOrigin.getInfusionBehaviour.orElse(removeDataForPos(origin))
          } {
-      val xOrigin = originChunk.getPos.getXStart
-      val yOrigin = section.getYLocation
-      val zOrigin = originChunk.getPos.getZStart
-      val origin = world.getBlockRandomPos(xOrigin, yOrigin, zOrigin, 15)
-      val blockAtOrigin = section.getBlockState(origin.getX - xOrigin, origin.getY - yOrigin, origin.getZ - zOrigin)
-      val behaviourAtOrigin = blockAtOrigin.getInfusionBehaviour
-      if(behaviourAtOrigin.isDefined) {
-        val behaviour = behaviourAtOrigin.get
-        for {consumes <- behaviour.consumes} {
-          val blocksUnder = for {
-            underBlockPos <- getBlocksBelowPlant(origin, world)
-            (chunk, cap) <- worldData.getOrCache(underBlockPos, originChunk, this)
-            underBlockState = chunk.getBlockState(underBlockPos) if underBlockState.isInfusable
-          } yield (underBlockPos, cap)
-          if(blocksUnder.nonEmpty) {
-            val (bestPos, bestCap) = blocksUnder.maxBy { case (pos, cap) => cap.getElementAtPos(pos, consumes) }
-            val bestValue = bestCap.getElementAtPos(bestPos, consumes)
-            if (bestValue > 0) {
-              bestCap.decreaseElementAtPos(bestPos, consumes, 1, 0)
-              increaseElementAtPos(origin, consumes, 1, 9)
-            }
+      // Infusions by self
+      for {
+        othPos <- getBlocksAroundBaseOfPlant(origin, world, 1, 0)
+        (othChunk, othCap) <- worldData.getOrCache(othPos, originChunk, this)
+        othBehaviour <- othChunk.getBlockState(othPos).getInfusionBehaviour
+      } {
+        for(infuses <- allBehaviours.infuses) {
+          othCap.increaseElementAtPos(othPos, infuses, 1, 9)
+        }
+        for(consumes <- allBehaviours.consumes) {
+          if(this.getElementAtPos(origin, consumes) < 9) {
+            val consumed = othCap.decreaseElementAtPos(othPos, consumes, 1, 0)
+            this.increaseElementAtPos(origin, consumes, consumed, 9)
           }
         }
-      } else if(blockAtOrigin.isInfusable && originChunk.getBlockState(origin.up).isValidToBeAbove) {
-        for {
-          pos <- BlockPos.getAllInBoxMutable(origin.add(-1, 1, -1), origin.add(1, 1, 1)).asScala
-        } {
-          worldData.getOrCache(pos, originChunk, this).foreach { case (chunk, cap) =>
-            chunk.getBlockState(pos).getInfusionBehaviour.foreach(behaviour =>
-              behaviour.infuses.foreach(infuses =>
-                increaseElementAtPos(origin, infuses, 1, 3)
-              )
-            )
-          }
+      }
+      // Infusions by fluids
+      for {
+        fluidPos <- getBlocksAroundBaseOfPlant(origin, world, 4, 1)
+        (fluidChunk, fluidCap) <- worldData.getOrCache(fluidPos, originChunk, this)
+        checkState = fluidChunk.getFluidState(fluidPos) if !checkState.isEmpty
+      } {
+        if (checkState.isTagged(FluidTags.WATER)) {
+          this.increaseElementAtPos(origin, SoilElement.Water, 1, 9)
+        } else if (checkState.isTagged(FluidTags.LAVA)) {
+          this.increaseElementAtPos(origin, SoilElement.Fire, 1, 9)
         }
-        for (
-          pos <- BlockPos.getAllInBoxMutable(origin.add(-4, 0, -4), origin.add(4, 1, 4)).asScala
-        ) {
-          worldData.getOrCache(pos, originChunk, this).foreach { case (chunk, cap) =>
-            val checkState = chunk.getFluidState(pos)
-            if(checkState.isEmpty) {
-              // Nothing?
-            } else if(checkState.isTagged(FluidTags.WATER)) {
-              increaseElementAtPos(origin, SoilElement.Water, 1, 3)
-            } else if(checkState.isTagged(FluidTags.LAVA)) {
-              increaseElementAtPos(origin, SoilElement.Fire, 1, 3)
-            }
-          }
-        }
-      } else {
-        removeDataForPos(origin)
       }
     }
+
   }
 
 

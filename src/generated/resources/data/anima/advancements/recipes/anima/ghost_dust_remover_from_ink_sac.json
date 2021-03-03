@@ -31,7 +31,8 @@
       "conditions": {
         "items": [
           {
-            "item": "anima:bowl_of_salt"
+            "item": "anima:bowl_with_contents",
+            "nbt": "{contents:{block:\"anima:salt_line\",type:\"BlockContents\"}}"
           }
         ]
       }

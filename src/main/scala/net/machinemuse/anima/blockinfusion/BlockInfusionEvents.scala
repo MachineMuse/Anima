@@ -8,10 +8,7 @@ import net.minecraft.client.resources.JsonReloadListener
 import net.minecraft.profiler.IProfiler
 import net.minecraft.resources.IResourceManager
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.IWorld
 import net.minecraft.world.chunk.Chunk
-import net.minecraftforge.common.IPlantable
 import net.minecraftforge.event.AddReloadListenerEvent
 import net.minecraftforge.event.world.BlockEvent.CropGrowEvent
 import net.minecraftforge.eventbus.api.Event.Result
@@ -24,7 +21,6 @@ import util.GenCodecsByName._
 import util.Logging
 import util.VanillaCodecs._
 import java.util
-import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.language.implicitConversions
 import scala.util.Random
@@ -80,18 +76,6 @@ object BlockInfusionEvents extends Logging {
       } else if (Random.nextDouble() < failedConsumptions.toDouble / consumptions.size.toDouble) {
         event.setResult(Result.DENY)
       }
-    }
-  }
-
-  @tailrec
-  private def getBlocksBelowPlant(pos: BlockPos, world: IWorld): Seq[BlockPos] = {
-    if(!world.getBlockState(pos.down()).getBlock.isInstanceOf[IPlantable]) {
-      for {
-        x <- Seq(0, -1, 1)
-        z <- Seq(0, -1, 1)
-      } yield pos.add(x, -1, z)
-    } else {
-      getBlocksBelowPlant(pos.down(), world)
     }
   }
 
