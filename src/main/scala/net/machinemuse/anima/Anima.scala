@@ -1,5 +1,6 @@
 package net.machinemuse.anima
 
+import net.minecraftforge.common.ForgeMod
 import net.minecraftforge.fml.common.Mod
 
 /**
@@ -10,7 +11,7 @@ object Anima {
 }
 @Mod(Anima.MODID)
 class Anima {
-
+  ForgeMod.enableMilkFluid()
 //  FMLJavaModLoadingContext.get.getModEventBus.addListener(respondToModEvents)
 //  def respondToModEvents(event: ModLifecycleEvent) = {
 //    LOGGER.info("Got mod event: " + event)

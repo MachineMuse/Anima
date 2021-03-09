@@ -71,7 +71,7 @@ object BowlWithContents extends Logging {
     }
   }
 
-  final private val properties = new Item.Properties().maxStackSize(16).group(SimpleItems.AnimaCreativeGroup).containerItem(Items.BOWL)
+  final private val properties = new Item.Properties().maxStackSize(16).group(SimpleItems.AnimaCreativeGroup).containerItem(Items.BOWL).setISTER(() => BowlRenderers.mkISTER)
   final val BOWL_WITH_CONTENTS = regExtendedItem("bowl_with_contents", () => new BowlWithContents(properties))
   lazy val BOWL_OF_WATER = BowlContents.mkBowlWith(Fluids.WATER)
   lazy val BOWL_OF_SALT = BowlContents.mkBowlWith(SaltLine.SALT_LINE_BLOCK.get)
@@ -155,8 +155,18 @@ object BowlWithContents extends Logging {
             ActionResultType.PASS
           case BowlContents.FluidContents(fluid) =>
             val bcontext = new BlockItemUseContext(context)
-            val blockstate = fluid.getDefaultState.getBlockState.updated(FlowingFluidBlock.LEVEL, 2)
-            tryPlace(bcontext, blockstate)
+
+            val blockstate = fluid.getDefaultState.getBlockState
+            tryPlace(bcontext, blockstate).andDo {
+              case ActionResultType.SUCCESS =>
+                val newBlockState = context.getWorld.getBlockState(context.getPos)
+                if(newBlockState.hasProperty(FlowingFluidBlock.LEVEL)) {
+                  context.getWorld.setBlockState(context.getPos, newBlockState.updated(FlowingFluidBlock.LEVEL, 2))
+                }
+              case ActionResultType.CONSUME =>
+              case ActionResultType.PASS =>
+              case ActionResultType.FAIL =>
+            }
           case BowlContents.ItemContents(itemStack) =>
             ActionResultType.PASS
           case BowlContents.BlockContents(block) =>
